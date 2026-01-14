@@ -34,6 +34,16 @@ public class ChessPosition {
         return this.col;
     }
 
+    /**
+     * @return true if this position is in-bounds on the chess board.
+     */
+    public boolean inBounds() {
+        return this.row >= 1
+                && this.row <= 8
+                && this.col >= 1
+                && this.col <= 8;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
