@@ -4,6 +4,13 @@ import java.util.Collection;
 import java.util.Vector;
 
 /**
+ * Special container for row/column deltas. See ChessPiece.calculateFullBoardMoveDeltas
+ * @param rowDeltas
+ * @param colDeltas
+ */
+record RowColumnDeltas(int[] rowDeltas, int[] colDeltas) {}
+
+/**
  * Represents a single chess piece
  * <p>
  * Note: You can add to this class, but you may not alter
@@ -46,6 +53,29 @@ public class ChessPiece {
     }
 
     /**
+     * Helper method for calculating potential moves for queens, rooks, and bishops
+     * since they can move up to 7 spaces.
+     * @param origRowDeltas row deltas to dilate
+     * @param origColDeltas col deltas to dilate
+     * @return a special pair record containing the modified row/column deltas
+     */
+    private static RowColumnDeltas calculateFullBoardMoveDeltas(int[] origRowDeltas, int[] origColDeltas) {
+        assert origRowDeltas.length == origColDeltas.length;
+
+        var rowDeltas = new int[origRowDeltas.length * 7];
+        var colDeltas = new int[origColDeltas.length * 7];
+
+        for (int multiplier = 1; multiplier < 8; multiplier++) {
+            for (int i = 0; i < origRowDeltas.length; i++) {
+                rowDeltas[i + origRowDeltas.length * (multiplier - 1)] = origRowDeltas[i] * multiplier;
+                colDeltas[i + origColDeltas.length * (multiplier - 1)] = origColDeltas[i] * multiplier;
+            }
+        }
+
+        return new RowColumnDeltas(rowDeltas, colDeltas);
+    }
+
+    /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
      * danger
@@ -62,6 +92,7 @@ public class ChessPiece {
 
         //
         int[] rowDeltas, colDeltas;
+        RowColumnDeltas rowColDeltas;
 
         switch(this.type) {
             case KING:
@@ -76,17 +107,9 @@ public class ChessPiece {
 
                 // Queens can go up to 7 in any direction. Use the row/colDeltas made for the king as a basis,
                 // then multiply them by up to 7.
-                var kingRowDeltas = rowDeltas;
-                var kingColDeltas = colDeltas;
-                rowDeltas = new int[kingRowDeltas.length * 7];
-                colDeltas = new int[kingColDeltas.length * 7];
-
-                for (int multiplier = 1; multiplier < 8; multiplier++) {
-                    for (int i = 0; i < kingRowDeltas.length; i++) {
-                        rowDeltas[i + kingRowDeltas.length * (multiplier - 1)] = kingRowDeltas[i] * multiplier;
-                        colDeltas[i + kingColDeltas.length * (multiplier - 1)] = kingColDeltas[i] * multiplier;
-                    }
-                }
+                rowColDeltas = calculateFullBoardMoveDeltas(rowDeltas, colDeltas);
+                rowDeltas = rowColDeltas.rowDeltas();
+                colDeltas = rowColDeltas.colDeltas();
                 break;
             case KNIGHT:
                 rowDeltas = new int[]{2, 1, -1, -2, -2, -1, 1, 2};
@@ -95,6 +118,24 @@ public class ChessPiece {
             case PAWN:
                 rowDeltas = new int[]{1, 2};
                 colDeltas = new int[]{0, 0};
+                break;
+            case ROOK:
+                // Rooks can move in one direction up to 7 spaces.
+                rowDeltas = new int[]{1, 0, -1, 0};
+                colDeltas = new int[]{0, 1, 0, -1};
+
+                rowColDeltas = calculateFullBoardMoveDeltas(rowDeltas, colDeltas);
+                rowDeltas = rowColDeltas.rowDeltas();
+                colDeltas = rowColDeltas.colDeltas();
+                break;
+            case BISHOP:
+                // Bishops can diagonally up to 7 spaces.
+                rowDeltas = new int[]{1, -1, -1, 1};
+                colDeltas = new int[]{1, 1, -1, -1};
+
+                rowColDeltas = calculateFullBoardMoveDeltas(rowDeltas, colDeltas);
+                rowDeltas = rowColDeltas.rowDeltas();
+                colDeltas = rowColDeltas.colDeltas();
                 break;
             default:
                 throw new RuntimeException("Not implemented");
