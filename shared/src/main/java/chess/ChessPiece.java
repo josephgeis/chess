@@ -116,6 +116,7 @@ public class ChessPiece {
                 colDeltas = new int[]{1, 2, 2, 1, -1, -2, -2, -1};
                 break;
             case PAWN:
+                // FIXME: implement special capturing rules
                 rowDeltas = new int[]{1, 2};
                 colDeltas = new int[]{0, 0};
                 break;
@@ -142,9 +143,15 @@ public class ChessPiece {
         }
 
         ChessPosition newPosition;
+        ChessPiece pieceAtPosition;
+
         for (int i = 0; i < rowDeltas.length; i++) {
             newPosition = new ChessPosition(myRow + rowDeltas[i], myCol + colDeltas[i]);
-            if (newPosition.inBounds()) {
+            pieceAtPosition = board.getPiece(newPosition);
+            // Check if move is valid:
+            // 1. newPosition is in bounds
+            // 2. no piece in newPosition, or the piece there is an opposing piece.
+            if (newPosition.inBounds() && (pieceAtPosition == null || pieceAtPosition.pieceColor != this.pieceColor)) {
                 moves.add(new ChessMove(myPosition, newPosition, null));
             }
         }
