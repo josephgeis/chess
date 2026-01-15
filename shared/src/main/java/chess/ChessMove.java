@@ -21,13 +21,6 @@ public class ChessMove {
         this.promotionPiece = promotionPiece;
     }
 
-    public ChessMove(ChessPosition startPosition, int rowDelta, int colDelta, ChessPiece.PieceType promotionPiece) {
-        this(startPosition,
-                new ChessPosition(startPosition.getRow() + rowDelta,
-                        startPosition.getColumn() + colDelta),
-                promotionPiece);
-    }
-
     /**
      * @return ChessPosition of starting location
      */
