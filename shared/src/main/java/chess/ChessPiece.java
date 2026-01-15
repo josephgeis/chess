@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Vector;
 
 /**
@@ -35,7 +36,20 @@ public class ChessPiece {
         BISHOP,
         KNIGHT,
         ROOK,
-        PAWN
+        PAWN;
+
+        @Override
+        public String toString() {
+            switch (this) {
+                case KING: return "K";
+                case QUEEN: return "Q";
+                case BISHOP: return "B";
+                case KNIGHT: return "N";
+                case ROOK: return "R";
+                case PAWN: return "P";
+                default: throw new RuntimeException("PieceType toString failed.");
+            }
+        }
     }
 
     /**
@@ -159,5 +173,19 @@ public class ChessPiece {
         }
 
         return moves;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
     }
 }

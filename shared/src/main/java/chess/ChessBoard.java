@@ -1,5 +1,8 @@
 package chess;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 /**
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
@@ -44,8 +47,97 @@ public class ChessBoard {
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
+     *
+     * Black is on top, white on bottom.
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        // Add the pawns in (that's the easy step.)
+        for (int col = 1; col <= 8; col++) {
+            addPiece(
+                    new ChessPosition(7, col),
+                    new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN)
+            );
+
+            addPiece(
+                    new ChessPosition(2, col),
+                    new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN)
+            );
+        }
+
+        for (int row = 1; row <= 8; row += 7) {
+            final var teamColor = row == 1 ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+
+            for (int col = 1; col <= 8; col++) {
+                final ChessPiece.PieceType pieceType;
+                switch (col) {
+                    case 1:
+                    case 8:
+                        pieceType = ChessPiece.PieceType.ROOK;
+                        break;
+                    case 2:
+                    case 7:
+                        pieceType = ChessPiece.PieceType.KNIGHT;
+                        break;
+                    case 3:
+                    case 6:
+                        pieceType = ChessPiece.PieceType.BISHOP;
+                        break;
+                    case 4:
+                        pieceType = ChessPiece.PieceType.QUEEN;
+                        break;
+                    case 5:
+                        pieceType = ChessPiece.PieceType.KING;
+                        break;
+                    default:
+                        throw new IndexOutOfBoundsException("Exceeded the width of the board.");
+                }
+
+                addPiece(
+                        new ChessPosition(row, col),
+                        new ChessPiece(teamColor, pieceType)
+                );
+            }
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessBoard that = (ChessBoard) o;
+        return Objects.deepEquals(pieces, that.pieces);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.deepHashCode(pieces);
+    }
+
+    @Override
+    public String toString() {
+        var string = new StringBuilder();
+
+        ChessPiece piece;
+        ChessPiece.PieceType pieceType;
+
+        for (int r = 1; r <= 8; r++) {
+            for (int c = 1; c <= 8; c++) {
+                piece = getPiece(new ChessPosition(r, c));
+                if (piece != null) {
+                    pieceType = piece.getPieceType();
+
+                    string.append("|"
+                            + (piece.getTeamColor() == ChessGame.TeamColor.WHITE ?
+                            pieceType.toString().toUpperCase() : pieceType.toString().toLowerCase()));
+                } else {
+                    string.append("| ");
+                }
+            }
+
+            string.append("|\n");
+        }
+
+        return string.toString();
     }
 }
