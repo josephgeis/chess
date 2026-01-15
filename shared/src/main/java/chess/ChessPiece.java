@@ -99,6 +99,7 @@ public class ChessPiece {
             case QUEEN:
                 // Kings can move 1 square in any direction.
                 // Borrowing this as a template for queens.
+                // FIXME: I forgot queens can't jump. Not as straightforward.
                 rowDeltas = new int[]{1, 1, 0, -1, -1, -1, 0, 1};
                 colDeltas = new int[]{0, 1, 1,  1,  0, -1, -1, -1};
 
@@ -147,13 +148,14 @@ public class ChessPiece {
 
         for (int i = 0; i < rowDeltas.length; i++) {
             newPosition = new ChessPosition(myRow + rowDeltas[i], myCol + colDeltas[i]);
-            pieceAtPosition = board.getPiece(newPosition);
             // Check if move is valid:
-            // 1. newPosition is in bounds
+            // 1. newPosition is in bounds (if not, skip immediately; don't get piece there)
+            if (!newPosition.inBounds()) continue;
+
             // 2. no piece in newPosition, or the piece there is an opposing piece.
-            if (newPosition.inBounds() && (pieceAtPosition == null || pieceAtPosition.pieceColor != this.pieceColor)) {
+            pieceAtPosition = board.getPiece(newPosition);
+            if (pieceAtPosition == null || pieceAtPosition.pieceColor != this.pieceColor)
                 moves.add(new ChessMove(myPosition, newPosition, null));
-            }
         }
 
         return moves;
