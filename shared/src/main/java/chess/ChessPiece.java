@@ -83,6 +83,9 @@ public class ChessPiece {
             case BISHOP:
                 moveCalculator = new BishopMoveCalculator(this, myPosition, board);
                 break;
+            case ROOK:
+                moveCalculator = new RookMoveCalculator(this, myPosition, board);
+                break;
             default:
                 throw new RuntimeException("Not implemented");
         }
