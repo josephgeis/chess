@@ -34,15 +34,14 @@ public class ChessPiece {
 
         @Override
         public String toString() {
-            switch (this) {
-                case KING: return "K";
-                case QUEEN: return "Q";
-                case BISHOP: return "B";
-                case KNIGHT: return "N";
-                case ROOK: return "R";
-                case PAWN: return "P";
-                default: throw new RuntimeException("PieceType toString failed.");
-            }
+            return switch (this) {
+                case KING -> "K";
+                case QUEEN -> "Q";
+                case BISHOP -> "B";
+                case KNIGHT -> "N";
+                case ROOK -> "R";
+                case PAWN -> "P";
+            };
         }
     }
 
@@ -69,29 +68,14 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
 
-        MoveCalculator moveCalculator = null;
-        switch(this.type) {
-            case KING:
-                moveCalculator = new KingMoveCalculator(this, myPosition, board);
-                break;
-            case KNIGHT:
-                moveCalculator = new KnightMoveCalculator(this, myPosition, board);
-                break;
-            case QUEEN:
-                moveCalculator = new QueenMoveCalculator(this, myPosition, board);
-                break;
-            case BISHOP:
-                moveCalculator = new BishopMoveCalculator(this, myPosition, board);
-                break;
-            case ROOK:
-                moveCalculator = new RookMoveCalculator(this, myPosition, board);
-                break;
-            case PAWN:
-                moveCalculator = new PawnMoveCalculator(this, myPosition, board);
-                break;
-            default:
-                throw new RuntimeException("Not implemented");
-        }
+        MoveCalculator moveCalculator = switch(this.type) {
+            case KING -> new KingMoveCalculator(this, myPosition, board);
+            case KNIGHT -> new KnightMoveCalculator(this, myPosition, board);
+            case QUEEN -> new QueenMoveCalculator(this, myPosition, board);
+            case BISHOP -> new BishopMoveCalculator(this, myPosition, board);
+            case ROOK -> new RookMoveCalculator(this, myPosition, board);
+            case PAWN -> new PawnMoveCalculator(this, myPosition, board);
+        };
 
         return moveCalculator.calculateMoves();
     }
