@@ -13,9 +13,9 @@ import java.util.Vector;
  */
 public abstract class MoveCalculator {
 
-    private ChessPiece piece;
-    private ChessPosition startPosition;
-    private final ChessBoard board;
+    ChessPiece piece;
+    ChessPosition startPosition;
+    final ChessBoard board;
     MoveDelta [] directions;
 
     public MoveCalculator(ChessPiece piece, ChessPosition startPosition, ChessBoard board) {
