@@ -1,9 +1,6 @@
 package chess;
 
-import chess.movement.KingMoveCalculator;
-import chess.movement.KnightMoveCalculator;
-import chess.movement.MoveCalculator;
-import chess.movement.QueenMoveCalculator;
+import chess.movement.*;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -82,6 +79,9 @@ public class ChessPiece {
                 break;
             case QUEEN:
                 moveCalculator = new QueenMoveCalculator(this, myPosition, board);
+                break;
+            case BISHOP:
+                moveCalculator = new BishopMoveCalculator(this, myPosition, board);
                 break;
             default:
                 throw new RuntimeException("Not implemented");
