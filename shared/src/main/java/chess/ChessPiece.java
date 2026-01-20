@@ -1,9 +1,6 @@
 package chess;
 
-import chess.movecalculator.KingMoveCalculator;
-import chess.movecalculator.KnightMoveCalculator;
-import chess.movecalculator.MoveCalculator;
-import chess.movecalculator.QueenMoveCalculator;
+import chess.movecalculator.*;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -62,6 +59,7 @@ public class ChessPiece {
             case KING -> new KingMoveCalculator();
             case KNIGHT -> new KnightMoveCalculator();
             case QUEEN -> new QueenMoveCalculator();
+            case ROOK -> new RookMoveCalculator();
             default -> throw new RuntimeException("Not implemented");
         };
 
