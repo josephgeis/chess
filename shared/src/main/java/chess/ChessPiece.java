@@ -1,5 +1,9 @@
 package chess;
 
+import chess.movecalculator.KingMoveCalculator;
+import chess.movecalculator.KnightMoveCalculator;
+import chess.movecalculator.MoveCalculator;
+
 import java.util.Collection;
 import java.util.Objects;
 
@@ -53,7 +57,13 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        MoveCalculator moveCalculator = switch (pieceType) {
+            case KING -> new KingMoveCalculator();
+            case KNIGHT -> new KnightMoveCalculator();
+            default -> throw new RuntimeException("Not implemented");
+        };
+
+        return moveCalculator.calculateMoves(this, board, myPosition);
     }
 
     @Override
