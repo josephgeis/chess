@@ -20,7 +20,7 @@ public abstract class MoveCalculator {
         int row, col;
 
         for (MoveVector direction : directions) {
-            endPosition = direction.moveTo(startPosition);
+            endPosition = direction.applyTo(startPosition);
             row = endPosition.getRow();
             col = endPosition.getColumn();
 
