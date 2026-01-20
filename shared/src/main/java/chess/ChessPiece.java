@@ -61,6 +61,7 @@ public class ChessPiece {
             case QUEEN -> new QueenMoveCalculator();
             case ROOK -> new RookMoveCalculator();
             case BISHOP -> new BishopMoveCalculator();
+            case PAWN -> new PawnMoveCalculator();
             default -> throw new RuntimeException("Not implemented");
         };
 
