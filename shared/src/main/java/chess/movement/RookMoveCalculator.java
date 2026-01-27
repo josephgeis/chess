@@ -4,7 +4,7 @@ import chess.ChessBoard;
 import chess.ChessPiece;
 import chess.ChessPosition;
 
-public class RookMoveCalculator extends RadiatingMoveCalculator {
+public class RookMoveCalculator extends QueenMoveCalculator {
     public RookMoveCalculator(ChessPiece piece, ChessPosition startPosition, ChessBoard board) {
         super(piece, startPosition, board);
         this.directions = new MoveDelta[]{

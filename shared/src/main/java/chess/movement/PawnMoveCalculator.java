@@ -7,89 +7,98 @@ import chess.ChessPosition;
 
 import java.util.Collection;
 import java.util.Vector;
-import java.util.function.Predicate;
-
-import static chess.ChessGame.TeamColor.BLACK;
-import static chess.ChessGame.TeamColor.WHITE;
-import static chess.ChessPiece.PieceType.*;
 
 public class PawnMoveCalculator extends MoveCalculator {
-    private static final ChessPiece.PieceType[] promotionPieces = { QUEEN, KNIGHT, BISHOP, ROOK };
 
     public PawnMoveCalculator(ChessPiece piece, ChessPosition startPosition, ChessBoard board) {
         super(piece, startPosition, board);
     }
 
-    private void addPromotionMoves(ChessPosition endPosition, Collection<ChessMove> moves) {
-        for (ChessPiece.PieceType promotionPiece : promotionPieces)
-            moves.add(new ChessMove(startPosition, endPosition, promotionPiece));
+    static ChessPiece.PieceType[] promotionTypes = {
+            ChessPiece.PieceType.ROOK,
+            ChessPiece.PieceType.KNIGHT,
+            ChessPiece.PieceType.BISHOP,
+            ChessPiece.PieceType.QUEEN
+    };
+
+    public Collection<ChessMove> doPromotions(ChessMove move) {
+        var moves = new Vector<ChessMove>(4);
+
+        for (ChessPiece.PieceType pieceType : promotionTypes) {
+            moves.add(new ChessMove(move.getStartPosition(), move.getEndPosition(), pieceType));
+        }
+
+        return moves;
     }
 
     @Override
     public Collection<ChessMove> calculateMoves() {
         var moves = new Vector<ChessMove>();
-        var teamColor = piece.getTeamColor();
-        var startRow = startPosition.getRow();
-        var isFirstMove = (teamColor == WHITE && startRow == 2) || (teamColor == BLACK && startRow == 7);
-        final Predicate<Integer> willPromote = row -> row == switch (teamColor) {
-            case WHITE -> 8;
-            case BLACK -> 1;
-        };
 
-        var advanceSingleDelta = switch (teamColor) {
-            case WHITE -> new MoveDelta(1, 0);
-            case BLACK -> new MoveDelta(-1, 0);
-        };
-        var advanceSinglePosition = advanceSingleDelta.addTo(startPosition);
+        int firstRow, lastRow, directionFactor;
 
-        var advanceDoubleDelta = switch (teamColor) {
-            case WHITE -> new MoveDelta(2, 0);
-            case BLACK -> new MoveDelta(-2, 0);
-        };
-        var advanceDoublePosition = advanceDoubleDelta.addTo(startPosition);
+        switch (piece.getTeamColor()) {
+            case WHITE:
+                firstRow = 2;
+                lastRow = 8;
+                directionFactor = 1;
+                break;
+            case BLACK:
+                firstRow = 7;
+                lastRow = 1;
+                directionFactor = -1;
+                break;
+            default: throw new RuntimeException("Error in the PawnMoveCalculator");
+        }
 
-        var captureLeftDelta = switch (teamColor) {
-            case WHITE -> new MoveDelta(1, -1);
-            case BLACK -> new MoveDelta(-1, -1);
-        };
-        var captureLeftPosition = captureLeftDelta.addTo(startPosition);
+        var advanceDelta = new MoveDelta(1, 0);
 
-        var captureRightDelta = switch(teamColor) {
-            case WHITE -> new MoveDelta(1, 1);
-            case BLACK -> new MoveDelta(-1, 1);
-        };
-        var captureRightPosition = captureRightDelta.addTo(startPosition);
+        var singleAdvancePosition = advanceDelta.addTo(startPosition, directionFactor);
+        var doubleAdvancePosition = advanceDelta.addTo(startPosition, 2 * directionFactor);
 
-        if (advanceSinglePosition.inBounds() && board.getPiece(advanceSinglePosition) == null) {
-            if (willPromote.test(advanceSinglePosition.getRow()))
-                addPromotionMoves(advanceSinglePosition, moves);
-            else
-                moves.add(new ChessMove(startPosition, advanceSinglePosition, null));
+        if (singleAdvancePosition.inBounds()) {
+            var otherPiece = board.getPiece(singleAdvancePosition);
 
-            if (isFirstMove && advanceDoublePosition.inBounds() && board.getPiece(advanceDoublePosition) == null) {
-                moves.add(new ChessMove(startPosition, advanceDoublePosition, null));
+            if (otherPiece == null) {
+                var move = new ChessMove(startPosition, singleAdvancePosition, null);
+
+                if (singleAdvancePosition.getRow() == lastRow)
+                    moves.addAll(doPromotions(move));
+                else {
+                    moves.add(move);
+
+                    if (startPosition.getRow() == firstRow) {
+                        otherPiece = board.getPiece(doubleAdvancePosition);
+
+                        if (otherPiece == null)
+                            moves.add(new ChessMove(startPosition, doubleAdvancePosition, null));
+                    }
+                }
             }
         }
 
-        ChessPiece otherPiece;
+        final var captureLeftDelta = new MoveDelta(1, -1);
+        final var captureRightDelta = new MoveDelta(1, 1);
 
-        if (captureLeftPosition.inBounds()) {
-            otherPiece = board.getPiece(captureLeftPosition);
-            if (otherPiece != null && otherPiece.getTeamColor() != teamColor) {
-                if (willPromote.test(captureLeftPosition.getRow()))
-                    addPromotionMoves(captureLeftPosition, moves);
-                else
-                    moves.add(new ChessMove(startPosition, captureLeftPosition, null));
-            }
-        }
+        final var captureDeltas = new MoveDelta[] {
+                captureLeftDelta,
+                captureRightDelta
+        };
 
-        if (captureRightPosition.inBounds()) {
-            otherPiece = board.getPiece(captureRightPosition);
-            if (otherPiece != null && otherPiece.getTeamColor() != teamColor) {
-                if (willPromote.test(captureRightPosition.getRow()))
-                    addPromotionMoves(captureRightPosition, moves);
-                else
-                    moves.add(new ChessMove(startPosition, captureRightPosition, null));
+        for (MoveDelta captureDelta : captureDeltas) {
+            var capturePosition = captureDelta.addTo(startPosition, directionFactor);
+
+            if (capturePosition.inBounds()) {
+                var otherPiece = board.getPiece(capturePosition);
+
+                if (otherPiece != null && otherPiece.getTeamColor() != piece.getTeamColor()) {
+                    var move = new ChessMove(startPosition, capturePosition, null);
+                    if (capturePosition.getRow() == lastRow) {
+                        moves.addAll(doPromotions(move));
+                    } else {
+                        moves.add(move);
+                    }
+                }
             }
         }
 

@@ -4,7 +4,7 @@ import chess.ChessBoard;
 import chess.ChessPiece;
 import chess.ChessPosition;
 
-public class BishopMoveCalculator extends RadiatingMoveCalculator {
+public class BishopMoveCalculator extends QueenMoveCalculator {
     public BishopMoveCalculator(ChessPiece piece, ChessPosition startPosition, ChessBoard board) {
         super(piece, startPosition, board);
         this.directions = new MoveDelta[]{
