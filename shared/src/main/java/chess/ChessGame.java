@@ -45,7 +45,14 @@ public class ChessGame implements Cloneable {
      */
     public enum TeamColor {
         WHITE,
-        BLACK
+        BLACK;
+
+        public TeamColor otherTeam() {
+            return switch (this) {
+                case WHITE -> BLACK;
+                case BLACK -> WHITE;
+            };
+        }
     }
 
     /**
@@ -60,7 +67,7 @@ public class ChessGame implements Cloneable {
         if (piece == null)
             return null;
 
-        final var enemyTeam = piece.getTeamColor() == TeamColor.BLACK ? TeamColor.WHITE : TeamColor.BLACK;
+        final var enemyTeam = piece.getTeamColor().otherTeam();
 
         var pieceMoves = piece.pieceMoves(board, startPosition);
         var validMoves = new ArrayList<ChessMove>();
@@ -127,7 +134,7 @@ public class ChessGame implements Cloneable {
         }
         this.board.addPiece(startPosition, null);
 
-        setTeamTurn(currentTeamTurn == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
+        setTeamTurn(currentTeamTurn.otherTeam());
     }
 
     /**
@@ -139,7 +146,7 @@ public class ChessGame implements Cloneable {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        final var otherTeam = teamColor == TeamColor.BLACK ? TeamColor.WHITE : TeamColor.BLACK;
+        final var otherTeam = teamColor.otherTeam();
 
         var pieceFinder = new ChessPieceFinder(board);
         var king = pieceFinder.findPieces(teamColor, ChessPiece.PieceType.KING).first();
