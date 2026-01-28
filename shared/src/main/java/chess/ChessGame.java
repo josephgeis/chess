@@ -12,7 +12,7 @@ import java.util.Objects;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessGame {
+public class ChessGame implements Cloneable {
 
     TeamColor currentTeamTurn;
     ChessBoard board;
@@ -82,17 +82,28 @@ public class ChessGame {
         if (piece.getTeamColor() != currentTeamTurn)
             throw new InvalidMoveException("The piece at the specified starting location cannot be moved out of turn");
 
+
+        // Make a "test" game to make sure I don't mutate the actual game state.
+        var gameClone = this.clone();
+
         final var finalPosition = move.getEndPosition();
         final var promotionPieceType = move.getPromotionPiece();
         if (promotionPieceType != null) {
-            board.addPiece(
+            gameClone.board.addPiece(
                     finalPosition,
                     new ChessPiece(piece.getTeamColor(), promotionPieceType)
             );
         } else {
-            board.addPiece(finalPosition, piece);
+            gameClone.board.addPiece(finalPosition, piece);
         }
-        board.addPiece(startPosition, null);
+        gameClone.board.addPiece(startPosition, null);
+
+        // If it makes the "test" game go into check for this team, it doesn't work.
+        // Otherwise, update the actual board.
+        if (gameClone.isInCheck(piece.getTeamColor()))
+            throw new InvalidMoveException("Cannot move into check.");
+        else
+            setBoard(gameClone.board);
 
         setTeamTurn(currentTeamTurn == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
     }
@@ -178,5 +189,16 @@ public class ChessGame {
     @Override
     public int hashCode() {
         return Objects.hash(currentTeamTurn, board);
+    }
+
+    @Override
+    public ChessGame clone() {
+        try {
+            ChessGame clone = (ChessGame) super.clone();
+            clone.board = board.clone();
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }
