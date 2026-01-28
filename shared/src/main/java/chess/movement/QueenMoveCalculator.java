@@ -5,8 +5,8 @@ import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Vector;
 
 /**
  * MoveCalculator abstract class for rooks, queens, and bishops.
@@ -19,7 +19,7 @@ public class QueenMoveCalculator extends KingMoveCalculator {
     }
 
     public Collection<ChessMove> calculateMoves() {
-        var validMoves = new Vector<ChessMove>();
+        var validMoves = new ArrayList<ChessMove>();
 
         ChessPosition endPosition;
         ChessPiece pieceAtPosition;

@@ -6,7 +6,7 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 
 import java.util.Collection;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * Used to
@@ -25,7 +25,7 @@ public abstract class MoveCalculator {
     }
 
     public Collection<ChessMove> calculateMoves() {
-        var validMoves = new Vector<ChessMove>();
+        var validMoves = new ArrayList<ChessMove>();
 
         ChessPosition endPosition;
         ChessPiece pieceAtPosition;

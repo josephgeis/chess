@@ -5,8 +5,8 @@ import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Vector;
 
 public class PawnMoveCalculator extends MoveCalculator {
 
@@ -22,7 +22,7 @@ public class PawnMoveCalculator extends MoveCalculator {
     };
 
     public Collection<ChessMove> doPromotions(ChessMove move) {
-        var moves = new Vector<ChessMove>(4);
+        var moves = new ArrayList<ChessMove>(4);
 
         for (ChessPiece.PieceType pieceType : promotionTypes) {
             moves.add(new ChessMove(move.getStartPosition(), move.getEndPosition(), pieceType));
@@ -33,7 +33,7 @@ public class PawnMoveCalculator extends MoveCalculator {
 
     @Override
     public Collection<ChessMove> calculateMoves() {
-        var moves = new Vector<ChessMove>();
+        var moves = new ArrayList<ChessMove>();
 
         int firstRow, lastRow, directionFactor;
 
