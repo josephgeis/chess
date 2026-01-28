@@ -1,5 +1,8 @@
 package chess;
 
+import chess.piecefinder.ChessPieceFinder;
+import chess.piecefinder.ChessPositionPiece;
+
 import java.util.Collection;
 import java.util.Objects;
 
@@ -95,13 +98,33 @@ public class ChessGame {
     }
 
     /**
-     * Determines if the given team is in check
+     * Determines if the given team is in check.
+     *
+     * Mechanism: find king of current team, look up pieces of other team and all possible moves,
+     * find if there is one piece with one move that could capture the king.
      *
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        final var otherTeam = teamColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
+
+        var pieceFinder = new ChessPieceFinder(board);
+        var king = pieceFinder.findPieces(teamColor, ChessPiece.PieceType.KING).first();
+        var otherTeamPieces = pieceFinder.findPieces(otherTeam);
+
+        for (ChessPositionPiece positionPiece : otherTeamPieces) {
+            var position = positionPiece.position();
+            var piece = positionPiece.piece();
+
+            for (ChessMove move : piece.pieceMoves(board, position)) {
+                if (move.getEndPosition().equals(king.position())) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**

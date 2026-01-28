@@ -1,7 +1,6 @@
 package chess;
 
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -68,29 +67,14 @@ public class ChessBoard {
             final var teamColor = row == 1 ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
 
             for (int col = 1; col <= 8; col++) {
-                final ChessPiece.PieceType pieceType;
-                switch (col) {
-                    case 1:
-                    case 8:
-                        pieceType = ChessPiece.PieceType.ROOK;
-                        break;
-                    case 2:
-                    case 7:
-                        pieceType = ChessPiece.PieceType.KNIGHT;
-                        break;
-                    case 3:
-                    case 6:
-                        pieceType = ChessPiece.PieceType.BISHOP;
-                        break;
-                    case 4:
-                        pieceType = ChessPiece.PieceType.QUEEN;
-                        break;
-                    case 5:
-                        pieceType = ChessPiece.PieceType.KING;
-                        break;
-                    default:
-                        throw new IndexOutOfBoundsException("Exceeded the width of the board.");
-                }
+                final ChessPiece.PieceType pieceType = switch (col) {
+                    case 1, 8 -> ChessPiece.PieceType.ROOK;
+                    case 2, 7 -> ChessPiece.PieceType.KNIGHT;
+                    case 3, 6 -> ChessPiece.PieceType.BISHOP;
+                    case 4 -> ChessPiece.PieceType.QUEEN;
+                    case 5 -> ChessPiece.PieceType.KING;
+                    default -> throw new IndexOutOfBoundsException("Exceeded the width of the board.");
+                };
 
                 addPiece(
                         new ChessPosition(row, col),
@@ -127,9 +111,8 @@ public class ChessBoard {
                 if (piece != null) {
                     pieceType = piece.getPieceType();
 
-                    string.append("|"
-                            + (piece.getTeamColor() == ChessGame.TeamColor.WHITE ?
-                            pieceType.toString().toUpperCase() : pieceType.toString().toLowerCase()));
+                    string.append("|").append(piece.getTeamColor() == ChessGame.TeamColor.WHITE ?
+                            pieceType.toString().toUpperCase() : pieceType.toString().toLowerCase());
                 } else {
                     string.append("| ");
                 }
