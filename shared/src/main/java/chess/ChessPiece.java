@@ -93,4 +93,13 @@ public class ChessPiece {
     public int hashCode() {
         return Objects.hash(pieceColor, type);
     }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("ChessPiece{");
+        sb.append("type=").append(type);
+        sb.append(", pieceColor=").append(pieceColor);
+        sb.append('}');
+        return sb.toString();
+    }
 }

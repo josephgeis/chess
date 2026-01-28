@@ -160,7 +160,9 @@ public class ChessGame implements Cloneable {
 
                 try {
                     gameCopy.makeMove(move);
-                } catch (InvalidMoveException ignored) { }
+                } catch (InvalidMoveException ignored) {
+                    continue;
+                }
 
                 // Find one instance where there is a move and the game is not in check. That means the game is not in checkmate.
                 if (!gameCopy.isInCheck(teamColor)) return false;

@@ -129,6 +129,9 @@ public class ChessBoard implements Cloneable {
         try {
             ChessBoard clone = (ChessBoard) super.clone();
             clone.pieces = pieces.clone();
+            for (int i = 0; i < pieces.length; i++) {
+                clone.pieces[i] = pieces[i].clone();
+            }
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
