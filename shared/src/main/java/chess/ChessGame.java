@@ -145,7 +145,29 @@ public class ChessGame implements Cloneable {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (!isInCheck(teamColor)) return false;
+
+        var pieceFinder = new ChessPieceFinder(board);
+        var teamPieces = pieceFinder.findPieces(teamColor);
+
+        ChessGame gameCopy;
+
+        for (ChessPositionPiece piecePosition : teamPieces) {
+            var moves = piecePosition.piece().pieceMoves(board, piecePosition.position());
+
+            for (ChessMove move : moves) {
+                gameCopy = this.clone();
+
+                try {
+                    gameCopy.makeMove(move);
+                } catch (InvalidMoveException ignored) { }
+
+                // Find one instance where there is a move and the game is not in check. That means the game is not in checkmate.
+                if (!gameCopy.isInCheck(teamColor)) return false;
+            }
+        }
+
+        return true;
     }
 
     /**
