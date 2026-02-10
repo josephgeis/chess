@@ -3,9 +3,7 @@ package chess;
 import chess.piecefinder.ChessPieceFinder;
 import chess.piecefinder.ChessPositionPiece;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -55,6 +53,37 @@ public class ChessGame implements Cloneable {
         }
     }
 
+    public Collection<ChessMove> castlingMoves(ChessPosition startPosition) {
+        var castlingMoves = new ArrayList<ChessMove>();
+        var piece = board.getPiece(startPosition);
+
+        if (piece == null || piece.getPieceType() != ChessPiece.PieceType.KING || piece.getMoves() > 0) return null;
+
+        final var kingRow = startPosition.getRow();
+        final var queenRook = board.getPiece(new ChessPosition(kingRow, 1));
+        final var kingRook = board.getPiece(new ChessPosition(kingRow, 8));
+
+
+        if (queenRook != null && queenRook.getMoves() == 0) {
+            try {
+                assert board.getPiece(new ChessPosition(kingRow, 2)) == null;
+                assert board.getPiece(new ChessPosition(kingRow, 3)) == null;
+                assert board.getPiece(new ChessPosition(kingRow, 4)) == null;
+                castlingMoves.add(new ChessMove(startPosition, new ChessPosition(kingRow, 3), null));
+            } catch (AssertionError ignored) { }
+        }
+
+        if (kingRook != null && kingRook.getMoves() == 0) {
+            try {
+                assert board.getPiece(new ChessPosition(kingRow, 6)) == null;
+                assert board.getPiece(new ChessPosition(kingRow, 7)) == null;
+                castlingMoves.add(new ChessMove(startPosition, new ChessPosition(kingRow, 7), null));
+            } catch (AssertionError ignored) { }
+        }
+
+        return castlingMoves;
+    }
+
     /**
      * Gets a valid moves for a piece at the given location
      *
@@ -70,12 +99,26 @@ public class ChessGame implements Cloneable {
         final var enemyTeam = piece.getTeamColor().otherTeam();
 
         var pieceMoves = piece.pieceMoves(board, startPosition);
+
+        var castlingMoves = this.castlingMoves(startPosition);
+        if (castlingMoves != null) pieceMoves.addAll(castlingMoves);
+
         var validMoves = new ArrayList<ChessMove>();
 
         for (ChessMove move : pieceMoves) {
             var boardCopy = this.board.clone();
             boardCopy.addPiece(move.getEndPosition(), piece);
             boardCopy.addPiece(move.getStartPosition(), null);
+
+            if (castlingMoves != null && castlingMoves.contains(move)) {
+                var rookColumn = move.getEndPosition().getColumn() == 3 ? 1 : 8;
+                var rookNewColumn = rookColumn == 1 ? 4 : 6;
+                var rookOldPosition = new ChessPosition(move.getEndPosition().getRow(), rookColumn);
+                var rook = boardCopy.getPiece(rookOldPosition);
+
+                boardCopy.addPiece(new ChessPosition(move.getEndPosition().getRow(), rookNewColumn), rook);
+                boardCopy.addPiece(rookOldPosition, null);
+            }
 
             var pieceFinder = new ChessPieceFinder(boardCopy);
             var king = pieceFinder.findPieces(piece.getTeamColor(), ChessPiece.PieceType.KING).first();
@@ -122,17 +165,33 @@ public class ChessGame implements Cloneable {
         if (piece.getTeamColor() != currentTeamTurn)
             throw new InvalidMoveException("The piece at the specified starting location cannot be moved out of turn");
 
+        final var castlingMoves = castlingMoves(startPosition);
+        final var castleMove = castlingMoves != null && castlingMoves.contains(move);
+
         final var finalPosition = move.getEndPosition();
         final var promotionPieceType = move.getPromotionPiece();
+        piece.incrementMoves();
         if (promotionPieceType != null) {
             this.board.addPiece(
                     finalPosition,
-                    new ChessPiece(piece.getTeamColor(), promotionPieceType)
+                    new ChessPiece(piece.getTeamColor(), promotionPieceType, piece.getMoves())
             );
         } else {
             this.board.addPiece(finalPosition, piece);
         }
         this.board.addPiece(startPosition, null);
+
+        if (castleMove) {
+            var rookColumn = move.getEndPosition().getColumn() == 3 ? 1 : 8;
+            var rookNewColumn = rookColumn == 1 ? 4 : 6;
+            var rookOldPosition = new ChessPosition(move.getEndPosition().getRow(), rookColumn);
+            var rook = board.getPiece(rookOldPosition);
+
+            this.board.addPiece(new ChessPosition(move.getEndPosition().getRow(), rookNewColumn), rook);
+            this.board.addPiece(rookOldPosition, null);
+
+            rook.incrementMoves();
+        }
 
         setTeamTurn(currentTeamTurn.otherTeam());
     }

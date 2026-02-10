@@ -131,6 +131,11 @@ public class ChessBoard implements Cloneable {
             clone.pieces = pieces.clone();
             for (int i = 0; i < pieces.length; i++) {
                 clone.pieces[i] = pieces[i].clone();
+                for (int j = 0; j < pieces[i].length; j++) {
+                    try {
+                        clone.pieces[i][j] = pieces[i][j].clone();
+                    } catch (NullPointerException ignored) { }
+                }
             }
             return clone;
         } catch (CloneNotSupportedException e) {

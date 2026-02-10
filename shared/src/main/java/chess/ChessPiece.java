@@ -11,14 +11,32 @@ import java.util.Objects;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessPiece {
+public class ChessPiece implements Cloneable {
 
-    private ChessGame.TeamColor pieceColor;
-    private PieceType type;
+    private final ChessGame.TeamColor pieceColor;
+    private final PieceType type;
+    private int moves;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
+        this.moves = 0;
+    }
+
+    public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type, int moves) {
+        this(pieceColor, type);
+        this.moves = moves;
+    }
+
+    @Override
+    public ChessPiece clone() {
+        try {
+            ChessPiece clone = (ChessPiece) super.clone();
+            clone.moves = this.moves;
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 
     /**
@@ -80,6 +98,14 @@ public class ChessPiece {
         return moveCalculator.calculateMoves();
     }
 
+    public int getMoves() {
+        return moves;
+    }
+
+    public int incrementMoves() {
+        return moves++;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
@@ -99,6 +125,7 @@ public class ChessPiece {
         final StringBuffer sb = new StringBuffer("ChessPiece{");
         sb.append("type=").append(type);
         sb.append(", pieceColor=").append(pieceColor);
+        sb.append(", moves=").append(moves);
         sb.append('}');
         return sb.toString();
     }
