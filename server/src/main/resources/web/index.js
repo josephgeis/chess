@@ -46,7 +46,17 @@ function send(path, params, method) {
       return response.text();
     })
     .then((text) => {
-      if(text) return JSON.parse(text);
+      if(text) {
+        try {
+          return JSON.parse(text);
+        } catch (e) {
+          if (e instanceof SyntaxError) {
+            return text;
+          } else {
+            throw e;
+          }
+        }
+      }
       else return text;
     })
     .then((data) => {
