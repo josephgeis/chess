@@ -9,6 +9,8 @@ import result.RegisterResult;
 import server.AlreadyTakenException;
 import service.ServiceManager;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class UserServiceTests {
     AuthDAO authDAO;
     GameDAO gameDAO;
@@ -16,7 +18,7 @@ public class UserServiceTests {
 
     ServiceManager serviceManager;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() {
         authDAO = new MemoryAuthDAO();
         gameDAO = new MemoryGameDAO();
@@ -26,6 +28,7 @@ public class UserServiceTests {
     }
 
     @Test
+    @Order(1)
     void testRegisterUser() {
         final String USERNAME = "username";
         RegisterRequest request = new RegisterRequest(USERNAME, "password", "nobody@example.com");
@@ -41,11 +44,10 @@ public class UserServiceTests {
     }
 
     @Test
+    @Order(2)
     void testDoubleRegister() {
         final String USERNAME = "username";
         RegisterRequest request = new RegisterRequest(USERNAME, "password", "nobody@example.com");
-
-        Assertions.assertDoesNotThrow(() -> serviceManager.getUserService().registerUser(request));
         Assertions.assertThrows(AlreadyTakenException.class, () -> serviceManager.getUserService().registerUser(request));
     }
 }
