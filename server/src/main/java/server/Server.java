@@ -12,12 +12,16 @@ public class Server {
 
         // Register your endpoints and exception handlers here.
         javalin.delete("/db", new ClearDatabaseHandler())
-                .post("/user", new CreateUserHandler())
+                .post("/user", new RegisterHandler())
                 .post("/session", new LoginUserHandler())
                 .delete("/session", new LogoutUserHandler())
                 .get("/game", new ListGamesHandler())
                 .post("/game", new CreateGameHandler())
-                .put("/game", new JoinGameHandler());
+                .put("/game", new JoinGameHandler())
+                .exception(InvalidRequestException.class, (e, context) -> {
+                    context.status(e.getStatusCode());
+                    context.json(e.responseAsJson());
+                });
 
     }
 
