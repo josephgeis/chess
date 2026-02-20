@@ -1,12 +1,10 @@
- package handler;
+ package server;
 
 import com.google.gson.Gson;
 
 /// Base exception class for request errors
 public abstract class InvalidRequestException extends Exception {
     final int statusCode;
-
-    static final Gson gson = new Gson();
 
     record ErrorResponse(String message) {}
 
@@ -19,7 +17,11 @@ public abstract class InvalidRequestException extends Exception {
         return statusCode;
     }
 
-    public String responseAsJson() {
+    public String responseAsJson(Gson gson) {
         return gson.toJson(new ErrorResponse("Error: " + getMessage()));
+    }
+
+    public String responseAsJson() {
+        return responseAsJson(new Gson());
     }
 }
