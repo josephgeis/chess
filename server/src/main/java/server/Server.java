@@ -6,15 +6,19 @@ import io.javalin.*;
 import io.javalin.http.Context;
 import org.jetbrains.annotations.NotNull;
 import request.RegisterRequest;
+import result.RegisterResult;
 import service.ServiceManager;
 
 public class Server {
 
     private final Javalin javalin;
+    private final ServiceManager serviceManager;
     Gson gson = new Gson();
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
+
+        serviceManager = new ServiceManager();
 
         // Register your endpoints and exception handlers here.
         javalin.post("/user", this::handleRegister)
@@ -24,7 +28,7 @@ public class Server {
                 .post("/game", this::handleCreateGame)
                 .put("/game", this::handleJoinGame)
                 .delete("/db", this::handleClearDb)
-                .exception(InvalidRequestException.class, this::handleException);
+                .exception(RequestException.class, this::handleException);
     }
 
     public int run(int desiredPort) {
@@ -50,6 +54,9 @@ public class Server {
         if (request.username() == null || request.password() == null || request.email() == null) {
             throw new MalformedRequestException();
         }
+
+        RegisterResult result = serviceManager.getUserService().registerUser(request);
+        context.json(gson.toJson(result));
     }
 
     /// Handles the POST /session endpoint
@@ -70,7 +77,7 @@ public class Server {
     /// Handles the DELETE /db endpoint
     void handleClearDb(@NotNull Context context) throws Exception { }
 
-    void handleException(InvalidRequestException e, @NotNull Context context) {
+    void handleException(RequestException e, @NotNull Context context) {
         context.status(e.getStatusCode());
         context.json(e.responseAsJson());
     }

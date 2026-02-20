@@ -3,12 +3,12 @@
 import com.google.gson.Gson;
 
 /// Base exception class for request errors
-public abstract class InvalidRequestException extends Exception {
+public abstract class RequestException extends Exception {
     final int statusCode;
 
     record ErrorResponse(String message) {}
 
-    protected InvalidRequestException(int statusCode, String message) {
+    protected RequestException(int statusCode, String message) {
         super(message);
         this.statusCode = statusCode;
     }
