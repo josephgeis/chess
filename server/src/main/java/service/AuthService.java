@@ -32,6 +32,7 @@ public class AuthService {
         }
 
         AuthData authData = AuthData.createFor(user.username());
+        authDAO.createAuth(authData);
 
         return LoginResult.from(authData);
     }
