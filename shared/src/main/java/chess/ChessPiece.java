@@ -13,8 +13,8 @@ import java.util.Objects;
  */
 public class ChessPiece {
 
-    private ChessGame.TeamColor pieceColor;
-    private PieceType type;
+    private final ChessGame.TeamColor pieceColor;
+    private final PieceType type;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type) {
         this.pieceColor = pieceColor;
@@ -96,10 +96,9 @@ public class ChessPiece {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("ChessPiece{");
-        sb.append("type=").append(type);
-        sb.append(", pieceColor=").append(pieceColor);
-        sb.append('}');
-        return sb.toString();
+        String sb = "ChessPiece{" + "type=" + type +
+                ", pieceColor=" + pieceColor +
+                '}';
+        return sb;
     }
 }
