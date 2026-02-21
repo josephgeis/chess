@@ -20,12 +20,7 @@ public class AuthService {
 
 
     public LoginResult loginUser(LoginRequest request) throws Exception {
-        UserData user;
-        try {
-            user = userDAO.getUser(request.username());
-        } catch (UserDAO.UsernameAlreadyExistsException ignored) {
-            throw new UnauthorizedRequestException();
-        }
+        UserData user = userDAO.getUser(request.username());
 
         if (user == null || !user.validatePassword(request.password())) {
             throw new UnauthorizedRequestException();
