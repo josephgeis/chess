@@ -9,8 +9,14 @@ public class MemoryGameDAO implements GameDAO {
 
     HashMap<Integer, GameData> gamesCollection;
     int nextGameID;
+    final int firstGameID;
 
     public MemoryGameDAO() {
+        this(1001);
+    }
+
+    public MemoryGameDAO(int firstGameID) {
+        this.firstGameID = firstGameID;
         clear();
     }
 
@@ -18,10 +24,13 @@ public class MemoryGameDAO implements GameDAO {
         return nextGameID++;
     }
 
-    public void createGame(GameData g) {
+    public int createGame(GameData g) {
         int gameID = generateGameID();
+
         GameData gameData = g.setGameID(gameID);
         gamesCollection.put(gameID, gameData);
+
+        return gameID;
     }
 
     public GameData retrieveGame(int gameID) throws DataAccessException {
@@ -40,6 +49,6 @@ public class MemoryGameDAO implements GameDAO {
 
     public void clear() {
         gamesCollection = new HashMap<>();
-        nextGameID = 1001;
+        nextGameID = firstGameID;
     }
 }

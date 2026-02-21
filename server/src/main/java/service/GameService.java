@@ -26,6 +26,6 @@ public class GameService {
 
         Collection<GameData> games = gameDAO.retrieveAllGames();
 
-        return new ListGamesResult(games);
+        return ListGamesResult.from(games);
     }
 }
