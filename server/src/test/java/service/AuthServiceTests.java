@@ -24,6 +24,7 @@ class AuthServiceTests {
     static String AUTH_TOKEN = "random_auth_token";
 
     static final String USERNAME_NON_EXISTENT = "nonexistent_user";
+    static final String PASSWORD_INVALID = "invalid_password";
     static final String AUTH_TOKEN_NON_EXISTENT = "non_existent_auth_token";
 
     @BeforeAll
@@ -92,5 +93,12 @@ class AuthServiceTests {
         assertDoesNotThrow(() -> authDAO.retrieveAuth(result.authToken()));
 
         assertDoesNotThrow(() -> authService.logoutUser(result.authToken()));
+    }
+
+    @Test
+    @Order(7)
+    void invalidPassword() {
+        LoginRequest request = new LoginRequest(USERNAME, PASSWORD_INVALID);
+        assertThrows(UnauthorizedRequestException.class, () -> authService.loginUser(request));
     }
 }
