@@ -2,7 +2,7 @@ package dataaccess;
 
 import model.AuthData;
 
-public interface AuthDAO {
+public interface AuthDAO extends BaseDAO {
     public void createAuth(AuthData a) throws DataAccessException;
     public AuthData retrieveAuth(String authToken) throws DataAccessException;
     public void destroyAuth(String authToken) throws DataAccessException;

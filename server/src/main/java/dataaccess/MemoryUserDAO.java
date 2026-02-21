@@ -9,7 +9,7 @@ public class MemoryUserDAO implements UserDAO {
     HashMap<String, UserData> userCollection;
 
     public MemoryUserDAO() {
-        userCollection = new HashMap<>();
+        clear();
     }
 
     @Override
@@ -24,5 +24,10 @@ public class MemoryUserDAO implements UserDAO {
     @Override
     public UserData getUser(String username) throws DataAccessException {
         return userCollection.get(username);
+    }
+
+    @Override
+    public void clear() {
+        userCollection = new HashMap<>();
     }
 }

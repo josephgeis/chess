@@ -9,7 +9,7 @@ public class MemoryAuthDAO implements AuthDAO {
     HashMap<String, AuthData> authCollection;
 
     public MemoryAuthDAO() {
-        authCollection = new HashMap<>();
+        clear();
     }
 
     @Override
@@ -33,5 +33,10 @@ public class MemoryAuthDAO implements AuthDAO {
         if (authCollection.remove(authToken) == null) {
             throw new AuthDoesNotExistException();
         }
+    }
+
+    @Override
+    public void clear() {
+        authCollection = new HashMap<>();
     }
 }

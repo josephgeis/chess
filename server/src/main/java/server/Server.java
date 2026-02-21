@@ -92,7 +92,9 @@ public class Server {
     void handleJoinGame(@NotNull Context context) throws Exception { }
 
     /// Handles the DELETE /db endpoint
-    void handleClearDb(@NotNull Context context) throws Exception { }
+    void handleClearDb(@NotNull Context context) throws Exception {
+        serviceManager.clearDatabases();
+    }
 
     void handleException(RequestException e, @NotNull Context context) {
         context.status(e.getStatusCode());

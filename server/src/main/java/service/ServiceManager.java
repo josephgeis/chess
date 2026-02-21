@@ -39,4 +39,9 @@ public class ServiceManager {
         return userService;
     }
 
+    public void clearDatabases() throws Exception {
+        authDAO.clear();
+        gameDAO.clear();
+        userDAO.clear();
+    }
 }

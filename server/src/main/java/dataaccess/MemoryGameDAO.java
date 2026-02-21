@@ -9,8 +9,7 @@ public class MemoryGameDAO implements GameDAO {
     int nextGameID;
 
     public MemoryGameDAO() {
-        gamesCollection = new HashMap<>();
-        nextGameID = 1001;
+        clear();
     }
 
     int generateGameID() {
@@ -31,5 +30,11 @@ public class MemoryGameDAO implements GameDAO {
     public void updateGame(int gameID, GameData g) throws DataAccessException {
         // FIXME: throw exception if ID doesn't exist.
         gamesCollection.put(gameID, g);
+    }
+
+    @Override
+    public void clear() {
+        gamesCollection = new HashMap<>();
+        nextGameID = 1001;
     }
 }
