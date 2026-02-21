@@ -1,15 +1,13 @@
-package passoff.service;
+package service;
 
-import dataaccess.AuthDAO;
-import dataaccess.GameDAO;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryGameDAO;
+import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import result.GameListing;
 import result.ListGamesResult;
+import server.UnauthorizedRequestException;
 import service.GameService;
 
 import java.util.Iterator;
@@ -24,6 +22,7 @@ class GameServiceTests {
 
     static final String USERNAME = "username";
     static final String AUTH_TOKEN = "auth_token";
+    static final String AUTH_TOKEN_INVALID = "invalid_auth_token";
     static final int GAME_ID = 9001;
     static final String GAME_NAME = "my_chess_game";
     static final String GAME_NAME_TWO = "my_other_chess_game";
@@ -40,6 +39,12 @@ class GameServiceTests {
 
     @Test
     void listGamesEmpty() {
+        try {
+            gameDAO.clear();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        };
+
         ListGamesResult result = assertDoesNotThrow(() -> gameService.listGames(AUTH_TOKEN));
         assertTrue(result.games().isEmpty(), "Expected there to be no games.");
     }
@@ -61,7 +66,11 @@ class GameServiceTests {
 
     @Test
     void listGamesTwo() {
-        assertDoesNotThrow(() -> gameDAO.clear());
+        try {
+            gameDAO.clear();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        };
 
         GameData gameData = GameData.withName(GAME_NAME);
         int game_id = assertDoesNotThrow(() -> gameDAO.createGame(gameData));
@@ -84,6 +93,11 @@ class GameServiceTests {
         assertEquals(GAME_NAME_TWO,  secondGame.gameName());
         assertNull(secondGame.whiteUsername());
         assertNull(secondGame.blackUsername());
+    }
 
+    @Test
+    void invalidAuth() {
+        assertThrows(UnauthorizedRequestException.class,
+                () -> gameService.listGames(AUTH_TOKEN_INVALID));
     }
 }
