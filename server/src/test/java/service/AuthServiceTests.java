@@ -7,7 +7,6 @@ import org.junit.jupiter.api.*;
 import request.LoginRequest;
 import result.LoginResult;
 import server.UnauthorizedRequestException;
-import service.AuthService;
 
 import static org.junit.jupiter.api.Assertions.*;
 

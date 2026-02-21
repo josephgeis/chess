@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import result.GameListing;
 import result.ListGamesResult;
 import server.UnauthorizedRequestException;
-import service.GameService;
 
 import java.util.Iterator;
 
@@ -43,7 +42,7 @@ class GameServiceTests {
             gameDAO.clear();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
-        };
+        }
 
         ListGamesResult result = assertDoesNotThrow(() -> gameService.listGames(AUTH_TOKEN));
         assertTrue(result.games().isEmpty(), "Expected there to be no games.");
@@ -70,7 +69,7 @@ class GameServiceTests {
             gameDAO.clear();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
-        };
+        }
 
         GameData gameData = GameData.withName(GAME_NAME);
         int game_id = assertDoesNotThrow(() -> gameDAO.createGame(gameData));

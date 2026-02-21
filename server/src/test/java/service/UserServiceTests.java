@@ -7,7 +7,6 @@ import org.junit.jupiter.api.*;
 import request.RegisterRequest;
 import result.RegisterResult;
 import server.AlreadyTakenException;
-import service.UserService;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UserServiceTests {
