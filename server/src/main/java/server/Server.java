@@ -103,6 +103,8 @@ public class Server {
     /// Handles the DELETE /db endpoint
     void handleClearDb(@NotNull Context context) throws Exception {
         serviceManager.clearDatabases();
+
+        context.json(gson.toJson(new Object()));
     }
 
     void handleException(RequestException e, @NotNull Context context) {
