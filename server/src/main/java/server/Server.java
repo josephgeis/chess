@@ -40,7 +40,7 @@ public class Server {
         javalin.stop();
     }
 
-    /// Automatically raises MalformedRequestException if deserialization fails.
+    /// Automatically throws MalformedRequestException if deserialization fails.
     <Request> Request deserializeRequestBody(String body, Class<Request> type) throws MalformedRequestException {
         Request request;
         try {
@@ -50,6 +50,16 @@ public class Server {
         }
 
         return request;
+    }
+
+    /// Automatically pulls out the auth token and throws if not included.
+    @NotNull
+    private static String getAuthToken(@NotNull Context context) throws UnauthorizedRequestException {
+        final String authToken = context.header("Authorization");
+        if (authToken == null) {
+            throw new UnauthorizedRequestException();
+        }
+        return authToken;
     }
 
     /// Handlers
@@ -81,10 +91,7 @@ public class Server {
 
     /// Handles the DELETE /session endpoint
     void handleLogout(@NotNull Context context) throws Exception {
-        final String authToken = context.header("Authorization");
-        if (authToken == null) {
-            throw new UnauthorizedRequestException();
-        }
+        final String authToken = getAuthToken(context);
 
         serviceManager.getAuthService().logoutUser(authToken);
 
