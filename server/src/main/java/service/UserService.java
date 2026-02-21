@@ -31,6 +31,6 @@ public class UserService {
         AuthData newAuth = AuthData.createFor(request.username());
         authDAO.createAuth(newAuth);
 
-        return new RegisterResult(newAuth.username(), newAuth.authToken());
+        return RegisterResult.from(newAuth);
     }
 }
