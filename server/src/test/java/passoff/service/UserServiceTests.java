@@ -8,32 +8,31 @@ import request.RegisterRequest;
 import result.RegisterResult;
 import server.AlreadyTakenException;
 import service.ServiceManager;
+import service.UserService;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class UserServiceTests {
-    AuthDAO authDAO;
-    GameDAO gameDAO;
-    UserDAO userDAO;
+    static AuthDAO authDAO;
+    static UserDAO userDAO;
 
-    ServiceManager serviceManager;
+    static UserService userService;
+
+    static final String USERNAME = "username";
 
     @BeforeAll
-    void setUp() {
+    static void setUp() {
         authDAO = new MemoryAuthDAO();
-        gameDAO = new MemoryGameDAO();
         userDAO = new MemoryUserDAO();
 
-        serviceManager = new ServiceManager(authDAO, gameDAO, userDAO);
+        userService = new UserService(userDAO, authDAO);
     }
 
     @Test
     @Order(1)
     void testRegisterUser() {
-        final String USERNAME = "username";
         RegisterRequest request = new RegisterRequest(USERNAME, "password", "nobody@example.com");
 
-        RegisterResult result = Assertions.assertDoesNotThrow(() -> serviceManager.getUserService().registerUser(request));
+        RegisterResult result = Assertions.assertDoesNotThrow(() -> userService.registerUser(request));
         Assertions.assertEquals(USERNAME, result.username());
 
         UserData user = Assertions.assertDoesNotThrow(() -> userDAO.getUser(USERNAME));
@@ -46,8 +45,7 @@ public class UserServiceTests {
     @Test
     @Order(2)
     void testDoubleRegister() {
-        final String USERNAME = "username";
         RegisterRequest request = new RegisterRequest(USERNAME, "password", "nobody@example.com");
-        Assertions.assertThrows(AlreadyTakenException.class, () -> serviceManager.getUserService().registerUser(request));
+        Assertions.assertThrows(AlreadyTakenException.class, () -> userService.registerUser(request));
     }
 }
