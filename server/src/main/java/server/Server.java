@@ -80,7 +80,16 @@ public class Server {
     }
 
     /// Handles the DELETE /session endpoint
-    void handleLogout(@NotNull Context context) throws Exception { }
+    void handleLogout(@NotNull Context context) throws Exception {
+        final String authToken = context.header("Authorization");
+        if (authToken == null) {
+            throw new UnauthorizedRequestException();
+        }
+
+        serviceManager.getAuthService().logoutUser(authToken);
+
+        context.json(gson.toJson(new Object()));
+    }
 
     /// Handles the GET /game endpoint
     void handleListGames(@NotNull Context context) throws Exception { }

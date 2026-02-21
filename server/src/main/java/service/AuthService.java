@@ -36,4 +36,12 @@ public class AuthService {
 
         return LoginResult.from(authData);
     }
+
+    public void logoutUser(String authToken) throws Exception {
+        try {
+            authDAO.destroyAuth(authToken);
+        } catch (AuthDAO.AuthDoesNotExistException ignored) {
+            throw new UnauthorizedRequestException();
+        }
+    }
 }
