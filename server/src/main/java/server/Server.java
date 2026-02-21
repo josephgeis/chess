@@ -99,7 +99,13 @@ public class Server {
     }
 
     /// Handles the GET /game endpoint
-    void handleListGames(@NotNull Context context) throws Exception { }
+    void handleListGames(@NotNull Context context) throws Exception {
+        final String authToken = getAuthToken(context);
+
+        ListGamesResult result = serviceManager.getGameService().listGames(authToken);
+
+        context.json(gson.toJson(result));
+    }
 
     /// Handles the POST /game endpoint
     void handleCreateGame(@NotNull Context context) throws Exception { }

@@ -17,7 +17,7 @@ public class ServiceManager {
         this.userDAO = userDAO;
 
         authService = new AuthService(authDAO, userDAO);
-        gameService = new GameService(gameDAO);
+        gameService = new GameService(gameDAO, authDAO);
         userService = new UserService(userDAO, authDAO);
     }
 
