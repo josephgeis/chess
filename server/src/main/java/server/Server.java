@@ -5,8 +5,8 @@ import com.google.gson.JsonSyntaxException;
 import io.javalin.*;
 import io.javalin.http.Context;
 import org.jetbrains.annotations.NotNull;
-import request.RegisterRequest;
-import result.RegisterResult;
+import request.*;
+import result.*;
 import service.ServiceManager;
 
 public class Server {
@@ -40,16 +40,23 @@ public class Server {
         javalin.stop();
     }
 
+    /// Automatically raises MalformedRequestException if deserialization fails.
+    <Request> Request deserializeRequestBody(String body, Class<Request> type) throws MalformedRequestException {
+        Request request;
+        try {
+            request = gson.fromJson(body, type);
+        } catch (JsonSyntaxException e) {
+            throw new MalformedRequestException();
+        }
+
+        return request;
+    }
+
     /// Handlers
 
     /// Handles the POST /user endpoint
     void handleRegister(@NotNull Context context) throws Exception {
-        RegisterRequest request;
-        try {
-            request = gson.fromJson(context.body(), RegisterRequest.class);
-        } catch (JsonSyntaxException e) {
-            throw new MalformedRequestException();
-        }
+        final RegisterRequest request = deserializeRequestBody(context.body(), RegisterRequest.class);
 
         if (request.username() == null || request.password() == null || request.email() == null) {
             throw new MalformedRequestException();
@@ -60,7 +67,17 @@ public class Server {
     }
 
     /// Handles the POST /session endpoint
-    void handleLogin(@NotNull Context context) throws Exception { }
+    void handleLogin(@NotNull Context context) throws Exception {
+        final LoginRequest request = deserializeRequestBody(context.body(), LoginRequest.class);
+
+        if (request.username() == null || request.password() == null) {
+            throw new MalformedRequestException();
+        }
+
+
+        LoginResult result = serviceManager.getAuthService().loginUser(request);
+        context.json(gson.toJson(result));
+    }
 
     /// Handles the DELETE /session endpoint
     void handleLogout(@NotNull Context context) throws Exception { }

@@ -1,14 +1,38 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.UserDAO;
+import model.AuthData;
+import model.UserData;
+import request.LoginRequest;
+import result.LoginResult;
+import server.UnauthorizedRequestException;
 
 public class AuthService {
 
-    private AuthDAO dataAccess;
+    private AuthDAO authDAO;
+    private UserDAO userDAO;
 
-    public AuthService(AuthDAO dataAccess) {
-        this.dataAccess = dataAccess;
+    public AuthService(AuthDAO authDAO, UserDAO userDAO) {
+        this.authDAO = authDAO;
+        this.userDAO = userDAO;
     }
 
 
+    public LoginResult loginUser(LoginRequest request) throws Exception {
+        UserData user;
+        try {
+            user = userDAO.getUser(request.username());
+        } catch (UserDAO.UsernameAlreadyExistsException ignored) {
+            throw new UnauthorizedRequestException();
+        }
+
+        if (user == null || !user.validatePassword(request.password())) {
+            throw new UnauthorizedRequestException();
+        }
+
+        AuthData authData = AuthData.createFor(user.username());
+
+        return LoginResult.from(authData);
+    }
 }
