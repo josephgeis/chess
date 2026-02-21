@@ -16,7 +16,7 @@ public class MemoryGameDAO implements GameDAO {
         return nextGameID++;
     }
 
-    public void createGame(GameData g) throws DataAccessException {
+    public void createGame(GameData g) {
         int gameID = generateGameID();
         GameData gameData = g.setGameID(gameID);
         gamesCollection.put(gameID, gameData);

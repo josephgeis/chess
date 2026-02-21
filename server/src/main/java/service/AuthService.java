@@ -10,8 +10,8 @@ import server.UnauthorizedRequestException;
 
 public class AuthService {
 
-    private AuthDAO authDAO;
-    private UserDAO userDAO;
+    private final AuthDAO authDAO;
+    private final UserDAO userDAO;
 
     public AuthService(AuthDAO authDAO, UserDAO userDAO) {
         this.authDAO = authDAO;

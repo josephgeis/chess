@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import request.LoginRequest;
 import result.LoginResult;
 import service.AuthService;
-import service.ServiceManager;
 
 import static org.junit.jupiter.api.Assertions.*;
 

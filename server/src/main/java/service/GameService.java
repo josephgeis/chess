@@ -3,9 +3,9 @@ package service;
 import dataaccess.GameDAO;
 
 public class GameService {
-    private GameDAO dataAccess;
+    private final GameDAO gameDAO;
 
-    public GameService(GameDAO dataAccess) {
-        this.dataAccess = dataAccess;
+    public GameService(GameDAO gameDAO) {
+        this.gameDAO = gameDAO;
     }
 }
