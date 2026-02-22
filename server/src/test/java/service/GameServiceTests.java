@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.*;
 import model.AuthData;
 import model.GameData;
@@ -7,9 +8,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import request.CreateGameRequest;
+import request.JoinGameRequest;
 import result.CreateGameResult;
 import result.GameListing;
 import result.ListGamesResult;
+import server.AlreadyTakenException;
+import server.MalformedRequestException;
 import server.UnauthorizedRequestException;
 
 import java.util.Iterator;
@@ -23,7 +27,9 @@ class GameServiceTests {
     static GameService gameService;
 
     static final String USERNAME = "username";
+    static final String USERNAME_ALT = "alternate_username";
     static final String AUTH_TOKEN = "auth_token";
+    static final String AUTH_TOKEN_ALT = "alternate_auth_token";
     static final String AUTH_TOKEN_INVALID = "invalid_auth_token";
     static final int GAME_ID = 9001;
     static final String GAME_NAME = "my_chess_game";
@@ -37,6 +43,7 @@ class GameServiceTests {
         gameService = new GameService(gameDAO, authDAO);
 
         assertDoesNotThrow(() -> authDAO.createAuth(new AuthData(AUTH_TOKEN, USERNAME)));
+        assertDoesNotThrow(() -> authDAO.createAuth(new AuthData(AUTH_TOKEN_ALT, USERNAME_ALT)));
     }
 
     @BeforeEach
@@ -132,5 +139,73 @@ class GameServiceTests {
         assertNotNull(newGame2);
         assertEquals(GAME_NAME_TWO, newGame2.gameName());
         assertNotEquals(newGame.gameID(), newGame2.gameID());
+    }
+
+    @Test
+    void joinGameBlack() {
+        final GameData gameData = GameData.withName(GAME_NAME);
+        final int game_id = assertDoesNotThrow(() -> gameDAO.createGame(gameData));
+
+        final JoinGameRequest request = new JoinGameRequest(ChessGame.TeamColor.BLACK, game_id);
+        assertDoesNotThrow(() -> gameService.joinGame(AUTH_TOKEN, request));
+        final GameData updatedGameData = assertDoesNotThrow(() -> gameDAO.retrieveGame(game_id));
+
+        assertEquals(USERNAME, updatedGameData.blackUsername());
+        assertNull(gameData.whiteUsername());
+    }
+
+    @Test
+    void joinGameWhite() {
+        final GameData gameData = GameData.withName(GAME_NAME);
+        final int game_id = assertDoesNotThrow(() -> gameDAO.createGame(gameData));
+
+        final JoinGameRequest request = new JoinGameRequest(ChessGame.TeamColor.WHITE, game_id);
+        assertDoesNotThrow(() -> gameService.joinGame(AUTH_TOKEN, request));
+        final GameData updatedGameData = assertDoesNotThrow(() -> gameDAO.retrieveGame(game_id));
+
+        assertEquals(USERNAME, updatedGameData.whiteUsername());
+        assertNull(gameData.blackUsername());
+    }
+
+    @Test
+    void joinNonExistentGame() {
+        final JoinGameRequest request = new JoinGameRequest(ChessGame.TeamColor.WHITE, GAME_ID);
+        assertThrows(MalformedRequestException.class, () -> gameService.joinGame(AUTH_TOKEN, request));
+    }
+
+    @Test
+    void joinGameUnauthorized() {
+        final JoinGameRequest request = new JoinGameRequest(ChessGame.TeamColor.WHITE, GAME_ID);
+        assertThrows(UnauthorizedRequestException.class, () -> gameService.joinGame(AUTH_TOKEN_INVALID, request));
+    }
+
+    @Test
+    void joinGameBlackTaken() {
+        final GameData gameData = GameData.withName(GAME_NAME);
+        final int game_id = assertDoesNotThrow(() -> gameDAO.createGame(gameData));
+
+        final JoinGameRequest request = new JoinGameRequest(ChessGame.TeamColor.BLACK, game_id);
+        assertDoesNotThrow(() -> gameService.joinGame(AUTH_TOKEN, request));
+        final GameData updatedGameData = assertDoesNotThrow(() -> gameDAO.retrieveGame(game_id));
+
+        assertEquals(USERNAME, updatedGameData.blackUsername());
+        assertNull(gameData.blackUsername());
+
+        assertThrows(AlreadyTakenException.class, () -> gameService.joinGame(AUTH_TOKEN_ALT, request));
+    }
+
+    @Test
+    void joinGameWhiteTaken() {
+        final GameData gameData = GameData.withName(GAME_NAME);
+        final int game_id = assertDoesNotThrow(() -> gameDAO.createGame(gameData));
+
+        final JoinGameRequest request = new JoinGameRequest(ChessGame.TeamColor.WHITE, game_id);
+        assertDoesNotThrow(() -> gameService.joinGame(AUTH_TOKEN, request));
+        final GameData updatedGameData = assertDoesNotThrow(() -> gameDAO.retrieveGame(game_id));
+
+        assertEquals(USERNAME, updatedGameData.whiteUsername());
+        assertNull(gameData.blackUsername());
+
+        assertThrows(AlreadyTakenException.class, () -> gameService.joinGame(AUTH_TOKEN_ALT, request));
     }
 }

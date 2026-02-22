@@ -33,13 +33,16 @@ public class MemoryGameDAO implements GameDAO {
         return gameID;
     }
 
-    public GameData retrieveGame(int gameID) throws DataAccessException {
-        // FIXME: needs to throw exception
+    public GameData retrieveGame(int gameID) {
+        // FIXME: needs to throw exception (or does it?)
         return gamesCollection.get(gameID);
     }
 
     public void updateGame(int gameID, GameData g) throws DataAccessException {
-        // FIXME: throw exception if ID doesn't exist.
+        if (!gamesCollection.containsKey(gameID)) {
+            throw new GameDoesNotExistException();
+        }
+
         gamesCollection.put(gameID, g);
     }
 

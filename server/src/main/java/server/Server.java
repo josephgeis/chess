@@ -122,7 +122,18 @@ public class Server {
     }
 
     /// Handles the PUT /game endpoint
-    void handleJoinGame(@NotNull Context context) throws Exception { }
+    void handleJoinGame(@NotNull Context context) throws Exception {
+        final String authToken = getAuthToken(context);
+        final JoinGameRequest request = deserializeRequestBody(context.body(), JoinGameRequest.class);
+
+        if (request.playerColor() == null) {
+            throw new MalformedRequestException();
+        }
+
+        serviceManager.getGameService().joinGame(authToken, request);
+
+        context.json(gson.toJson(new Object()));
+    }
 
     /// Handles the DELETE /db endpoint
     void handleClearDb(@NotNull Context context) throws Exception {

@@ -9,4 +9,10 @@ public interface GameDAO extends BaseDAO {
     GameData retrieveGame(int gameID) throws DataAccessException;
     void updateGame(int gameID, GameData updatedGame) throws DataAccessException;
     Collection<GameData> retrieveAllGames() throws DataAccessException;
+
+    class GameDoesNotExistException extends DataAccessException {
+        GameDoesNotExistException() {
+            super("No game exists with the given game ID.");
+        }
+    }
 }

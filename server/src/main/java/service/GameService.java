@@ -3,10 +3,14 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
+import model.AuthData;
 import model.GameData;
 import request.CreateGameRequest;
+import request.JoinGameRequest;
 import result.CreateGameResult;
 import result.ListGamesResult;
+import server.AlreadyTakenException;
+import server.MalformedRequestException;
 import server.UnauthorizedRequestException;
 
 import java.util.Collection;
@@ -20,9 +24,9 @@ public class GameService {
         this.authDAO = authDAO;
     }
 
-    private void validateAuthToken(String authToken) throws DataAccessException, UnauthorizedRequestException {
+    private AuthData validateAuthToken(String authToken) throws DataAccessException, UnauthorizedRequestException {
         try {
-            authDAO.retrieveAuth(authToken);
+            return authDAO.retrieveAuth(authToken);
         } catch (AuthDAO.AuthDoesNotExistException ignored) {
             throw new UnauthorizedRequestException();
         }
@@ -43,5 +47,31 @@ public class GameService {
         final int gameID = gameDAO.createGame(newGame);
 
         return new CreateGameResult(gameID);
+    }
+
+    public void joinGame(String authToken, JoinGameRequest request) throws Exception {
+        final AuthData authenticatedUser = validateAuthToken(authToken);
+        final GameData gameData = gameDAO.retrieveGame(request.gameID());
+
+        if (gameData == null) {
+            throw new MalformedRequestException();
+        }
+
+        final GameData updatedGameData = switch (request.playerColor()) {
+            case WHITE -> {
+                if (gameData.whiteUsername() != null) {
+                    throw new AlreadyTakenException();
+                }
+                yield gameData.setWhiteUsername(authenticatedUser.username());
+            }
+            case BLACK -> {
+                if (gameData.blackUsername() != null) {
+                    throw new AlreadyTakenException();
+                }
+                yield gameData.setBlackUsername(authenticatedUser.username());
+            }
+        };
+
+        gameDAO.updateGame(gameData.gameID(), updatedGameData);
     }
 }
