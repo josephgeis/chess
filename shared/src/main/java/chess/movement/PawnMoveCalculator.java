@@ -14,12 +14,7 @@ public class PawnMoveCalculator extends MoveCalculator {
         super(piece, startPosition, board);
     }
 
-    static ChessPiece.PieceType[] promotionTypes = {
-            ChessPiece.PieceType.ROOK,
-            ChessPiece.PieceType.KNIGHT,
-            ChessPiece.PieceType.BISHOP,
-            ChessPiece.PieceType.QUEEN
-    };
+    static ChessPiece.PieceType[] promotionTypes = {ChessPiece.PieceType.ROOK, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.QUEEN};
 
     public Collection<ChessMove> doPromotions(ChessMove move) {
         var moves = new ArrayList<ChessMove>(4);
@@ -48,7 +43,8 @@ public class PawnMoveCalculator extends MoveCalculator {
                 lastRow = 1;
                 directionFactor = -1;
                 break;
-            default: throw new RuntimeException("Error in the PawnMoveCalculator");
+            default:
+                throw new RuntimeException("Error in the PawnMoveCalculator");
         }
 
         var advanceDelta = new MoveDelta(1, 0);
@@ -62,16 +58,13 @@ public class PawnMoveCalculator extends MoveCalculator {
             if (otherPiece == null) {
                 var move = new ChessMove(startPosition, singleAdvancePosition, null);
 
-                if (singleAdvancePosition.getRow() == lastRow)
+                if (singleAdvancePosition.getRow() == lastRow) {
                     moves.addAll(doPromotions(move));
-                else {
+                } else {
                     moves.add(move);
 
                     if (startPosition.getRow() == firstRow) {
-                        otherPiece = board.getPiece(doubleAdvancePosition);
-
-                        if (otherPiece == null)
-                            moves.add(new ChessMove(startPosition, doubleAdvancePosition, null));
+                        calculateDoubleAdvanceMove(doubleAdvancePosition, moves);
                     }
                 }
             }
@@ -80,28 +73,35 @@ public class PawnMoveCalculator extends MoveCalculator {
         final var captureLeftDelta = new MoveDelta(1, -1);
         final var captureRightDelta = new MoveDelta(1, 1);
 
-        final var captureDeltas = new MoveDelta[] {
-                captureLeftDelta,
-                captureRightDelta
-        };
+        calculateCaptureMove(captureLeftDelta, directionFactor, lastRow, moves);
+        calculateCaptureMove(captureRightDelta, directionFactor, lastRow, moves);
 
-        for (MoveDelta captureDelta : captureDeltas) {
-            var capturePosition = captureDelta.addTo(startPosition, directionFactor);
+        return moves;
+    }
 
-            if (capturePosition.inBounds()) {
-                var otherPiece = board.getPiece(capturePosition);
+    private void calculateCaptureMove(MoveDelta captureDelta, int directionFactor, int lastRow, ArrayList<ChessMove> moves) {
+        var capturePosition = captureDelta.addTo(startPosition, directionFactor);
 
-                if (otherPiece != null && otherPiece.getTeamColor() != piece.getTeamColor()) {
-                    var move = new ChessMove(startPosition, capturePosition, null);
-                    if (capturePosition.getRow() == lastRow) {
-                        moves.addAll(doPromotions(move));
-                    } else {
-                        moves.add(move);
-                    }
+        if (capturePosition.inBounds()) {
+            var otherPiece = board.getPiece(capturePosition);
+
+            if (otherPiece != null && otherPiece.getTeamColor() != piece.getTeamColor()) {
+                var move = new ChessMove(startPosition, capturePosition, null);
+                if (capturePosition.getRow() == lastRow) {
+                    moves.addAll(doPromotions(move));
+                } else {
+                    moves.add(move);
                 }
             }
         }
+    }
 
-        return moves;
+    private void calculateDoubleAdvanceMove(ChessPosition doubleAdvancePosition, ArrayList<ChessMove> moves) {
+        ChessPiece otherPiece;
+        otherPiece = board.getPiece(doubleAdvancePosition);
+
+        if (otherPiece == null) {
+            moves.add(new ChessMove(startPosition, doubleAdvancePosition, null));
+        }
     }
 }

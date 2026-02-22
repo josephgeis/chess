@@ -64,8 +64,9 @@ public class ChessGame implements Cloneable {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         var piece = board.getPiece(startPosition);
-        if (piece == null)
+        if (piece == null) {
             return null;
+        }
 
         final var enemyTeam = piece.getTeamColor().otherTeam();
 
@@ -95,7 +96,8 @@ public class ChessGame implements Cloneable {
 
                 validMoves.add(move);
 
-            } catch (InvalidMoveException ignored) {  }
+            } catch (InvalidMoveException ignored) {
+            }
 
         }
 
@@ -112,15 +114,17 @@ public class ChessGame implements Cloneable {
         final var startPosition = move.getStartPosition();
         final var moves = validMoves(startPosition);
 
-        if (moves == null)
+        if (moves == null) {
             throw new InvalidMoveException("There is no piece at the specified starting location");
-        else if (!moves.contains(move))
+        } else if (!moves.contains(move)) {
             throw new InvalidMoveException("The piece at the specified starting location cannot be moved to the specified end location");
+        }
 
         final var piece = board.getPiece(startPosition);
 
-        if (piece.getTeamColor() != currentTeamTurn)
+        if (piece.getTeamColor() != currentTeamTurn) {
             throw new InvalidMoveException("The piece at the specified starting location cannot be moved out of turn");
+        }
 
         final var finalPosition = move.getEndPosition();
         final var promotionPieceType = move.getPromotionPiece();
@@ -168,8 +172,9 @@ public class ChessGame implements Cloneable {
         var teamPieces = pieceFinder.findPieces(teamColor);
 
         for (ChessPositionPiece piecePosition : teamPieces) {
-            if (!validMoves(piecePosition.position()).isEmpty())
+            if (!validMoves(piecePosition.position()).isEmpty()) {
                 return false;
+            }
         }
 
         return true;

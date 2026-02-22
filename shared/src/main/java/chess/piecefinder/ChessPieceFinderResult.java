@@ -11,7 +11,9 @@ public class ChessPieceFinderResult implements Iterable<ChessPositionPiece> {
     }
 
     public ChessPositionPiece first() {
-        if (positionPieceSet.isEmpty()) return null;
+        if (positionPieceSet.isEmpty()) {
+            return null;
+        }
 
         return iterator().next();
     }

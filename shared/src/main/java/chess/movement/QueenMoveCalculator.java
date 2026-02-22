@@ -46,30 +46,3 @@ public class QueenMoveCalculator extends KingMoveCalculator {
         return validMoves;
     }
 }
-
-/*
-
-\/**
-     * Helper method for calculating potential moves for queens, rooks, and bishops
-     * since they can move up to 7 spaces.
-     * @param origRowDeltas row deltas to dilate
-     * @param origColDeltas col deltas to dilate
-     * @return a special pair record containing the modified row/column deltas
-     *\/
-private static RowColumnDeltas calculateFullBoardMoveDeltas(int[] origRowDeltas, int[] origColDeltas) {
-    assert origRowDeltas.length == origColDeltas.length;
-
-    var rowDeltas = new int[origRowDeltas.length * 7];
-    var colDeltas = new int[origColDeltas.length * 7];
-
-    for (int multiplier = 1; multiplier < 8; multiplier++) {
-        for (int i = 0; i < origRowDeltas.length; i++) {
-            rowDeltas[i + origRowDeltas.length * (multiplier - 1)] = origRowDeltas[i] * multiplier;
-            colDeltas[i + origColDeltas.length * (multiplier - 1)] = origColDeltas[i] * multiplier;
-        }
-    }
-
-    return new RowColumnDeltas(rowDeltas, colDeltas);
-}
-
- */

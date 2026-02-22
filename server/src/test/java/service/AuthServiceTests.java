@@ -17,10 +17,10 @@ class AuthServiceTests {
 
     static AuthService authService;
 
-    static String USERNAME = "username";
-    static String PASSWORD = "password";
-    static String EMAIL = "nobody@example.com";
-    static String AUTH_TOKEN = "random_auth_token";
+    static final String USERNAME = "username";
+    static final String PASSWORD = "password";
+    static final String EMAIL = "nobody@example.com";
+    static final String AUTH_TOKEN = "random_auth_token";
 
     static final String USERNAME_NON_EXISTENT = "nonexistent_user";
     static final String PASSWORD_INVALID = "invalid_password";

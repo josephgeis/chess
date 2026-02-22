@@ -16,7 +16,7 @@ public abstract class MoveCalculator {
     ChessPiece piece;
     ChessPosition startPosition;
     final ChessBoard board;
-    MoveDelta [] directions;
+    MoveDelta[] directions;
 
     public MoveCalculator(ChessPiece piece, ChessPosition startPosition, ChessBoard board) {
         this.piece = piece;
@@ -34,12 +34,15 @@ public abstract class MoveCalculator {
 
             // Check if move is valid:
             // 1. endPosition is in bounds (if not, skip immediately; don't get piece there)
-            if (!endPosition.inBounds()) continue;
+            if (!endPosition.inBounds()) {
+                continue;
+            }
 
             // 2. no piece in newPosition, or the piece there is an opposing piece.
             pieceAtPosition = board.getPiece(endPosition);
-            if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != piece.getTeamColor())
+            if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != piece.getTeamColor()) {
                 validMoves.add(new ChessMove(startPosition, endPosition, null));
+            }
         }
 
         return validMoves;
