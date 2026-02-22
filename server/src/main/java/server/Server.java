@@ -108,7 +108,18 @@ public class Server {
     }
 
     /// Handles the POST /game endpoint
-    void handleCreateGame(@NotNull Context context) throws Exception { }
+    void handleCreateGame(@NotNull Context context) throws Exception {
+        final String authToken = getAuthToken(context);
+        final CreateGameRequest request = deserializeRequestBody(context.body(), CreateGameRequest.class);
+
+        if (request.gameName() == null) {
+            throw new MalformedRequestException();
+        }
+
+        CreateGameResult result = serviceManager.getGameService().createGame(authToken, request);
+
+        context.json(gson.toJson(result));
+    }
 
     /// Handles the PUT /game endpoint
     void handleJoinGame(@NotNull Context context) throws Exception { }

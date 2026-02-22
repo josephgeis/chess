@@ -4,7 +4,10 @@ import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import request.CreateGameRequest;
+import result.CreateGameResult;
 import result.GameListing;
 import result.ListGamesResult;
 import server.UnauthorizedRequestException;
@@ -36,14 +39,17 @@ class GameServiceTests {
         assertDoesNotThrow(() -> authDAO.createAuth(new AuthData(AUTH_TOKEN, USERNAME)));
     }
 
-    @Test
-    void listGamesEmpty() {
+    @BeforeEach
+    void beforeEach() {
         try {
             gameDAO.clear();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    @Test
+    void listGamesEmpty() {
         ListGamesResult result = assertDoesNotThrow(() -> gameService.listGames(AUTH_TOKEN));
         assertTrue(result.games().isEmpty(), "Expected there to be no games.");
     }
@@ -65,12 +71,6 @@ class GameServiceTests {
 
     @Test
     void listGamesTwo() {
-        try {
-            gameDAO.clear();
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
-
         GameData gameData = GameData.withName(GAME_NAME);
         int game_id = assertDoesNotThrow(() -> gameDAO.createGame(gameData));
 
@@ -98,5 +98,39 @@ class GameServiceTests {
     void invalidAuth() {
         assertThrows(UnauthorizedRequestException.class,
                 () -> gameService.listGames(AUTH_TOKEN_INVALID));
+    }
+
+    @Test
+    void createGame() {
+        CreateGameRequest request = new CreateGameRequest(GAME_NAME);
+        CreateGameResult result = assertDoesNotThrow(() -> gameService.createGame(AUTH_TOKEN, request));
+        GameData newGame = assertDoesNotThrow(() -> gameDAO.retrieveGame(result.gameID()));
+
+        assertNotNull(newGame);
+        assertEquals(GAME_NAME, newGame.gameName());
+    }
+
+    @Test
+    void createGameUnauthorized() {
+        CreateGameRequest request = new CreateGameRequest(GAME_NAME);
+        assertThrows(UnauthorizedRequestException.class, () -> gameService.createGame(AUTH_TOKEN_INVALID, request));
+    }
+
+    @Test
+    void createTwoGames() {
+        CreateGameRequest request = new CreateGameRequest(GAME_NAME);
+        CreateGameResult result = assertDoesNotThrow(() -> gameService.createGame(AUTH_TOKEN, request));
+        GameData newGame = assertDoesNotThrow(() -> gameDAO.retrieveGame(result.gameID()));
+
+        CreateGameRequest request2 = new CreateGameRequest(GAME_NAME_TWO);
+        CreateGameResult result2 = assertDoesNotThrow(() -> gameService.createGame(AUTH_TOKEN, request2));
+        GameData newGame2 = assertDoesNotThrow(() -> gameDAO.retrieveGame(result2.gameID()));
+
+        assertNotNull(newGame);
+        assertEquals(GAME_NAME, newGame.gameName());
+
+        assertNotNull(newGame2);
+        assertEquals(GAME_NAME_TWO, newGame2.gameName());
+        assertNotEquals(newGame.gameID(), newGame2.gameID());
     }
 }
