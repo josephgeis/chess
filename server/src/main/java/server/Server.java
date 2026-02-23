@@ -41,8 +41,8 @@ public class Server {
     }
 
     /// Automatically throws MalformedRequestException if deserialization fails.
-    <Request> Request deserializeRequestBody(String body, Class<Request> type) throws MalformedRequestException {
-        Request request;
+    <R> R deserializeRequestBody(String body, Class<R> type) throws MalformedRequestException {
+        R request;
         try {
             request = gson.fromJson(body, type);
         } catch (JsonSyntaxException e) {
