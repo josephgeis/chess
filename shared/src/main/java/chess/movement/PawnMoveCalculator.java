@@ -14,7 +14,8 @@ public class PawnMoveCalculator extends MoveCalculator {
         super(piece, startPosition, board);
     }
 
-    static ChessPiece.PieceType[] promotionTypes = {ChessPiece.PieceType.ROOK, ChessPiece.PieceType.KNIGHT, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.QUEEN};
+    static ChessPiece.PieceType[] promotionTypes = {ChessPiece.PieceType.ROOK, ChessPiece.PieceType.KNIGHT,
+            ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.QUEEN};
 
     public Collection<ChessMove> doPromotions(ChessMove move) {
         var moves = new ArrayList<ChessMove>(4);

@@ -68,8 +68,6 @@ public class ChessGame implements Cloneable {
             return null;
         }
 
-        final var enemyTeam = piece.getTeamColor().otherTeam();
-
         var pieceMoves = piece.pieceMoves(board, startPosition);
         var validMoves = new ArrayList<ChessMove>();
 
@@ -78,30 +76,38 @@ public class ChessGame implements Cloneable {
             boardCopy.addPiece(move.getEndPosition(), piece);
             boardCopy.addPiece(move.getStartPosition(), null);
 
-            var pieceFinder = new ChessPieceFinder(boardCopy);
-            var king = pieceFinder.findPieces(piece.getTeamColor(), ChessPiece.PieceType.KING).first();
-            var enemyPieceLocations = pieceFinder.findPieces(enemyTeam);
-
-            try {
-                for (ChessPositionPiece enemyPositionPiece : enemyPieceLocations) {
-                    final var enemyPiece = enemyPositionPiece.piece();
-                    final var enemyPosition = enemyPositionPiece.position();
-
-                    for (ChessMove enemyMove : enemyPiece.pieceMoves(boardCopy, enemyPosition)) {
-                        if (enemyMove.getEndPosition().equals(king.position())) {
-                            throw new InvalidMoveException("This move will check the king.");
-                        }
-                    }
-                }
-
+            if (!boardInCheck(boardCopy, piece.getTeamColor())) {
                 validMoves.add(move);
-
-            } catch (InvalidMoveException ignored) {
             }
 
         }
 
         return validMoves;
+    }
+
+    /**
+     * Helper function to check if the king is in check on a given ChessBoard.
+     * @param board The ChessBoard
+     * @param teamColor the team color in question
+     * @return true if the board is in check for the given team color.
+     */
+    boolean boardInCheck(ChessBoard board, TeamColor teamColor) {
+        var pieceFinder = new ChessPieceFinder(board);
+        var king = pieceFinder.findPieces(teamColor, ChessPiece.PieceType.KING).first();
+        var enemyPieceLocations = pieceFinder.findPieces(teamColor.otherTeam());
+
+        for (ChessPositionPiece enemyPositionPiece : enemyPieceLocations) {
+            final var enemyPiece = enemyPositionPiece.piece();
+            final var enemyPosition = enemyPositionPiece.position();
+
+            for (ChessMove enemyMove : enemyPiece.pieceMoves(board, enemyPosition)) {
+                if (enemyMove.getEndPosition().equals(king.position())) {
+                     return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -150,21 +156,7 @@ public class ChessGame implements Cloneable {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        final var otherTeam = teamColor.otherTeam();
-
-        var pieceFinder = new ChessPieceFinder(board);
-        var king = pieceFinder.findPieces(teamColor, ChessPiece.PieceType.KING).first();
-        var otherTeamPieces = pieceFinder.findPieces(otherTeam);
-
-        for (ChessPositionPiece enemyPositionPiece : otherTeamPieces) {
-            for (ChessMove move : validMoves(enemyPositionPiece.position())) {
-                if (move.getEndPosition().equals(king.position())) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return boardInCheck(this.board, teamColor);
     }
 
     boolean teamHasNoMoves(TeamColor teamColor) {

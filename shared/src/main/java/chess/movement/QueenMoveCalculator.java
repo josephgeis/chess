@@ -30,15 +30,19 @@ public class QueenMoveCalculator extends KingMoveCalculator {
 
                 // Check if move is valid:
                 // 1. endPosition is in bounds (if not, skip immediately; don't get piece there)
-                if (!endPosition.inBounds()) break;
+                if (!endPosition.inBounds()) {
+                    break;
+                }
 
                 // 2. no piece in newPosition, or the piece there is an opposing piece.
                 pieceAtPosition = board.getPiece(endPosition);
-                if (pieceAtPosition != null && pieceAtPosition.getTeamColor() == piece.getTeamColor())
+                if (pieceAtPosition != null && pieceAtPosition.getTeamColor() == piece.getTeamColor()) {
                     break;
-                else {
+                } else {
                     validMoves.add(new ChessMove(startPosition, endPosition, null));
-                    if (pieceAtPosition != null) break;
+                    if (pieceAtPosition != null) {
+                        break;
+                    }
                 }
             }
         }

@@ -31,13 +31,13 @@ class GameServiceTests {
     static final String AUTH_TOKEN = "auth_token";
     static final String AUTH_TOKEN_ALT = "alternate_auth_token";
     static final String AUTH_TOKEN_INVALID = "invalid_auth_token";
-    static final int gameID = 9001;
+    static final int GAME_ID = 9001;
     static final String GAME_NAME = "my_chess_game";
     static final String GAME_NAME_TWO = "my_other_chess_game";
 
     @BeforeAll
     static void setUp() {
-        gameDAO = new MemoryGameDAO(gameID);
+        gameDAO = new MemoryGameDAO(GAME_ID);
         authDAO = new MemoryAuthDAO();
 
         gameService = new GameService(gameDAO, authDAO);
@@ -169,13 +169,13 @@ class GameServiceTests {
 
     @Test
     void joinNonExistentGame() {
-        final JoinGameRequest request = new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID);
+        final JoinGameRequest request = new JoinGameRequest(ChessGame.TeamColor.WHITE, GAME_ID);
         assertThrows(MalformedRequestException.class, () -> gameService.joinGame(AUTH_TOKEN, request));
     }
 
     @Test
     void joinGameUnauthorized() {
-        final JoinGameRequest request = new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID);
+        final JoinGameRequest request = new JoinGameRequest(ChessGame.TeamColor.WHITE, GAME_ID);
         assertThrows(UnauthorizedRequestException.class, () -> gameService.joinGame(AUTH_TOKEN_INVALID, request));
     }
 
