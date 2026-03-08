@@ -24,7 +24,7 @@ public class ServiceManager {
     public ServiceManager() {
         this(new MemoryAuthDAO(),
                 new MemoryGameDAO(),
-                new MemoryUserDAO());
+                new MySQLUserDAO());
     }
 
     public AuthService getAuthService() {
