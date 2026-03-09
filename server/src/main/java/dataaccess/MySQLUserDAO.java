@@ -6,6 +6,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 
 public class MySQLUserDAO implements UserDAO {
 
@@ -33,6 +34,8 @@ public class MySQLUserDAO implements UserDAO {
             stmt.setString(3, hashedPassword);
 
             stmt.executeUpdate();
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw new UsernameAlreadyExistsException(u.username());
         } catch (SQLException e) {
             throw new DataAccessException("Failed to create user.");
         }
