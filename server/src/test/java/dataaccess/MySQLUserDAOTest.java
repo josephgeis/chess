@@ -17,7 +17,7 @@ class MySQLUserDAOTest {
     static String PASSWORD = "password";
     static String EMAIL = "email";
 
-    static String PASSWORD_HASHED = "$2b$12$e/Rt4vg65tkKmnHk8lcN8e6yqWDcLZezRieEg1tOW3TTM0hFMDLa6";
+    static String PASSWORD_HASHED = BCrypt.hashpw(PASSWORD, BCrypt.gensalt());
 
     @BeforeAll
     static void setUp() {
@@ -69,7 +69,20 @@ class MySQLUserDAOTest {
 
     @Test
     void getUser() {
-        fail();
+        try(var conn = DatabaseManager.getConnection();
+            var stmt = conn.prepareStatement("insert into user(username, email, password) values (?, ?, ?)")) {
+            stmt.setString(1, USERNAME);
+            stmt.setString(2, EMAIL);
+            stmt.setString(3, PASSWORD_HASHED);
+            stmt.executeUpdate();
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+        var user = assertDoesNotThrow(() -> userDAO.getUser(USERNAME));
+        assertEquals(USERNAME, user.username());
+        assertEquals(EMAIL, user.email());
+        assertTrue(BCrypt.checkpw(PASSWORD, user.password()));
     }
 
     @Test
