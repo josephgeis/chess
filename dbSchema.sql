@@ -3,11 +3,9 @@ drop table if exists session;
 drop table if exists user;
 
 create table user(
-    id int primary key auto_increment,
-    username varchar(32) not null unique,
+    username varchar(32) primary key,
     email varchar(128) not null,
-    password varchar(128) not null,
-    index(username)
+    password varchar(128) not null
 );
 
 create table session(
