@@ -6,7 +6,6 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 public class MySQLUserDAO implements UserDAO {
 
