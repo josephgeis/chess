@@ -46,13 +46,16 @@ public class MySQLUserDAO implements UserDAO {
                      "select * from user where username=?;")) {
             stmt.setString(1, username);
             var rs = stmt.executeQuery();
-            rs.first();
 
-            return new UserData(
-                    rs.getString("username"),
-                    rs.getString("password"),
-                    rs.getString("email")
-            );
+            if (rs.next()) {
+                return new UserData(
+                        rs.getString("username"),
+                        rs.getString("password"),
+                        rs.getString("email")
+                );
+            } else {
+                return null;
+            }
         } catch (SQLException e) {
             throw new DataAccessException("Failed to retrieve user.");
         }
