@@ -26,7 +26,7 @@ public class MySQLUserDAO implements UserDAO {
     public void createUser(UserData u) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(
-                     "insert into user(username, email, password) values(?, ?, ?)", RETURN_GENERATED_KEYS)) {
+                     "insert into user(username, email, password) values(?, ?, ?)")) {
             stmt.setString(1, u.username());
             stmt.setString(2, u.email());
 
@@ -43,7 +43,7 @@ public class MySQLUserDAO implements UserDAO {
     public UserData getUser(String username) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(
-                     "select * from user where username=?;", RETURN_GENERATED_KEYS)) {
+                     "select * from user where username=?;")) {
             stmt.setString(1, username);
             var rs = stmt.executeQuery();
             rs.first();
@@ -54,7 +54,7 @@ public class MySQLUserDAO implements UserDAO {
                     rs.getString("email")
             );
         } catch (SQLException e) {
-            throw new DataAccessException("Got more than one user in database with username");
+            throw new DataAccessException("Failed to retrieve user.");
         }
     }
 
