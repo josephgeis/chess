@@ -15,8 +15,7 @@ public class MySQLUserDAO implements UserDAO {
     }
 
     static boolean validatePassword(String expectedHashed, String provided) {
-        String providedHashed = hashPassword(provided);
-        return providedHashed.equals(expectedHashed);
+        return BCrypt.checkpw(provided, expectedHashed);
     }
 
     @Override
