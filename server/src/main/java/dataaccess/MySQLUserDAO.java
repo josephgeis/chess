@@ -18,6 +18,10 @@ public class MySQLUserDAO implements UserDAO {
         return BCrypt.checkpw(provided, expectedHashed);
     }
 
+    static boolean validatePassword(UserData user, String password) {
+        return BCrypt.checkpw(password, user.password());
+    }
+
     @Override
     public void createUser(UserData u) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection();
@@ -37,7 +41,21 @@ public class MySQLUserDAO implements UserDAO {
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
-        return null;
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "select * from user where username=?;", RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, username);
+            var rs = stmt.executeQuery();
+            rs.first();
+
+            return new UserData(
+                    rs.getString("username"),
+                    rs.getString("password"),
+                    rs.getString("email")
+            );
+        } catch (SQLException e) {
+            throw new DataAccessException("Got more than one user in database with username");
+        }
     }
 
     @Override
