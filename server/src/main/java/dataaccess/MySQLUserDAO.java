@@ -35,7 +35,7 @@ public class MySQLUserDAO implements UserDAO {
 
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException("Failed to create user.");
         }
     }
 
