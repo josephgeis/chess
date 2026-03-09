@@ -46,11 +46,7 @@ class MySQLUserDAOTest {
 
     @Test
     void createUser() {
-        try {
-            userDAO.createUser(new UserData(USERNAME, PASSWORD, EMAIL));
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
+        assertDoesNotThrow(() -> userDAO.createUser(new UserData(USERNAME, PASSWORD, EMAIL)));
 
         try(var conn = DatabaseManager.getConnection();
             var stmt = conn.prepareStatement("select password from user where username=? and email=?")) {
@@ -65,6 +61,13 @@ class MySQLUserDAOTest {
         } catch (SQLException | DataAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Test
+    void createUserDuplicate() {
+        final var userData = new UserData(USERNAME, PASSWORD, EMAIL);
+        assertDoesNotThrow(() -> userDAO.createUser(userData));
+        assertThrows(UserDAO.UsernameAlreadyExistsException.class, () -> userDAO.createUser(userData));
     }
 
     @Test
@@ -83,6 +86,12 @@ class MySQLUserDAOTest {
         assertEquals(USERNAME, user.username());
         assertEquals(EMAIL, user.email());
         assertTrue(BCrypt.checkpw(PASSWORD, user.password()));
+    }
+
+    @Test
+    void getUserDoesntExist() {
+        var user = assertDoesNotThrow(() -> userDAO.getUser(USERNAME));
+        assertNull(user);
     }
 
     @Test
