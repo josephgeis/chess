@@ -15,9 +15,10 @@ class MySQLAuthDAOTest {
 
     MySQLAuthDAO authDAO = new MySQLAuthDAO();
 
-    final String USERNAME = "username";
-    final String USERNAME_INVALID = "username_invalid";
-    final String AUTH_TOKEN = "auth_token";
+    final static String USERNAME = "username";
+    final static String USERNAME_INVALID = "username_invalid";
+    final static String AUTH_TOKEN = "auth_token";
+    final static String AUTH_TOKEN_INVALID = "auth_token_invalid";
 
     @BeforeEach
     void setUp() {
@@ -64,12 +65,58 @@ class MySQLAuthDAOTest {
 
     @Test
     void retrieveAuth() {
-        fail("Not implemented");
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "insert into session(username, token) values (?, ?)")) {
+            stmt.setString(1, USERNAME);
+            stmt.setString(2, AUTH_TOKEN);
+
+            stmt.executeUpdate();
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+        AuthData authData = assertDoesNotThrow(() -> authDAO.retrieveAuth(AUTH_TOKEN));
+        assertEquals(USERNAME, authData.username());
+        assertEquals(AUTH_TOKEN, authData.authToken());
+    }
+
+    @Test
+    void retrieveAuthNonExistent() {
+        assertThrows(AuthDAO.AuthDoesNotExistException.class, () -> authDAO.retrieveAuth(AUTH_TOKEN_INVALID));
     }
 
     @Test
     void destroyAuth() {
-        fail("Not implemented");
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "insert into session(username, token) values (?, ?)")) {
+            stmt.setString(1, USERNAME);
+            stmt.setString(2, AUTH_TOKEN);
+
+            stmt.executeUpdate();
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+        assertDoesNotThrow(() -> authDAO.destroyAuth(AUTH_TOKEN));
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "select count(*) from session where token = ?")) {
+            stmt.setString(1, AUTH_TOKEN);
+
+            ResultSet rs = stmt.executeQuery();
+            assertTrue(rs.next());
+            assertEquals(0, rs.getInt(0));
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    void destroyAuthNonExistent() {
+        assertThrows(AuthDAO.AuthDoesNotExistException.class, () -> authDAO.destroyAuth(AUTH_TOKEN_INVALID));
     }
 
     @Test
