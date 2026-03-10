@@ -10,22 +10,22 @@ import java.util.Collection;
 public class MySQLGameDAO implements GameDAO {
     @Override
     public int createGame(GameData g) throws DataAccessException {
-        throw new DataAccessException("Not implemented");
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public GameData retrieveGame(int gameID) throws DataAccessException {
-        throw new DataAccessException("Not implemented");
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public void updateGame(int gameID, GameData updatedGame) throws DataAccessException {
-        throw new DataAccessException("Not implemented");
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
     public Collection<GameData> retrieveAllGames() throws DataAccessException {
-        throw new DataAccessException("Not implemented");
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
