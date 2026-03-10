@@ -74,6 +74,15 @@ class MySQLAuthDAOTest {
 
     @Test
     void clear() {
-        fail("Not implemented");
+        assertDoesNotThrow(() -> authDAO.clear());
+        try(var conn = DatabaseManager.getConnection();
+            var stmt = conn.prepareStatement("select count(*) from session;")) {
+            var rs = stmt.executeQuery();
+
+            rs.next();
+            assertEquals(0, rs.getInt(1));
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
