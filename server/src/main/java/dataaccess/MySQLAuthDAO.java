@@ -30,7 +30,7 @@ public class MySQLAuthDAO implements AuthDAO {
 
     @Override
     public void destroyAuth(String authToken) throws DataAccessException {
-        throw new DataAccessException("Not implemented");
+        throw new RuntimeException("Not implemented");
     }
 
     @Override
