@@ -2,10 +2,7 @@ package dataaccess;
 
 import model.AuthData;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.*;
 
 public class MySQLAuthDAO implements AuthDAO {
     @Override
@@ -25,7 +22,23 @@ public class MySQLAuthDAO implements AuthDAO {
 
     @Override
     public AuthData retrieveAuth(String authToken) throws DataAccessException {
-        throw new DataAccessException("Not implemented");
+        AuthData res;
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("select token, username from session where token = ?")) {
+            stmt.setString(1, authToken);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (!rs.next()) {
+                throw new AuthDoesNotExistException();
+            }
+            res = new AuthData(rs.getString(1), rs.getString(2));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return res;
     }
 
     @Override
