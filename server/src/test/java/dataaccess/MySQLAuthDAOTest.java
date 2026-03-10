@@ -108,7 +108,7 @@ class MySQLAuthDAOTest {
 
             ResultSet rs = stmt.executeQuery();
             assertTrue(rs.next());
-            assertEquals(0, rs.getInt(0));
+            assertEquals(0, rs.getInt(1));
         } catch (SQLException | DataAccessException e) {
             throw new RuntimeException(e);
         }
