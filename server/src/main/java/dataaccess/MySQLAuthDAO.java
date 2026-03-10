@@ -43,7 +43,18 @@ public class MySQLAuthDAO implements AuthDAO {
 
     @Override
     public void destroyAuth(String authToken) throws DataAccessException {
-        throw new RuntimeException("Not implemented");
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("delete from session where token = ?")) {
+            stmt.setString(1, authToken);
+
+            int affectedRows = stmt.executeUpdate();
+
+            if (affectedRows == 0) {
+                throw new AuthDoesNotExistException();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
