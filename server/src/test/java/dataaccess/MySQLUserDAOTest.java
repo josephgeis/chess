@@ -1,15 +1,15 @@
 package dataaccess;
 
 import model.UserData;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.abort;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class MySQLUserDAOTest {
 
     static MySQLUserDAO userDAO;
@@ -19,6 +19,9 @@ class MySQLUserDAOTest {
 
     static String PASSWORD_HASHED = BCrypt.hashpw(PASSWORD, BCrypt.gensalt());
 
+    static boolean clearTestPassed = false;
+    static boolean clearTestRun = false;
+
     @BeforeAll
     static void setUp() {
         userDAO = new MySQLUserDAO();
@@ -26,10 +29,16 @@ class MySQLUserDAOTest {
 
     @BeforeEach
     void setUpTest() {
+        if (!clearTestRun) {
+            return;
+        } else if (!clearTestPassed) {
+            abort("All other classes require the clear test to pass.");
+        }
+
         try {
             userDAO.clear();
         } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            abort("Failed to clear table. Did the clear test pass?");
         }
     }
 
@@ -94,8 +103,11 @@ class MySQLUserDAOTest {
         assertNull(user);
     }
 
+    @Order(1)
     @Test
     void clear() {
+        clearTestRun = true;
+
         assertDoesNotThrow(() -> userDAO.clear());
         try(var conn = DatabaseManager.getConnection();
             var stmt = conn.prepareStatement("select count(*) from user;")) {
@@ -106,5 +118,7 @@ class MySQLUserDAOTest {
         } catch (SQLException | DataAccessException e) {
             throw new RuntimeException(e);
         }
+
+        clearTestPassed = true;
     }
 }

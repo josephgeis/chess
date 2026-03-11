@@ -1,8 +1,7 @@
 package dataaccess;
 
 import model.AuthData;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,7 +9,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class MySQLAuthDAOTest {
 
     MySQLAuthDAO authDAO = new MySQLAuthDAO();
@@ -20,12 +21,21 @@ class MySQLAuthDAOTest {
     final static String AUTH_TOKEN = "auth_token";
     final static String AUTH_TOKEN_INVALID = "auth_token_invalid";
 
+    static boolean clearTestPassed = false;
+    static boolean clearTestRun = false;
+
     @BeforeEach
     void setUp() {
+        if (!clearTestRun) {
+            return;
+        } else if (!clearTestPassed) {
+            abort("All other classes require the clear test to pass.");
+        }
+
         try {
             authDAO.clear();
         } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            abort("Failed to clear table. Did the clear test pass?");
         }
 
         try (Connection conn = DatabaseManager.getConnection();
@@ -119,8 +129,10 @@ class MySQLAuthDAOTest {
         assertThrows(AuthDAO.AuthDoesNotExistException.class, () -> authDAO.destroyAuth(AUTH_TOKEN_INVALID));
     }
 
+    @Order(1)
     @Test
     void clear() {
+        clearTestRun = true;
         assertDoesNotThrow(() -> authDAO.clear());
         try(var conn = DatabaseManager.getConnection();
             var stmt = conn.prepareStatement("select count(*) from session;")) {
@@ -131,5 +143,6 @@ class MySQLAuthDAOTest {
         } catch (SQLException | DataAccessException e) {
             throw new RuntimeException(e);
         }
+        clearTestPassed = true;
     }
 }
