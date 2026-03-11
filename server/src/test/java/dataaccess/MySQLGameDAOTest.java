@@ -79,6 +79,13 @@ class MySQLGameDAOTest {
     }
 
     @Test
+    void createGameInvalidUsers() {
+        ChessGame chessGame = new ChessGame();
+        GameData gameData = new GameData(0, INVALID_USERNAME1, INVALID_USERNAME2, GAME_NAME, chessGame);
+        assertThrows(GameDAO.InvalidUserException.class, () -> gameDAO.createGame(gameData));
+    }
+
+    @Test
     void retrieveGame() {
         fail();
     }

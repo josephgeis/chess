@@ -15,4 +15,8 @@ public interface GameDAO extends BaseDAO {
             super("No game exists with the given game ID.");
         }
     }
+
+    public class InvalidUserException extends DataAccessException {
+        InvalidUserException() { super("User does not exist"); }
+    }
 }
