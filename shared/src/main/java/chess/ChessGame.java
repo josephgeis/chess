@@ -2,6 +2,7 @@ package chess;
 
 import chess.piecefinder.ChessPieceFinder;
 import chess.piecefinder.ChessPositionPiece;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,11 +18,20 @@ public class ChessGame implements Cloneable {
 
     TeamColor currentTeamTurn;
     ChessBoard board;
+    static Gson gson = new Gson();
 
     public ChessGame() {
         currentTeamTurn = TeamColor.WHITE;
         board = new ChessBoard();
         board.resetBoard();
+    }
+
+    public static ChessGame fromJson(String json) {
+        return gson.fromJson(json, ChessGame.class);
+    }
+
+    public String toJson() {
+        return gson.toJson(this);
     }
 
     /**
