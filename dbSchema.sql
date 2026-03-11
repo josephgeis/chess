@@ -21,7 +21,7 @@ create table game(
     gameName varchar(32) not null,
     game text,
     foreign key (whiteUsername)
-                 references user(username),
+                 references user(username) on delete set null,
     foreign key (blackUsername)
-                 references user(username)
+                 references user(username) on delete set null
 );

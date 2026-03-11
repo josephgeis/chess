@@ -1386,11 +1386,13 @@
     </column>
     <foreign-key id="566" parent="558" name="1">
       <ColNames>whiteUsername</ColNames>
+      <OnDelete>set-null</OnDelete>
       <RefColNames>username</RefColNames>
       <RefTableName>user</RefTableName>
     </foreign-key>
     <foreign-key id="567" parent="558" name="2">
       <ColNames>blackUsername</ColNames>
+      <OnDelete>set-null</OnDelete>
       <RefColNames>username</RefColNames>
       <RefTableName>user</RefTableName>
     </foreign-key>
