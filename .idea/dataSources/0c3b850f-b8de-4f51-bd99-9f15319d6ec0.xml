@@ -1424,6 +1424,7 @@
     </column>
     <foreign-key id="574" parent="559" name="1">
       <ColNames>username</ColNames>
+      <OnDelete>cascade</OnDelete>
       <RefColNames>username</RefColNames>
       <RefTableName>user</RefTableName>
     </foreign-key>

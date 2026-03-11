@@ -11,7 +11,7 @@ create table user(
 create table session(
     username varchar(32) not null,
     token varchar(36) primary key,
-    foreign key (username) references user(username)
+    foreign key (username) references user(username) on delete cascade
 );
 
 create table game(
