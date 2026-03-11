@@ -34,7 +34,7 @@ public class MySQLGameDAO implements GameDAO {
              PreparedStatement stmt = conn.prepareStatement("delete from game where 1;")) {
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException("Failed to clear table");
+            throw new DataAccessException("Failed to clear table", e);
         }
     }
 }

@@ -69,7 +69,7 @@ public class MySQLUserDAO implements UserDAO {
              PreparedStatement stmt = conn.prepareStatement("delete from user where 1;")) {
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException("Failed to clear database");
+            throw new DataAccessException("Failed to clear database", e);
         }
     }
 }
