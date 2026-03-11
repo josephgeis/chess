@@ -2,15 +2,39 @@ package dataaccess;
 
 import model.GameData;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Collection;
 
 public class MySQLGameDAO implements GameDAO {
     @Override
     public int createGame(GameData g) throws DataAccessException {
-        throw new RuntimeException("Not implemented");
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "insert into game(whiteUsername, blackUsername, gameName, game) values (?, ?, ?, ?)",
+                     Statement.RETURN_GENERATED_KEYS
+             )) {
+            conn.setAutoCommit(false);
+
+            stmt.setString(1, g.whiteUsername());
+            stmt.setString(2, g.blackUsername());
+            stmt.setString(3, g.gameName());
+            stmt.setString(4, g.game().toJson());
+
+            stmt.executeUpdate();
+            ResultSet rs = stmt.getGeneratedKeys();
+            if (rs.next()) {
+                conn.commit();
+                return rs.getInt(1);
+            } else {
+                conn.rollback();
+                throw new DataAccessException("Failed to insert into game table");
+            }
+
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw new InvalidUserException();
+        } catch (SQLException e) {
+            throw new DataAccessException("Failed insert into game table", e);
+        }
     }
 
     @Override
