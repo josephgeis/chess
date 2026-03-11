@@ -1,10 +1,10 @@
 package dataaccess;
 
+import chess.ChessGame;
+import model.GameData;
 import org.junit.jupiter.api.*;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.abort;
@@ -13,6 +13,10 @@ import static org.junit.jupiter.api.Assumptions.abort;
 class MySQLGameDAOTest {
 
     MySQLGameDAO gameDAO = new MySQLGameDAO();
+
+    final static String GAME_NAME = "game";
+    final static String WHITE_USERNAME = "white";
+    final static String BLACK_USERNAME = "black";
 
     static boolean clearTestRun = false;
     static boolean clearTestPassed = false;
@@ -34,7 +38,27 @@ class MySQLGameDAOTest {
 
     @Test
     void createGame() {
-        fail();
+        ChessGame chessGame = new ChessGame();
+        GameData gameData = new GameData(0, WHITE_USERNAME, BLACK_USERNAME, GAME_NAME, chessGame);
+        int gameID = assertDoesNotThrow(() -> gameDAO.createGame(gameData));
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("select id, gameName, whiteUsername, blackUsername, game from game")) {
+            ResultSet rs = stmt.executeQuery();
+
+            assertTrue(rs.next());
+
+            assertEquals(gameID, rs.getInt(1));
+            assertEquals(GAME_NAME, rs.getString(2));
+            assertEquals(WHITE_USERNAME, rs.getString(3));
+            assertEquals(BLACK_USERNAME, rs.getString(4));
+
+            ChessGame deserializedChessGame = ChessGame.fromJson(rs.getString(5));
+            assertEquals(chessGame, deserializedChessGame);
+
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
