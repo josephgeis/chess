@@ -158,6 +158,11 @@ class MySQLGameDAOTest {
         }
 
         @Test
+        void retrieveGameDoesntExist() {
+            assertThrows(GameDAO.GameDoesNotExistException.class, () -> gameDAO.retrieveGame(SCENARIO_INVALID.gameID()));
+        }
+
+        @Test
         void updateGame() {
             fail();
         }
