@@ -21,13 +21,6 @@ public class ServiceManager {
         userService = new UserService(userDAO, authDAO);
     }
 
-    public static ServiceManager createTransient() {
-        return new ServiceManager(
-                new MemoryAuthDAO(),
-                new MemoryGameDAO(),
-                new MemoryUserDAO());
-    }
-
     public static ServiceManager createPersistent() {
         try {
             DatabaseManager.createDatabase();

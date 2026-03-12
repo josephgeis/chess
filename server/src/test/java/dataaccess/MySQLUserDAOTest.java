@@ -13,11 +13,11 @@ import static org.junit.jupiter.api.Assumptions.abort;
 class MySQLUserDAOTest {
 
     static MySQLUserDAO userDAO;
-    static String USERNAME = "username";
-    static String PASSWORD = "password";
-    static String EMAIL = "email";
+    final static String USERNAME = "username";
+    final static String PASSWORD = "password";
+    final static String EMAIL = "email";
 
-    static String PASSWORD_HASHED = BCrypt.hashpw(PASSWORD, BCrypt.gensalt());
+    final static String PASSWORD_HASHED = BCrypt.hashpw(PASSWORD, BCrypt.gensalt());
 
     static boolean clearTestPassed = false;
     static boolean clearTestRun = false;
