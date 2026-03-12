@@ -4,6 +4,7 @@ import chess.ChessGame;
 import model.GameData;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class MySQLGameDAO implements GameDAO {
@@ -86,7 +87,24 @@ public class MySQLGameDAO implements GameDAO {
 
     @Override
     public Collection<GameData> retrieveAllGames() throws DataAccessException {
-        throw new RuntimeException("Not implemented");
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("select id, whiteUsername, blackUsername, gameName, game " +
+                     "from game")) {
+            ResultSet rs = stmt.executeQuery();
+
+            ArrayList<GameData> result = new ArrayList<>();
+            while (rs.next()) {
+                int id = rs.getInt(1);
+                String whiteUsername = rs.getString(2);
+                String blackUsername = rs.getString(3);
+                String gameName = rs.getString(4);
+                ChessGame game = ChessGame.fromJson(rs.getString(5));
+                result.add(new GameData(id, whiteUsername, blackUsername, gameName, game));
+            }
+            return result;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
