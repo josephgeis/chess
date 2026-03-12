@@ -63,7 +63,25 @@ public class MySQLGameDAO implements GameDAO {
 
     @Override
     public void updateGame(int gameID, GameData updatedGame) throws DataAccessException {
-        throw new RuntimeException("Not implemented");
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("update game " +
+                     "set whiteUsername = ?, blackUsername = ?, gameName = ?, game = ? " +
+                     "where id = ?")) {
+            stmt.setString(1, updatedGame.whiteUsername());
+            stmt.setString(2, updatedGame.blackUsername());
+            stmt.setString(3, updatedGame.gameName());
+            stmt.setString(4, updatedGame.game().toJson());
+            stmt.setInt(5, gameID);
+
+            int rowsUpdated = stmt.executeUpdate();
+            if (rowsUpdated == 0) {
+                throw new GameDoesNotExistException();
+            }
+        } catch (SQLIntegrityConstraintViolationException e) {
+            throw new InvalidUserException();
+        } catch (SQLException e) {
+            throw new DataAccessException("Failed to update game", e);
+        }
     }
 
     @Override
