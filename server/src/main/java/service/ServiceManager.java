@@ -11,7 +11,7 @@ public class ServiceManager {
     private final GameService gameService;
     private final UserService userService;
 
-    public ServiceManager(AuthDAO authDAO, GameDAO gameDAO, UserDAO userDAO) {
+    ServiceManager(AuthDAO authDAO, GameDAO gameDAO, UserDAO userDAO) {
         this.authDAO = authDAO;
         this.gameDAO = gameDAO;
         this.userDAO = userDAO;
@@ -21,9 +21,17 @@ public class ServiceManager {
         userService = new UserService(userDAO, authDAO);
     }
 
-    public ServiceManager() {
-        this(new MemoryAuthDAO(),
+    public static ServiceManager createTransient() {
+        return new ServiceManager(
+                new MemoryAuthDAO(),
                 new MemoryGameDAO(),
+                new MemoryUserDAO());
+    }
+
+    public static ServiceManager createPersistent() {
+        return new ServiceManager(
+                new MySQLAuthDAO(),
+                new MySQLGameDAO(),
                 new MySQLUserDAO());
     }
 
