@@ -51,9 +51,11 @@ public class GameService {
 
     public void joinGame(String authToken, JoinGameRequest request) throws Exception {
         final AuthData authenticatedUser = validateAuthToken(authToken);
-        final GameData gameData = gameDAO.retrieveGame(request.gameID());
+        final GameData gameData;
 
-        if (gameData == null) {
+        try {
+            gameData = gameDAO.retrieveGame(request.gameID());
+        } catch (GameDAO.GameDoesNotExistException e) {
             throw new MalformedRequestException();
         }
 
