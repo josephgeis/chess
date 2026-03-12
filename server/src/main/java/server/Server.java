@@ -28,7 +28,7 @@ public class Server {
                 .post("/game", this::handleCreateGame)
                 .put("/game", this::handleJoinGame)
                 .delete("/db", this::handleClearDb)
-                .exception(RequestException.class, this::handleException);
+                .exception(Exception.class, this::handleException);
     }
 
     public int run(int desiredPort) {
@@ -142,8 +142,15 @@ public class Server {
         context.json(gson.toJson(new Object()));
     }
 
-    void handleException(RequestException e, @NotNull Context context) {
-        context.status(e.getStatusCode());
-        context.json(e.responseAsJson());
+    void handleException(Exception e, @NotNull Context context) {
+        if (e instanceof RequestException) {
+            context.status(((RequestException) e).getStatusCode());
+            context.json((((RequestException) e).responseAsJson()));
+        } else {
+            handleException(
+                    new RequestException(500, "Internal Server Error") { },
+                    context
+            );
+        }
     }
 }
