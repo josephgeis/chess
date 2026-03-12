@@ -89,19 +89,15 @@ class MySQLGameDAOTest {
 
     @Nested
     class GameManipulationTests {
-        static class TestScenario {
-            public int gameID;
-            public String whiteUsername;
-            public String blackUsername;
-            public String gameName;
-            public ChessGame chessGame;
-
-            TestScenario(String whiteUsername, String blackUsername, String gameName, int row, int col) {
-                this.gameID = 0;
-                this.whiteUsername = whiteUsername;
-                this.blackUsername = blackUsername;
-                this.gameName = gameName;
-                this.chessGame = new ChessGame();
+        record TestScenario(
+            int gameID,
+            String whiteUsername,
+            String blackUsername,
+            String gameName,
+            ChessGame chessGame
+        ) {
+            static TestScenario build(int gameID, String whiteUsername, String blackUsername, String gameName, int row, int col) {
+                ChessGame chessGame = new ChessGame();
 
                 ChessBoard chessBoard = new ChessBoard();
                 chessBoard.addPiece(
@@ -109,38 +105,38 @@ class MySQLGameDAOTest {
                         new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN)
                 );
                 chessGame.setBoard(chessBoard);
+
+                return new TestScenario(gameID, whiteUsername, blackUsername, gameName, chessGame);
             }
         }
 
         final static String GAME_NAME_EMPTY = "game_empty";
         final static String GAME_NAME_NO_WHITE = "game_no_white";
         final static String GAME_NAME_NO_BLACK = "game_no_black";
+        final static String GAME_NAME_INVALID = "game_invalid";
 
-        final static TestScenario SCENARIO_NORMAL = new TestScenario(WHITE_USERNAME, BLACK_USERNAME, GAME_NAME, 1, 1);
-        final static TestScenario SCENARIO_EMPTY = new TestScenario(WHITE_USERNAME, BLACK_USERNAME, GAME_NAME_EMPTY, 1, 2);
-        final static TestScenario SCENARIO_NO_WHITE = new TestScenario(null, BLACK_USERNAME, GAME_NAME_NO_WHITE, 1, 3);
-        final static TestScenario SCENARIO_NO_BLACK = new TestScenario(WHITE_USERNAME, null, GAME_NAME_NO_BLACK, 1, 4);
+        final static TestScenario SCENARIO_NORMAL = TestScenario.build(9001, WHITE_USERNAME, BLACK_USERNAME, GAME_NAME, 1, 1);
+        final static TestScenario SCENARIO_EMPTY = TestScenario.build(9002, null, null, GAME_NAME_EMPTY, 2, 2);
+        final static TestScenario SCENARIO_NO_WHITE = TestScenario.build(9003, null, BLACK_USERNAME, GAME_NAME_NO_WHITE, 3, 3);
+        final static TestScenario SCENARIO_NO_BLACK = TestScenario.build(9004, WHITE_USERNAME, null, GAME_NAME_NO_BLACK, 4, 4);
+        final static TestScenario SCENARIO_INVALID = TestScenario.build(9999, WHITE_USERNAME, null, GAME_NAME_INVALID, 5, 5);
+
         final static TestScenario[] SCENARIOS = {SCENARIO_NORMAL, SCENARIO_EMPTY, SCENARIO_NO_WHITE, SCENARIO_NO_BLACK};
 
         @BeforeEach
         void setUp() {
             try (Connection conn = DatabaseManager.getConnection();
-                 PreparedStatement stmt = conn.prepareStatement("insert into game(whiteUsername, blackUsername, gameName, game)" +
-                         "values (?, ?, ?, ?)",
-                         Statement.RETURN_GENERATED_KEYS)) {
+                 PreparedStatement stmt = conn.prepareStatement("insert into game(id, whiteUsername, blackUsername, gameName, game)" +
+                         "values (?, ?, ?, ?, ?)")) {
 
                 for (TestScenario scenario : SCENARIOS) {
-                    stmt.setString(1, scenario.whiteUsername);
-                    stmt.setString(2, scenario.blackUsername);
-                    stmt.setString(3, scenario.gameName);
-                    stmt.setString(4, scenario.chessGame.toJson());
+                    stmt.setInt(1, scenario.gameID());
+                    stmt.setString(2, scenario.whiteUsername());
+                    stmt.setString(3, scenario.blackUsername());
+                    stmt.setString(4, scenario.gameName());
+                    stmt.setString(5, scenario.chessGame().toJson());
 
                     stmt.executeUpdate();
-                    ResultSet rs = stmt.getGeneratedKeys();
-
-                    assumeTrue(rs.next(), "Couldn't get ID for normal game");
-                    scenario.gameID = rs.getInt(1);
-                    assumeFalse(rs.next(), "More games inserted than expected.");
                 }
 
             } catch (SQLException | DataAccessException e) {
@@ -153,11 +149,11 @@ class MySQLGameDAOTest {
             for (TestScenario scenario : SCENARIOS) {
                 GameData gameData = assertDoesNotThrow(() -> gameDAO.retrieveGame(scenario.gameID));
 
-                assertEquals(scenario.gameID, gameData.gameID());
-                assertEquals(scenario.whiteUsername, gameData.whiteUsername());
-                assertEquals(scenario.blackUsername, gameData.blackUsername());
-                assertEquals(scenario.gameName, gameData.gameName());
-                assertEquals(scenario.chessGame, gameData.game());
+                assertEquals(scenario.gameID(), gameData.gameID());
+                assertEquals(scenario.whiteUsername(), gameData.whiteUsername());
+                assertEquals(scenario.blackUsername(), gameData.blackUsername());
+                assertEquals(scenario.gameName(), gameData.gameName());
+                assertEquals(scenario.chessGame(), gameData.game());
             }
         }
 
