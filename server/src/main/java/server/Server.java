@@ -18,7 +18,7 @@ public class Server {
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
-        serviceManager = ServiceManager.createTransient();
+        serviceManager = ServiceManager.createPersistent();
 
         // Register your endpoints and exception handlers here.
         javalin.post("/user", this::handleRegister)
