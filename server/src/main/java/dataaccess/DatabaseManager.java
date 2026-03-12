@@ -1,7 +1,10 @@
 package dataaccess;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
 import java.util.Properties;
+import java.util.Scanner;
 
 public class DatabaseManager {
     private static String databaseName;
@@ -24,8 +27,25 @@ public class DatabaseManager {
         try (var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
              var preparedStatement = conn.prepareStatement(statement)) {
             preparedStatement.executeUpdate();
-        } catch (SQLException ex) {
+            conn.setCatalog(databaseName);
+
+            try (var stmt = conn.createStatement()) {
+                loadSchema(stmt);
+                stmt.executeBatch();
+            }
+
+        } catch (SQLException | IOException ex) {
             throw new DataAccessException("failed to create database", ex);
+        }
+    }
+
+    static void loadSchema(Statement stmt) throws SQLException, IOException {
+        try(InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("dbSchema.sql")) {
+            assert inputStream != null;
+            var scanner = new Scanner(inputStream).useDelimiter(";");
+            while (scanner.hasNext()) {
+                stmt.addBatch(scanner.next());
+            }
         }
     }
 

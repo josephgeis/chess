@@ -29,6 +29,12 @@ public class ServiceManager {
     }
 
     public static ServiceManager createPersistent() {
+        try {
+            DatabaseManager.createDatabase();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+
         return new ServiceManager(
                 new MySQLAuthDAO(),
                 new MySQLGameDAO(),
