@@ -145,10 +145,10 @@ public class Server {
     void handleException(Exception e, @NotNull Context context) {
         if (e instanceof RequestException) {
             context.status(((RequestException) e).getStatusCode());
-            context.json((((RequestException) e).responseAsJson()));
+            context.json((((RequestException) e).asJson(gson)));
         } else {
             handleException(
-                    new RequestException(500, "Internal Server Error") { },
+                    new InternalServerError(e),
                     context
             );
         }

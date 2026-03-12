@@ -6,10 +6,25 @@ import com.google.gson.Gson;
 public abstract class RequestException extends Exception {
     final int statusCode;
 
-    record ErrorResponse(String message) {}
+    class ErrorResponse {
+        String message;
+
+        ErrorResponse() {
+            message = "Error: " + getMessage();
+        }
+
+        String toJson(Gson gson) {
+            return gson.toJson(this);
+        }
+    }
 
     protected RequestException(int statusCode, String message) {
         super(message);
+        this.statusCode = statusCode;
+    }
+
+    protected RequestException(int statusCode, String message, Exception cause) {
+        super(message, cause);
         this.statusCode = statusCode;
     }
 
@@ -17,11 +32,11 @@ public abstract class RequestException extends Exception {
         return statusCode;
     }
 
-    public String responseAsJson(Gson gson) {
-        return gson.toJson(new ErrorResponse("Error: " + getMessage()));
+    ErrorResponse asObject() {
+        return new ErrorResponse();
     }
 
-    public String responseAsJson() {
-        return responseAsJson(new Gson());
+    public String asJson(Gson gson) {
+        return asObject().toJson(gson);
     }
 }
