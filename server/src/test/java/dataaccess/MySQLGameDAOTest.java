@@ -8,6 +8,7 @@ import model.GameData;
 import org.junit.jupiter.api.*;
 
 import java.sql.*;
+import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.*;
@@ -107,6 +108,16 @@ class MySQLGameDAOTest {
                 chessGame.setBoard(chessBoard);
 
                 return new TestScenario(gameID, whiteUsername, blackUsername, gameName, chessGame);
+            }
+
+            GameData asGameData() {
+                return new GameData(
+                        gameID(),
+                        whiteUsername(),
+                        blackUsername(),
+                        gameName(),
+                        chessGame()
+                );
             }
         }
 
@@ -213,7 +224,12 @@ class MySQLGameDAOTest {
 
         @Test
         void retrieveAllGames() {
-            fail();
+            Collection<GameData> allGameData = assertDoesNotThrow(() -> gameDAO.retrieveAllGames());
+
+            for (TestScenario scenario : SCENARIOS) {
+                GameData gameData = scenario.asGameData();
+                assertTrue(allGameData.contains(gameData));
+            }
         }
     }
 
