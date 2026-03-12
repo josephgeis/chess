@@ -1,14 +1,16 @@
 package dataaccess;
 
+import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import model.GameData;
 import org.junit.jupiter.api.*;
 
 import java.sql.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.abort;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.junit.jupiter.api.Assumptions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class MySQLGameDAOTest {
@@ -27,7 +29,7 @@ class MySQLGameDAOTest {
     @BeforeAll
     static void init() {
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement stmt = conn.prepareStatement("replace into user(username, email, password) values (?, '', ''), (?, '', '')");) {
+             PreparedStatement stmt = conn.prepareStatement("replace into user(username, email, password) values (?, '', ''), (?, '', '')")) {
             stmt.setString(1, WHITE_USERNAME);
             stmt.setString(2, BLACK_USERNAME);
             final int rowsCount = stmt.executeUpdate();
@@ -85,19 +87,81 @@ class MySQLGameDAOTest {
         assertThrows(GameDAO.InvalidUserException.class, () -> gameDAO.createGame(gameData));
     }
 
-    @Test
-    void retrieveGame() {
-        fail();
-    }
+    @Nested
+    class GameManipulationTests {
+        static class TestScenario {
+            public int gameID;
+            public String whiteUsername;
+            public String blackUsername;
+            public String gameName;
+            public ChessGame chessGame;
 
-    @Test
-    void updateGame() {
-        fail();
-    }
+            TestScenario(String whiteUsername, String blackUsername, String gameName, int row, int col) {
+                this.gameID = 0;
+                this.whiteUsername = whiteUsername;
+                this.blackUsername = blackUsername;
+                this.gameName = gameName;
+                this.chessGame = new ChessGame();
 
-    @Test
-    void retrieveAllGames() {
-        fail();
+                ChessBoard chessBoard = new ChessBoard();
+                chessBoard.addPiece(
+                        new ChessPosition(row, col),
+                        new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN)
+                );
+                chessGame.setBoard(chessBoard);
+            }
+        }
+
+        final static String GAME_NAME_EMPTY = "game_empty";
+        final static String GAME_NAME_NO_WHITE = "game_no_white";
+        final static String GAME_NAME_NO_BLACK = "game_no_black";
+
+        final static TestScenario SCENARIO_NORMAL = new TestScenario(WHITE_USERNAME, BLACK_USERNAME, GAME_NAME, 1, 1);
+        final static TestScenario SCENARIO_EMPTY = new TestScenario(WHITE_USERNAME, BLACK_USERNAME, GAME_NAME_EMPTY, 1, 2);
+        final static TestScenario SCENARIO_NO_WHITE = new TestScenario(null, BLACK_USERNAME, GAME_NAME_NO_WHITE, 1, 3);
+        final static TestScenario SCENARIO_NO_BLACK = new TestScenario(WHITE_USERNAME, null, GAME_NAME_NO_BLACK, 1, 4);
+        final static TestScenario[] SCENARIOS = {SCENARIO_NORMAL, SCENARIO_EMPTY, SCENARIO_NO_WHITE, SCENARIO_NO_BLACK};
+
+        @BeforeEach
+        void setUp() {
+            try (Connection conn = DatabaseManager.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement("insert into game(whiteUsername, blackUsername, gameName, game)" +
+                         "values (?, ?, ?, ?)",
+                         Statement.RETURN_GENERATED_KEYS)) {
+
+                for (TestScenario scenario : SCENARIOS) {
+                    stmt.setString(1, scenario.whiteUsername);
+                    stmt.setString(2, scenario.blackUsername);
+                    stmt.setString(3, scenario.gameName);
+                    stmt.setString(4, scenario.chessGame.toJson());
+
+                    stmt.executeUpdate();
+                    ResultSet rs = stmt.getGeneratedKeys();
+
+                    assumeTrue(rs.next(), "Couldn't get ID for normal game");
+                    scenario.gameID = rs.getInt(1);
+                    assumeFalse(rs.next(), "More games inserted than expected.");
+                }
+
+            } catch (SQLException | DataAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Test
+        void retrieveGame() {
+            fail();
+        }
+
+        @Test
+        void updateGame() {
+            fail();
+        }
+
+        @Test
+        void retrieveAllGames() {
+            fail();
+        }
     }
 
     @Order(1)
