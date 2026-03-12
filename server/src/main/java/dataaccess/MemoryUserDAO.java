@@ -13,6 +13,11 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     @Override
+    public boolean validatePassword(UserData user, String password) {
+        return user.password().equals(password);
+    }
+
+    @Override
     public void createUser(UserData u) throws DataAccessException {
         if (userCollection.get(u.username()) != null) {
             throw new UsernameAlreadyExistsException(u.username());

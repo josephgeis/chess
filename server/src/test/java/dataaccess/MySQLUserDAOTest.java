@@ -49,11 +49,6 @@ class MySQLUserDAOTest {
     }
 
     @Test
-    void validatePassword() {
-        assertTrue(MySQLUserDAO.validatePassword(PASSWORD_HASHED, PASSWORD));
-    }
-
-    @Test
     void createUser() {
         assertDoesNotThrow(() -> userDAO.createUser(new UserData(USERNAME, PASSWORD, EMAIL)));
 
@@ -65,7 +60,7 @@ class MySQLUserDAOTest {
 
             assertTrue(rs.next(), "No rows were inserted.");
             var passwordHash = rs.getString("password");
-            assertTrue(() -> MySQLUserDAO.validatePassword(passwordHash, PASSWORD));
+            assertTrue(() -> BCrypt.checkpw(PASSWORD, passwordHash));
             assertFalse(rs.next(), "There was more than one thing inserted in!");
         } catch (SQLException | DataAccessException e) {
             throw new RuntimeException(e);

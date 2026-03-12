@@ -14,11 +14,7 @@ public class MySQLUserDAO implements UserDAO {
         return BCrypt.hashpw(password, BCrypt.gensalt());
     }
 
-    static boolean validatePassword(String expectedHashed, String provided) {
-        return BCrypt.checkpw(provided, expectedHashed);
-    }
-
-    static boolean validatePassword(UserData user, String password) {
+    public boolean validatePassword(UserData user, String password) {
         return BCrypt.checkpw(password, user.password());
     }
 

@@ -22,7 +22,7 @@ public class AuthService {
     public LoginResult loginUser(LoginRequest request) throws Exception {
         UserData user = userDAO.getUser(request.username());
 
-        if (user == null || !user.validatePassword(request.password())) {
+        if (user == null || !userDAO.validatePassword(user, request.password())) {
             throw new UnauthorizedRequestException();
         }
 
