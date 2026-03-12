@@ -164,7 +164,51 @@ class MySQLGameDAOTest {
 
         @Test
         void updateGame() {
-            fail();
+            GameData gameData = new GameData(
+                    SCENARIO_EMPTY.gameID(),
+                    WHITE_USERNAME,
+                    BLACK_USERNAME,
+                    SCENARIO_EMPTY.gameName(),
+                    SCENARIO_EMPTY.chessGame());
+            assertDoesNotThrow(() -> gameDAO.updateGame(gameData.gameID(), gameData));
+
+            try (Connection conn = DatabaseManager.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement("select whiteUsername, blackUsername from game where id = ?")) {
+                stmt.setInt(1, gameData.gameID());
+
+                ResultSet rs = stmt.executeQuery();
+                assertTrue(rs.next());
+
+                String updatedWhiteUsername = rs.getString(1);
+                String updatedBlackUsername = rs.getString(2);
+
+                assertEquals(WHITE_USERNAME, updatedWhiteUsername);
+                assertEquals(BLACK_USERNAME, updatedBlackUsername);
+            } catch (SQLException | DataAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Test
+        void updateGameDoesntExist() {
+            GameData gameData = new GameData(
+                    SCENARIO_INVALID.gameID(),
+                    SCENARIO_INVALID.whiteUsername(),
+                    BLACK_USERNAME,
+                    SCENARIO_INVALID.gameName(),
+                    SCENARIO_INVALID.chessGame());
+            assertThrows(GameDAO.GameDoesNotExistException.class, () -> gameDAO.updateGame(gameData.gameID(), gameData));
+        }
+
+        @Test
+        void updateGameInvalidUser() {
+            GameData gameData = new GameData(
+                    SCENARIO_NO_BLACK.gameID(),
+                    SCENARIO_NO_BLACK.whiteUsername(),
+                    INVALID_USERNAME2,
+                    SCENARIO_NO_BLACK.gameName(),
+                    SCENARIO_NO_BLACK.chessGame());
+            assertThrows(GameDAO.InvalidUserException.class, () -> gameDAO.updateGame(gameData.gameID(), gameData));
         }
 
         @Test
