@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.GameData;
 
 import java.sql.*;
@@ -39,7 +40,25 @@ public class MySQLGameDAO implements GameDAO {
 
     @Override
     public GameData retrieveGame(int gameID) throws DataAccessException {
-        throw new RuntimeException("Not implemented");
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("select whiteUsername, blackUsername, gameName, game.game " +
+                     "from game where id = ?")) {
+            stmt.setInt(1, gameID);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                String whiteUsername = rs.getString(1);
+                String blackUsername = rs.getString(2);
+                String gameName = rs.getString(3);
+                ChessGame game = ChessGame.fromJson(rs.getString(4));
+
+                return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+            } else {
+                throw new GameDoesNotExistException();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Failed to retrieve game with id %d.".formatted(gameID), e);
+        }
     }
 
     @Override
