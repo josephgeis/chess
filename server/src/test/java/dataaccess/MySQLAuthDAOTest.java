@@ -40,8 +40,9 @@ class MySQLAuthDAOTest {
 
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(
-                     "insert into user(username, email, password) values (?, '', '')")) {
+                     "replace into user(username, email, password) values (?, '', '')")) {
             stmt.setString(1, USERNAME);
+            stmt.executeUpdate();
         } catch (SQLException | DataAccessException e) {
             throw new RuntimeException(e);
         }
