@@ -150,7 +150,15 @@ class MySQLGameDAOTest {
 
         @Test
         void retrieveGame() {
-            fail();
+            for (TestScenario scenario : SCENARIOS) {
+                GameData gameData = assertDoesNotThrow(() -> gameDAO.retrieveGame(scenario.gameID));
+
+                assertEquals(scenario.gameID, gameData.gameID());
+                assertEquals(scenario.whiteUsername, gameData.whiteUsername());
+                assertEquals(scenario.blackUsername, gameData.blackUsername());
+                assertEquals(scenario.gameName, gameData.gameName());
+                assertEquals(scenario.chessGame, gameData.game());
+            }
         }
 
         @Test
