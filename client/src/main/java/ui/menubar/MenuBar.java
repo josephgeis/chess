@@ -5,6 +5,8 @@ import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
+import com.googlecode.lanterna.input.KeyType;
+import ui.TerminalController;
 
 public class MenuBar extends ui.Drawable {
     TextGraphics textGraphics;
@@ -54,6 +56,25 @@ public class MenuBar extends ui.Drawable {
             if (item != null) {
                 textGraphics.putString(8 * (i - 1) + 2, 0, item.menuTitle());
             }
+        }
+    }
+
+    public TerminalController.EventType getEventForMenuKey(KeyType keyType) {
+        int itemNumber = switch (keyType) {
+            case F1 -> 1;
+            case F2 -> 2;
+            case F3 -> 3;
+            case F4 -> 4;
+            case F5 -> 5;
+            case F6 -> 6;
+            default -> 0;
+        };
+
+        MenuBarItem menuBarItem = menuItems.itemAt(itemNumber);
+        if (menuBarItem != null) {
+            return menuBarItem.eventType();
+        } else {
+            return null;
         }
     }
 }

@@ -18,7 +18,7 @@ public class ClientMain {
         terminalController = new TerminalController();
 
         try {
-            terminalController.init();
+            init();
             while (!ClientState.quit) {
                 eventLoop();
             }
@@ -33,7 +33,16 @@ public class ClientMain {
         }
     }
 
+    private static void init() throws IOException {
+        terminalController.init();
+        terminalController.registerEventHandler(TerminalController.EventType.QUIT_PROGRAM, ClientMain::quitProgram);
+    }
+
     static void eventLoop() throws Exception {
         terminalController.eventLoop();
+    }
+
+    static void quitProgram() {
+        ClientState.quitProgram();
     }
 }
