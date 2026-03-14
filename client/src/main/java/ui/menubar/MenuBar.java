@@ -6,20 +6,21 @@ import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 
-public class MenuBar {
+public class MenuBar implements ui.Drawable {
     TextGraphics textGraphics;
     MenuItems menuItems;
 
-    public static MenuBar fromTextGraphics(TextGraphics fullTextGraphics) {
+    public static MenuBar fromTextGraphics(TextGraphics parentTextGraphics) {
         MenuBar menuBar = new MenuBar();
-        menuBar.setTextGraphics(fullTextGraphics);
+        menuBar.setTextGraphics(parentTextGraphics);
         return menuBar;
     }
 
-    public void setTextGraphics(TextGraphics fullTextGraphics) {
-        this.textGraphics = fullTextGraphics.newTextGraphics(
-                MenuBar.getBottomRowStart(fullTextGraphics.getSize()),
-                MenuBar.getMenuBarSize(fullTextGraphics.getSize()));
+    @Override
+    public void setTextGraphics(TextGraphics parentTextGraphics) {
+        this.textGraphics = parentTextGraphics.newTextGraphics(
+                MenuBar.getBottomRowStart(parentTextGraphics.getSize()),
+                MenuBar.getMenuBarSize(parentTextGraphics.getSize()));
     }
 
     public static TerminalPosition getBottomRowStart(TerminalSize terminalSize) {
@@ -30,6 +31,7 @@ public class MenuBar {
         return new TerminalSize(terminalSize.getColumns(), 1);
     }
 
+    @Override
     public void draw() {
 
         if (ClientState.isLoggedIn()) {
