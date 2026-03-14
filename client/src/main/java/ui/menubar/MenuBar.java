@@ -1,4 +1,4 @@
-package ui;
+package ui.menubar;
 
 import client.ClientState;
 import com.googlecode.lanterna.TerminalPosition;
@@ -23,7 +23,7 @@ public class MenuBar {
         return new TerminalSize(terminalSize.getColumns(), 1);
     }
 
-    void draw() {
+    public void draw() {
         TerminalSize terminalSize = screen.getTerminalSize();
         TextGraphics textGraphics = screen.newTextGraphics().newTextGraphics(getBottomRowStart(terminalSize), getMenuBarSize(terminalSize));
 

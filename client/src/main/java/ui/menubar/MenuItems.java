@@ -1,4 +1,4 @@
-package ui;
+package ui.menubar;
 
 public abstract class MenuItems {
     public static MenuItems NOT_LOGGED_IN = new MenuItems() {

@@ -1,4 +1,4 @@
-package ui;
+package ui.menubar;
 
 public record MenuBarItem(String name) {
     public String menuTitle() {
