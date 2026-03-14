@@ -9,7 +9,6 @@ import com.googlecode.lanterna.input.KeyType;
 import ui.TerminalController;
 
 public class MenuBar extends ui.Drawable {
-    TextGraphics textGraphics;
     MenuItems menuItems;
 
     public MenuBar(TextGraphics parentTextGraphics) {
@@ -18,9 +17,9 @@ public class MenuBar extends ui.Drawable {
 
     @Override
     public void setTextGraphics(TextGraphics parentTextGraphics) {
-        this.textGraphics = parentTextGraphics.newTextGraphics(
+        super.setTextGraphics(parentTextGraphics.newTextGraphics(
                 MenuBar.getBottomRowStart(parentTextGraphics.getSize()),
-                MenuBar.getMenuBarSize(parentTextGraphics.getSize()));
+                MenuBar.getMenuBarSize(parentTextGraphics.getSize())));
     }
 
     public static TerminalPosition getBottomRowStart(TerminalSize terminalSize) {
