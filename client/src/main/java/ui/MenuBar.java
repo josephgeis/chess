@@ -1,5 +1,6 @@
 package ui;
 
+import client.ClientState;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
@@ -8,17 +9,7 @@ import com.googlecode.lanterna.screen.Screen;
 
 public class MenuBar {
     Screen screen;
-    MenuItems menuItems = new MenuItems() {
-        @Override
-        protected MenuBarItem itemAt(int i) {
-            return switch (i) {
-                case 1 -> new MenuBarItem("Login");
-                case 2 -> new MenuBarItem("Register");
-                case 6 -> new MenuBarItem("Quit");
-                default -> null;
-            };
-        }
-    };
+    MenuItems menuItems;
 
     public MenuBar(Screen screen) {
         this.screen = screen;
@@ -34,8 +25,13 @@ public class MenuBar {
 
     void draw() {
         TerminalSize terminalSize = screen.getTerminalSize();
-
         TextGraphics textGraphics = screen.newTextGraphics().newTextGraphics(getBottomRowStart(terminalSize), getMenuBarSize(terminalSize));
+
+        if (ClientState.isLoggedIn()) {
+            menuItems = MenuItems.LOGGED_IN;
+        } else {
+            menuItems = MenuItems.NOT_LOGGED_IN;
+        }
 
         textGraphics.setBackgroundColor(TextColor.ANSI.CYAN_BRIGHT);
         textGraphics.fillRectangle(new TerminalPosition(0, 0), getMenuBarSize(terminalSize), ' ');
