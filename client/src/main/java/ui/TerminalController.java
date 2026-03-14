@@ -1,5 +1,7 @@
 package ui;
 
+import com.googlecode.lanterna.TerminalSize;
+import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import ui.menubar.MenuBar;
@@ -15,12 +17,14 @@ import java.io.IOException;
 public class TerminalController {
     DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
     Screen screen;
+    TextGraphics textGraphics;
 
     MenuBar menuBar;
 
     public void eventLoop() throws IOException {
         if (screen.doResizeIfNecessary() != null) {
             screen.clear();
+            menuBar.setTextGraphics(textGraphics);
         };
 
         menuBar.draw();
@@ -29,7 +33,11 @@ public class TerminalController {
 
     public void init() throws IOException {
         screen = defaultTerminalFactory.createScreen();
-        menuBar = new MenuBar(screen);
+        textGraphics = screen.newTextGraphics();
+        TerminalSize terminalSize = screen.getTerminalSize();
+
+        menuBar = MenuBar.fromTextGraphics(textGraphics);
+
         screen.startScreen();
     }
 
