@@ -1,7 +1,10 @@
 package ui;
 
+import client.ClientState;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.graphics.TextGraphics;
+import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import ui.menubar.MenuBar;
@@ -27,8 +30,17 @@ public class TerminalController {
             menuBar.setTextGraphics(textGraphics);
         };
 
+        KeyStroke keyStroke = screen.pollInput();
+        if (keyStroke != null) {
+            handleInput(keyStroke);
+        }
+
         menuBar.draw();
         screen.refresh();
+    }
+
+    protected void handleInput(KeyStroke keyStroke) {
+
     }
 
     public void init() throws IOException {
