@@ -34,18 +34,20 @@ public class TerminalController {
             menuBar.setTextGraphics(textGraphics);
         };
 
+        view.draw();
+        menuBar.draw();
+        screen.refresh();
+
         KeyStroke keyStroke = screen.pollInput();
         if (keyStroke != null) {
             handleInput(keyStroke);
         }
-
-        view.draw();
-        menuBar.draw();
-        screen.refresh();
     }
 
     protected void handleInput(KeyStroke keyStroke) {
-
+        if (!ClientState.isLoggedIn() && keyStroke.getKeyType() == KeyType.F6) {
+            ClientState.quitProgram();
+        }
     }
 
     public void init() throws IOException {
