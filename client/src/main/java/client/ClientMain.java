@@ -21,7 +21,7 @@ public class ClientMain {
             terminalController.init();
             while (!ClientState.quit) {
                 eventLoop();
-            };
+            }
         } catch (Exception e) {
             throw new RuntimeException("An unhandled exception was thrown.", e);
         } finally {
