@@ -1,13 +1,16 @@
 package ui;
 
 import client.ClientState;
+import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
+import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import ui.menubar.MenuBar;
+import ui.views.View;
 
 import java.io.IOException;
 
@@ -22,6 +25,7 @@ public class TerminalController {
     Screen screen;
     TextGraphics textGraphics;
 
+    View view;
     MenuBar menuBar;
 
     public void eventLoop() throws IOException {
@@ -35,6 +39,7 @@ public class TerminalController {
             handleInput(keyStroke);
         }
 
+        view.draw();
         menuBar.draw();
         screen.refresh();
     }
@@ -49,6 +54,13 @@ public class TerminalController {
         TerminalSize terminalSize = screen.getTerminalSize();
 
         menuBar = MenuBar.fromTextGraphics(textGraphics);
+        view = new View(textGraphics) {
+            @Override
+            public void draw() {
+                this.textGraphics.setBackgroundColor(TextColor.ANSI.RED);
+                this.textGraphics.fillRectangle(TerminalPosition.TOP_LEFT_CORNER, this.textGraphics.getSize(), ' ');
+            }
+        };
 
         screen.startScreen();
     }
