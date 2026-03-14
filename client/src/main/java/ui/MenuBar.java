@@ -8,6 +8,17 @@ import com.googlecode.lanterna.screen.Screen;
 
 public class MenuBar {
     Screen screen;
+    MenuItems menuItems = new MenuItems() {
+        @Override
+        protected MenuBarItem itemAt(int i) {
+            return switch (i) {
+                case 1 -> new MenuBarItem("Login");
+                case 2 -> new MenuBarItem("Register");
+                case 6 -> new MenuBarItem("Quit");
+                default -> null;
+            };
+        }
+    };
 
     public MenuBar(Screen screen) {
         this.screen = screen;
@@ -24,9 +35,24 @@ public class MenuBar {
     void draw() {
         TerminalSize terminalSize = screen.getTerminalSize();
 
-        TextGraphics textGraphics = screen.newTextGraphics();
+        TextGraphics textGraphics = screen.newTextGraphics().newTextGraphics(getBottomRowStart(terminalSize), getMenuBarSize(terminalSize));
 
         textGraphics.setBackgroundColor(TextColor.ANSI.CYAN_BRIGHT);
-        textGraphics.fillRectangle(getBottomRowStart(terminalSize), getMenuBarSize(terminalSize), ' ');
+        textGraphics.fillRectangle(new TerminalPosition(0, 0), getMenuBarSize(terminalSize), ' ');
+
+        for (int i = 1; i <= 6; i++) {
+            MenuBarItem item = menuItems.itemAt(i);
+
+            String fnKey = "F%d".formatted(i);
+            textGraphics.setBackgroundColor(TextColor.ANSI.BLACK);
+            textGraphics.setForegroundColor(TextColor.ANSI.WHITE);
+            textGraphics.putString(8 * (i - 1), 0, fnKey);
+
+            textGraphics.setBackgroundColor(TextColor.ANSI.CYAN_BRIGHT);
+            textGraphics.setForegroundColor(TextColor.ANSI.BLACK);
+            if (item != null) {
+                textGraphics.putString(8 * (i - 1) + 2, 0, item.menuTitle());
+            }
+        }
     }
 }
