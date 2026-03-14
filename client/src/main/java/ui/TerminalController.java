@@ -53,7 +53,7 @@ public class TerminalController {
         screen = defaultTerminalFactory.createScreen();
         textGraphics = screen.newTextGraphics();
 
-        menuBar = MenuBar.fromTextGraphics(textGraphics);
+        menuBar = new MenuBar(textGraphics);
         view = new View(textGraphics) {
             @Override
             public void draw() {
