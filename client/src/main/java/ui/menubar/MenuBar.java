@@ -5,27 +5,32 @@ import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
-import com.googlecode.lanterna.screen.Screen;
 
 public class MenuBar {
-    Screen screen;
+    TextGraphics textGraphics;
     MenuItems menuItems;
 
-    public MenuBar(Screen screen) {
-        this.screen = screen;
+    public static MenuBar fromTextGraphics(TextGraphics fullTextGraphics) {
+        MenuBar menuBar = new MenuBar();
+        menuBar.setTextGraphics(fullTextGraphics);
+        return menuBar;
     }
 
-    TerminalPosition getBottomRowStart(TerminalSize terminalSize) {
+    public void setTextGraphics(TextGraphics fullTextGraphics) {
+        this.textGraphics = fullTextGraphics.newTextGraphics(
+                MenuBar.getBottomRowStart(fullTextGraphics.getSize()),
+                MenuBar.getMenuBarSize(fullTextGraphics.getSize()));
+    }
+
+    public static TerminalPosition getBottomRowStart(TerminalSize terminalSize) {
         return new TerminalPosition(0, terminalSize.getRows() - 1);
     }
 
-    TerminalSize getMenuBarSize(TerminalSize terminalSize) {
+    public static TerminalSize getMenuBarSize(TerminalSize terminalSize) {
         return new TerminalSize(terminalSize.getColumns(), 1);
     }
 
     public void draw() {
-        TerminalSize terminalSize = screen.getTerminalSize();
-        TextGraphics textGraphics = screen.newTextGraphics().newTextGraphics(getBottomRowStart(terminalSize), getMenuBarSize(terminalSize));
 
         if (ClientState.isLoggedIn()) {
             menuItems = MenuItems.LOGGED_IN;
@@ -34,7 +39,7 @@ public class MenuBar {
         }
 
         textGraphics.setBackgroundColor(TextColor.ANSI.CYAN_BRIGHT);
-        textGraphics.fillRectangle(new TerminalPosition(0, 0), getMenuBarSize(terminalSize), ' ');
+        textGraphics.fillRectangle(new TerminalPosition(0, 0), textGraphics.getSize(), ' ');
 
         for (int i = 1; i <= 6; i++) {
             MenuBarItem item = menuItems.itemAt(i);
