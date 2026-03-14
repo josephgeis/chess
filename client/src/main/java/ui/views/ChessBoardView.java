@@ -2,10 +2,8 @@ package ui.views;
 
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
-import com.googlecode.lanterna.TextCharacter;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
-import ui.Drawable;
 import ui.EscapeSequences;
 
 public class ChessBoardView extends View {
