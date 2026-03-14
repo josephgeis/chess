@@ -36,6 +36,8 @@ public class ClientMain {
     private static void init() throws IOException {
         terminalController.init();
         terminalController.registerEventHandler(TerminalController.EventType.QUIT_PROGRAM, ClientMain::quitProgram);
+        terminalController.registerEventHandler(TerminalController.EventType.LOG_IN, ClientMain::logIn);
+        terminalController.registerEventHandler(TerminalController.EventType.LOG_OUT, ClientMain::logOut);
     }
 
     static void eventLoop() throws Exception {
@@ -44,5 +46,13 @@ public class ClientMain {
 
     static void quitProgram() {
         ClientState.quitProgram();
+    }
+
+    static void logIn() {
+        ClientState.setAuthToken("hello");
+    }
+
+    static void logOut() {
+        ClientState.setAuthToken(null);
     }
 }
