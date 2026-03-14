@@ -9,6 +9,7 @@ import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import ui.menubar.MenuBar;
+import ui.views.ChessBoardView;
 import ui.views.View;
 
 import java.io.IOException;
@@ -31,6 +32,7 @@ public class TerminalController {
         if (screen.doResizeIfNecessary() != null) {
             screen.clear();
             menuBar.setTextGraphics(textGraphics);
+            view.setTextGraphics(textGraphics);
         }
 
         view.draw();
@@ -54,13 +56,14 @@ public class TerminalController {
         textGraphics = screen.newTextGraphics();
 
         menuBar = new MenuBar(textGraphics);
-        view = new View(textGraphics) {
-            @Override
-            public void draw() {
-                this.textGraphics.setBackgroundColor(TextColor.ANSI.RED);
-                this.textGraphics.fillRectangle(TerminalPosition.TOP_LEFT_CORNER, this.textGraphics.getSize(), ' ');
-            }
-        };
+//        view = new View(textGraphics) {
+//            @Override
+//            public void draw() {
+//                this.textGraphics.setBackgroundColor(TextColor.ANSI.RED);
+//                this.textGraphics.fillRectangle(TerminalPosition.TOP_LEFT_CORNER, this.textGraphics.getSize(), ' ');
+//            }
+//        };
+        view = new ChessBoardView(textGraphics);
 
         screen.startScreen();
     }
