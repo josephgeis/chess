@@ -2,6 +2,7 @@ package ui;
 
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
+import ui.menubar.MenuBar;
 
 import java.io.IOException;
 
