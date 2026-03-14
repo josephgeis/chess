@@ -7,12 +7,11 @@ import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import ui.menubar.MenuBar;
 import ui.views.ChessBoardView;
+import ui.views.PreLoginView;
 import ui.views.View;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static com.googlecode.lanterna.input.KeyType.*;
 
@@ -27,7 +26,7 @@ public class TerminalController {
     Screen screen;
     TextGraphics textGraphics;
 
-    View view;
+    ArrayDeque<View> viewStack = new ArrayDeque<>();
     MenuBar menuBar;
 
     HashMap<EventType, HashSet<Runnable>> eventHandlers = new HashMap<>();
@@ -64,7 +63,18 @@ public class TerminalController {
         callbacks.remove(callback);
     }
 
+    View activeView() {
+        return viewStack.peekLast();
+    }
+
+
     public void eventLoop() throws IOException {
+        View view = activeView();
+        if (view == null) {
+            fireEvent(EventType.QUIT_PROGRAM);
+            return;
+        }
+
         if (screen.doResizeIfNecessary() != null) {
             screen.clear();
             menuBar.setTextGraphics(textGraphics);
@@ -108,7 +118,8 @@ public class TerminalController {
 //                this.textGraphics.fillRectangle(TerminalPosition.TOP_LEFT_CORNER, this.textGraphics.getSize(), ' ');
 //            }
 //        };
-        view = new ChessBoardView(textGraphics);
+//        view = new ChessBoardView(textGraphics);
+        viewStack.push(new PreLoginView(textGraphics));
 
         screen.startScreen();
     }
