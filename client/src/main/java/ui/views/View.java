@@ -4,7 +4,6 @@ import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import ui.Drawable;
-import ui.menubar.MenuBar;
 
 public class View implements Drawable {
     protected TextGraphics textGraphics;

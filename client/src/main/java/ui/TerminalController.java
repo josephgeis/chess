@@ -2,7 +2,6 @@ package ui;
 
 import client.ClientState;
 import com.googlecode.lanterna.TerminalPosition;
-import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
@@ -32,7 +31,7 @@ public class TerminalController {
         if (screen.doResizeIfNecessary() != null) {
             screen.clear();
             menuBar.setTextGraphics(textGraphics);
-        };
+        }
 
         view.draw();
         menuBar.draw();
@@ -53,7 +52,6 @@ public class TerminalController {
     public void init() throws IOException {
         screen = defaultTerminalFactory.createScreen();
         textGraphics = screen.newTextGraphics();
-        TerminalSize terminalSize = screen.getTerminalSize();
 
         menuBar = MenuBar.fromTextGraphics(textGraphics);
         view = new View(textGraphics) {
