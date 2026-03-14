@@ -6,14 +6,12 @@ import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 
-public class MenuBar implements ui.Drawable {
+public class MenuBar extends ui.Drawable {
     TextGraphics textGraphics;
     MenuItems menuItems;
 
-    public static MenuBar fromTextGraphics(TextGraphics parentTextGraphics) {
-        MenuBar menuBar = new MenuBar();
-        menuBar.setTextGraphics(parentTextGraphics);
-        return menuBar;
+    public MenuBar(TextGraphics parentTextGraphics) {
+        super(parentTextGraphics);
     }
 
     @Override
