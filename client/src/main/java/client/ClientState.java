@@ -1,6 +1,12 @@
 package client;
 
 public final class ClientState {
+    static boolean quit = false;
+
+    public static void quitProgram() {
+        quit = true;
+    }
+
     static String authToken = null;
 
     public static String getAuthToken() {

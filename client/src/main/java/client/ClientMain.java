@@ -19,7 +19,9 @@ public class ClientMain {
 
         try {
             terminalController.init();
-            while (eventLoop() == 0) ;
+            while (!ClientState.quit) {
+                eventLoop();
+            };
         } catch (Exception e) {
             throw new RuntimeException("An unhandled exception was thrown.", e);
         } finally {
@@ -31,8 +33,7 @@ public class ClientMain {
         }
     }
 
-    static int eventLoop() throws Exception {
+    static void eventLoop() throws Exception {
         terminalController.eventLoop();
-        return 0;
     }
 }
