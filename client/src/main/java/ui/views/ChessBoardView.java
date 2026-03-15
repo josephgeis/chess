@@ -5,6 +5,7 @@ import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import ui.EscapeSequences;
+import ui.TerminalController;
 
 public class ChessBoardView extends View {
 
@@ -18,8 +19,8 @@ public class ChessBoardView extends View {
     final int EDGE_THICK_H = 1;
     final int EDGE_THICK_V = 2;
 
-    public ChessBoardView(TextGraphics parentTextGraphics) {
-        super(parentTextGraphics);
+    public ChessBoardView(TextGraphics parentTextGraphics, TerminalController terminalController) {
+        super(parentTextGraphics, terminalController);
     }
 
     @Override
