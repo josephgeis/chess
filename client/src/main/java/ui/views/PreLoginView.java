@@ -3,13 +3,15 @@
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
+import ui.TerminalController;
 
-public class PreLoginView extends View {
-    public PreLoginView(TextGraphics parentTextGraphics) {
-        super(parentTextGraphics);
-    }
+ public class PreLoginView extends View {
 
-    @Override
+     public PreLoginView(TextGraphics parentTextGraphics, TerminalController terminalController) {
+         super(parentTextGraphics, terminalController);
+     }
+
+     @Override
     public void draw() {
         textGraphics.setBackgroundColor(TextColor.ANSI.BLUE);
         textGraphics.setForegroundColor(TextColor.ANSI.WHITE_BRIGHT);

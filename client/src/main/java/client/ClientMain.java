@@ -36,7 +36,7 @@ public class ClientMain {
     private static void init() throws IOException {
         terminalController.init();
         terminalController.registerEventHandler(TerminalController.EventType.QUIT_PROGRAM, ClientMain::quitProgram);
-        terminalController.registerEventHandler(TerminalController.EventType.LOG_IN, ClientMain::logIn);
+        terminalController.registerEventHandler(TerminalController.EventType.DO_LOG_IN, ClientMain::logIn);
         terminalController.registerEventHandler(TerminalController.EventType.LOG_OUT, ClientMain::logOut);
     }
 
