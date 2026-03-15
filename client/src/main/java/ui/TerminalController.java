@@ -39,7 +39,8 @@ public class TerminalController {
         JOIN_GAME,
         LIST_GAME,
         SPECTATE_GAME,
-        LOG_OUT
+        LOG_OUT,
+        SHOW_HELP
     }
 
     void fireEvent(EventType eventType) {
