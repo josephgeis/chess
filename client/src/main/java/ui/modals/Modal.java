@@ -15,10 +15,14 @@ public abstract class Modal extends View {
         super(parentTextGraphics, terminalController);
     }
 
-    @Override
-    public void draw() {
+    void defaultColor() {
         textGraphics.setBackgroundColor(TextColor.ANSI.WHITE);
         textGraphics.setForegroundColor(TextColor.ANSI.BLACK);
+    }
+
+    @Override
+    public void draw() {
+        defaultColor();
 
         var topRight = TerminalPosition.TOP_LEFT_CORNER.withRelativeColumn(getSize().getColumns() - 1);
         var bottomLeft = TerminalPosition.TOP_LEFT_CORNER.withRelativeRow(getSize().getRows() - 1);
@@ -45,5 +49,5 @@ public abstract class Modal extends View {
                 new TerminalPosition(colOffset, rowOffset), getSize());
     }
 
-    public abstract void onClose();
+    public abstract void close();
 }

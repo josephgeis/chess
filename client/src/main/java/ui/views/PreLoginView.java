@@ -68,7 +68,7 @@ import java.util.EnumSet;
      public void showLoginModal() {
          LoginModal loginModal = new LoginModal(textGraphics, terminalController) {
              @Override
-             public void onClose() {
+             public void close() {
                  terminalController.popView();
              }
          };
