@@ -6,7 +6,6 @@ import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import ui.menubar.MenuBar;
-import ui.views.ChessBoardView;
 import ui.views.PreLoginView;
 import ui.views.View;
 
@@ -33,6 +32,7 @@ public class TerminalController {
 
     public enum EventType {
         LOG_IN,
+        DO_LOG_IN,
         REGISTER,
         QUIT_PROGRAM,
         NEW_GAME,
@@ -65,6 +65,34 @@ public class TerminalController {
 
     View activeView() {
         return viewStack.peekLast();
+    }
+
+    public void pushView(View newView) {
+        if (activeView() != null) {
+            activeView().onUnload();
+        }
+        viewStack.push(newView);
+        activeView().onLoad();
+    }
+
+    public <T extends View> void pushNewView(Class<T> viewClass) {
+        T newView;
+        try {
+            newView = viewClass
+                    .getConstructor(TextGraphics.class, TerminalController.class)
+                    .newInstance(textGraphics, this);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        pushView(newView);
+    }
+
+    public void popView() {
+        activeView().onUnload();
+        viewStack.pop();
+        if (activeView() != null) {
+            activeView().onUnload();
+        }
     }
 
 
@@ -111,15 +139,7 @@ public class TerminalController {
         textGraphics = screen.newTextGraphics();
 
         menuBar = new MenuBar(textGraphics);
-//        view = new View(textGraphics) {
-//            @Override
-//            public void draw() {
-//                this.textGraphics.setBackgroundColor(TextColor.ANSI.RED);
-//                this.textGraphics.fillRectangle(TerminalPosition.TOP_LEFT_CORNER, this.textGraphics.getSize(), ' ');
-//            }
-//        };
-//        view = new ChessBoardView(textGraphics);
-        viewStack.push(new PreLoginView(textGraphics));
+        pushNewView(PreLoginView.class);
 
         screen.startScreen();
     }
