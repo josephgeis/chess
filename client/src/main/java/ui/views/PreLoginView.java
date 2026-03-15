@@ -6,6 +6,7 @@ import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import ui.EventPublisher;
 import ui.TerminalController;
+import ui.menubar.MenuItems;
 import ui.modals.LoginModal;
 
 import java.util.EnumSet;
@@ -16,6 +17,7 @@ import java.util.EnumSet;
 
      public PreLoginView(TextGraphics parentTextGraphics, TerminalController terminalController) {
          super(parentTextGraphics, terminalController);
+         menuItems = MenuItems.NOT_LOGGED_IN;
      }
 
      @Override
