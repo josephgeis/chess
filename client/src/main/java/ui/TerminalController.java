@@ -57,7 +57,7 @@ public class TerminalController implements EventObserver {
         activeView().onUnload();
         viewStack.pop();
         if (activeView() != null) {
-            activeView().onUnload();
+            activeView().onLoad();
         }
     }
 
