@@ -9,9 +9,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
-import result.CreateGameResult;
-import result.GameListing;
-import result.ListGamesResult;
+import response.CreateGameResponse;
+import response.GameListing;
+import response.ListGamesResponse;
 import server.AlreadyTakenException;
 import server.MalformedRequestException;
 import server.UnauthorizedRequestException;
@@ -57,7 +57,7 @@ class GameServiceTests {
 
     @Test
     void listGamesEmpty() {
-        ListGamesResult result = assertDoesNotThrow(() -> gameService.listGames(AUTH_TOKEN));
+        ListGamesResponse result = assertDoesNotThrow(() -> gameService.listGames(AUTH_TOKEN));
         assertTrue(result.games().isEmpty(), "Expected there to be no games.");
     }
 
@@ -65,7 +65,7 @@ class GameServiceTests {
     void listGamesOne() {
         GameData gameData = GameData.withName(GAME_NAME);
         int gameID = assertDoesNotThrow(() -> gameDAO.createGame(gameData));
-        ListGamesResult result = assertDoesNotThrow(() -> gameService.listGames(AUTH_TOKEN));
+        ListGamesResponse result = assertDoesNotThrow(() -> gameService.listGames(AUTH_TOKEN));
 
         assertEquals(1, result.games().size());
         GameListing firstGame = result.games().iterator().next();
@@ -83,7 +83,7 @@ class GameServiceTests {
 
         GameData gameData2 = GameData.withName(GAME_NAME_TWO);
         int gameID2 = assertDoesNotThrow(() -> gameDAO.createGame(gameData2));
-        ListGamesResult result = assertDoesNotThrow(() -> gameService.listGames(AUTH_TOKEN));
+        ListGamesResponse result = assertDoesNotThrow(() -> gameService.listGames(AUTH_TOKEN));
 
         assertEquals(2, result.games().size());
         Iterator<GameListing> gameListingIterator = result.games().iterator();
@@ -110,7 +110,7 @@ class GameServiceTests {
     @Test
     void createGame() {
         CreateGameRequest request = new CreateGameRequest(GAME_NAME);
-        CreateGameResult result = assertDoesNotThrow(() -> gameService.createGame(AUTH_TOKEN, request));
+        CreateGameResponse result = assertDoesNotThrow(() -> gameService.createGame(AUTH_TOKEN, request));
         GameData newGame = assertDoesNotThrow(() -> gameDAO.retrieveGame(result.gameID()));
 
         assertNotNull(newGame);
@@ -126,11 +126,11 @@ class GameServiceTests {
     @Test
     void createTwoGames() {
         CreateGameRequest request = new CreateGameRequest(GAME_NAME);
-        CreateGameResult result = assertDoesNotThrow(() -> gameService.createGame(AUTH_TOKEN, request));
+        CreateGameResponse result = assertDoesNotThrow(() -> gameService.createGame(AUTH_TOKEN, request));
         GameData newGame = assertDoesNotThrow(() -> gameDAO.retrieveGame(result.gameID()));
 
         CreateGameRequest request2 = new CreateGameRequest(GAME_NAME_TWO);
-        CreateGameResult result2 = assertDoesNotThrow(() -> gameService.createGame(AUTH_TOKEN, request2));
+        CreateGameResponse result2 = assertDoesNotThrow(() -> gameService.createGame(AUTH_TOKEN, request2));
         GameData newGame2 = assertDoesNotThrow(() -> gameDAO.retrieveGame(result2.gameID()));
 
         assertNotNull(newGame);

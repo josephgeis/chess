@@ -1,18 +1,18 @@
-package result;
+package response;
 
 import model.GameData;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-public record ListGamesResult(Collection<GameListing> games) {
-    public static ListGamesResult from(Collection<GameData> gameDataCollection) {
+public record ListGamesResponse(Collection<GameListing> games) {
+    public static ListGamesResponse from(Collection<GameData> gameDataCollection) {
         ArrayList<GameListing> gameListings = new ArrayList<>();
 
         for (GameData gameData : gameDataCollection) {
             gameListings.add(GameListing.from(gameData));
         }
 
-        return new ListGamesResult(gameListings);
+        return new ListGamesResponse(gameListings);
     }
 }

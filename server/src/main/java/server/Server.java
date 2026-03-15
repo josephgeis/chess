@@ -6,7 +6,7 @@ import io.javalin.*;
 import io.javalin.http.Context;
 import org.jetbrains.annotations.NotNull;
 import request.*;
-import result.*;
+import response.*;
 import service.ServiceManager;
 
 public class Server {
@@ -72,7 +72,7 @@ public class Server {
             throw new MalformedRequestException();
         }
 
-        RegisterResult result = serviceManager.getUserService().registerUser(request);
+        RegisterResponse result = serviceManager.getUserService().registerUser(request);
         context.json(gson.toJson(result));
     }
 
@@ -85,7 +85,7 @@ public class Server {
         }
 
 
-        LoginResult result = serviceManager.getAuthService().loginUser(request);
+        LoginResponse result = serviceManager.getAuthService().loginUser(request);
         context.json(gson.toJson(result));
     }
 
@@ -102,7 +102,7 @@ public class Server {
     void handleListGames(@NotNull Context context) throws Exception {
         final String authToken = getAuthToken(context);
 
-        ListGamesResult result = serviceManager.getGameService().listGames(authToken);
+        ListGamesResponse result = serviceManager.getGameService().listGames(authToken);
 
         context.json(gson.toJson(result));
     }
@@ -116,7 +116,7 @@ public class Server {
             throw new MalformedRequestException();
         }
 
-        CreateGameResult result = serviceManager.getGameService().createGame(authToken, request);
+        CreateGameResponse result = serviceManager.getGameService().createGame(authToken, request);
 
         context.json(gson.toJson(result));
     }

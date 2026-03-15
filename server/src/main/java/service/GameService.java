@@ -7,8 +7,8 @@ import model.AuthData;
 import model.GameData;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
-import result.CreateGameResult;
-import result.ListGamesResult;
+import response.CreateGameResponse;
+import response.ListGamesResponse;
 import server.AlreadyTakenException;
 import server.MalformedRequestException;
 import server.UnauthorizedRequestException;
@@ -32,21 +32,21 @@ public class GameService {
         }
     }
 
-    public ListGamesResult listGames(String authToken) throws Exception {
+    public ListGamesResponse listGames(String authToken) throws Exception {
         validateAuthToken(authToken);
 
         Collection<GameData> games = gameDAO.retrieveAllGames();
 
-        return ListGamesResult.from(games);
+        return ListGamesResponse.from(games);
     }
 
-    public CreateGameResult createGame(String authToken, CreateGameRequest request) throws Exception {
+    public CreateGameResponse createGame(String authToken, CreateGameRequest request) throws Exception {
         validateAuthToken(authToken);
 
         final GameData newGame = GameData.withName(request.gameName());
         final int gameID = gameDAO.createGame(newGame);
 
-        return new CreateGameResult(gameID);
+        return new CreateGameResponse(gameID);
     }
 
     public void joinGame(String authToken, JoinGameRequest request) throws Exception {

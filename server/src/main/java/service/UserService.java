@@ -6,7 +6,7 @@ import model.AuthData;
 import model.UserData;
 import org.jetbrains.annotations.NotNull;
 import request.RegisterRequest;
-import result.RegisterResult;
+import response.RegisterResponse;
 import server.AlreadyTakenException;
 
 public class UserService {
@@ -19,7 +19,7 @@ public class UserService {
         this.authDAO = authDAO;
     }
 
-    public RegisterResult registerUser(@NotNull RegisterRequest request) throws Exception {
+    public RegisterResponse registerUser(@NotNull RegisterRequest request) throws Exception {
         var newUser = new UserData(request.username(), request.password(), request.email());
 
         try {
@@ -31,6 +31,6 @@ public class UserService {
         AuthData newAuth = AuthData.createFor(request.username());
         authDAO.createAuth(newAuth);
 
-        return RegisterResult.from(newAuth);
+        return RegisterResponse.from(newAuth);
     }
 }
