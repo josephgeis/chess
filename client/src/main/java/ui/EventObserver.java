@@ -17,7 +17,7 @@ public interface EventObserver {
     }
 
     default void cancelEventHandlers() {
-        for (EventPublisher.EventHandler handler : eventHandlers) {
+        for (EventPublisher.EventHandler handler : (HashSet< EventPublisher.EventHandler>) eventHandlers.clone()) {
             removeEventHandler(handler);
         }
     }
