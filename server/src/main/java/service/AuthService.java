@@ -5,7 +5,7 @@ import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
 import request.LoginRequest;
-import result.LoginResult;
+import response.LoginResponse;
 import server.UnauthorizedRequestException;
 
 public class AuthService {
@@ -19,7 +19,7 @@ public class AuthService {
     }
 
 
-    public LoginResult loginUser(LoginRequest request) throws Exception {
+    public LoginResponse loginUser(LoginRequest request) throws Exception {
         UserData user = userDAO.getUser(request.username());
 
         if (user == null || !userDAO.validatePassword(user, request.password())) {
@@ -29,7 +29,7 @@ public class AuthService {
         AuthData authData = AuthData.createFor(user.username());
         authDAO.createAuth(authData);
 
-        return LoginResult.from(authData);
+        return LoginResponse.from(authData);
     }
 
     public void logoutUser(String authToken) throws Exception {

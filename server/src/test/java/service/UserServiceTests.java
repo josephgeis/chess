@@ -5,7 +5,7 @@ import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import request.RegisterRequest;
-import result.RegisterResult;
+import response.RegisterResponse;
 import server.AlreadyTakenException;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -30,7 +30,7 @@ public class UserServiceTests {
     void testRegisterUser() {
         RegisterRequest request = new RegisterRequest(USERNAME, "password", "nobody@example.com");
 
-        RegisterResult result = Assertions.assertDoesNotThrow(() -> userService.registerUser(request));
+        RegisterResponse result = Assertions.assertDoesNotThrow(() -> userService.registerUser(request));
         Assertions.assertEquals(USERNAME, result.username());
 
         UserData user = Assertions.assertDoesNotThrow(() -> userDAO.getUser(USERNAME));

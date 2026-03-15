@@ -5,7 +5,7 @@ import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import request.LoginRequest;
-import result.LoginResult;
+import response.LoginResponse;
 import server.UnauthorizedRequestException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -44,7 +44,7 @@ class AuthServiceTests {
     @Order(1)
     void loginUser() {
         LoginRequest request = new LoginRequest(USERNAME, PASSWORD);
-        LoginResult result = assertDoesNotThrow(() -> authService.loginUser(request));
+        LoginResponse result = assertDoesNotThrow(() -> authService.loginUser(request));
 
         assertEquals(USERNAME, result.username());
         assertDoesNotThrow(() -> authDAO.retrieveAuth(result.authToken()));
@@ -86,7 +86,7 @@ class AuthServiceTests {
     @Order(6)
     void loginLogout() {
         LoginRequest request = new LoginRequest(USERNAME, PASSWORD);
-        LoginResult result = assertDoesNotThrow(() -> authService.loginUser(request));
+        LoginResponse result = assertDoesNotThrow(() -> authService.loginUser(request));
 
         assertEquals(USERNAME, result.username());
         assertDoesNotThrow(() -> authDAO.retrieveAuth(result.authToken()));
