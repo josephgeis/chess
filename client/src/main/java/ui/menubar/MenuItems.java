@@ -9,7 +9,7 @@ public abstract class MenuItems {
             return switch (i) {
                 case 1 -> new MenuBarItem("Login", LOG_IN);
                 case 2 -> new MenuBarItem("Register", REGISTER);
-                case 5 -> new MenuBarItem("Help", null);
+                case 5 -> new MenuBarItem("Help", SHOW_HELP);
                 case 6 -> new MenuBarItem("Quit", QUIT_PROGRAM);
                 default -> null;
             };

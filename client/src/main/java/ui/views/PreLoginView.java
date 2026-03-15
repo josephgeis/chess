@@ -1,11 +1,16 @@
  package ui.views;
 
+import com.googlecode.lanterna.SGR;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import ui.TerminalController;
 
+import java.util.EnumSet;
+
  public class PreLoginView extends View {
+
+     boolean showHelp = false;
 
      public PreLoginView(TextGraphics parentTextGraphics, TerminalController terminalController) {
          super(parentTextGraphics, terminalController);
@@ -23,5 +28,40 @@ import ui.TerminalController;
 
         textGraphics.putString(TerminalPosition.OFFSET_1x1, "240 Chess Client");
         textGraphics.putString(new TerminalPosition(2, 2), "Not Logged In");
+
+        if (showHelp) {
+            String[] fnKeys = {"F1", "F2", "F5", "F6"};
+            String[] helpStrings = {
+                    "Log in as an existing user",
+                    "Register as a new user",
+                    "Toggle this help message",
+                    "Quit the program"
+            };
+
+            TerminalPosition helpPosition = new TerminalPosition(2, 4);
+            for (int i = 0; i < helpStrings.length; i++) {
+                textGraphics.setModifiers(EnumSet.of(SGR.BOLD));
+                textGraphics.putString(helpPosition.withRelativeRow(i), fnKeys[i]);
+
+                textGraphics.clearModifiers();
+                textGraphics.putString(helpPosition.withRelative(fnKeys[i].length() + 1, i), helpStrings[i]);
+            }
+        }
     }
-}
+
+     @Override
+     public void onLoad() {
+         super.onLoad();
+         showHelp = false;
+         terminalController.registerEventHandler(TerminalController.EventType.SHOW_HELP, this::showHelpScreen);
+     }
+
+     @Override
+     public void onUnload() {
+         terminalController.removeEventHandler(TerminalController.EventType.SHOW_HELP, this::showHelpScreen);
+     }
+
+     public void showHelpScreen() {
+        showHelp = !showHelp;
+     }
+ }
