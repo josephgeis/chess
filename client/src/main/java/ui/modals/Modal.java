@@ -9,6 +9,8 @@ import ui.views.View;
 
 public abstract class Modal extends View {
 
+    TextGraphics shadowTextGraphics;
+
     protected abstract TerminalSize getSize();
 
     public Modal(TextGraphics parentTextGraphics, TerminalController terminalController) {
@@ -22,6 +24,9 @@ public abstract class Modal extends View {
 
     @Override
     public void draw() {
+        shadowTextGraphics.setBackgroundColor(TextColor.ANSI.BLACK);
+        shadowTextGraphics.fillRectangle(TerminalPosition.TOP_LEFT_CORNER, getSize(), ' ');
+
         defaultColor();
 
         var topRight = TerminalPosition.TOP_LEFT_CORNER.withRelativeColumn(getSize().getColumns() - 1);
@@ -45,8 +50,13 @@ public abstract class Modal extends View {
         int colOffset = (parentSize.getColumns() - getSize().getColumns()) / 2;
         int rowOffset = (parentSize.getRows() - getSize().getRows()) / 2;
 
+        TerminalPosition modalPosition = new TerminalPosition(colOffset, rowOffset);
         this.textGraphics = parentTextGraphics.newTextGraphics(
-                new TerminalPosition(colOffset, rowOffset), getSize());
+                modalPosition, getSize()
+        );
+        this.shadowTextGraphics = parentTextGraphics.newTextGraphics(
+                modalPosition.withRelative(2, 1), getSize()
+        );
     }
 
     public abstract void close();
