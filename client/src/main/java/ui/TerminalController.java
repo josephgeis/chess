@@ -65,7 +65,7 @@ public class TerminalController {
     }
 
     View activeView() {
-        return viewStack.peekLast();
+        return viewStack.peek();
     }
 
     public void pushView(View newView) {
