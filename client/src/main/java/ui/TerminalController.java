@@ -58,6 +58,7 @@ public class TerminalController implements EventObserver {
         viewStack.pop();
         if (activeView() != null) {
             activeView().onLoad();
+            activeView().setTextGraphics(textGraphics);
         }
     }
 
