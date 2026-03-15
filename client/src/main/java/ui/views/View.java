@@ -8,7 +8,7 @@ import ui.TerminalController;
 
 public abstract class View extends Drawable {
 
-    TerminalController terminalController;
+    protected TerminalController terminalController;
 
     public View(TextGraphics parentTextGraphics, TerminalController terminalController) {
         super(parentTextGraphics);

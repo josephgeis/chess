@@ -5,6 +5,7 @@ import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import ui.TerminalController;
+import ui.modals.LoginModal;
 
 import java.util.EnumSet;
 
@@ -53,15 +54,27 @@ import java.util.EnumSet;
      public void onLoad() {
          super.onLoad();
          showHelp = false;
+
          terminalController.registerEventHandler(TerminalController.EventType.SHOW_HELP, this::showHelpScreen);
+         terminalController.registerEventHandler(TerminalController.EventType.LOG_IN, this::showLoginModal);
      }
 
      @Override
      public void onUnload() {
          terminalController.removeEventHandler(TerminalController.EventType.SHOW_HELP, this::showHelpScreen);
+         terminalController.removeEventHandler(TerminalController.EventType.LOG_IN, this::showLoginModal);
      }
 
      public void showHelpScreen() {
         showHelp = !showHelp;
+     }
+     public void showLoginModal() {
+         LoginModal loginModal = new LoginModal(textGraphics, terminalController) {
+             @Override
+             public void onClose() {
+                 terminalController.popView();
+             }
+         };
+         terminalController.pushView(loginModal);
      }
  }
