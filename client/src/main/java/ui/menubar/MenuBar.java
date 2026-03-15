@@ -9,7 +9,7 @@ import com.googlecode.lanterna.input.KeyType;
 import ui.EventPublisher;
 
 public class MenuBar extends ui.Drawable {
-    MenuItems menuItems;
+    MenuItems menuItems = MenuItems.NONE;
 
     public MenuBar(TextGraphics parentTextGraphics) {
         super(parentTextGraphics);
@@ -30,14 +30,12 @@ public class MenuBar extends ui.Drawable {
         return new TerminalSize(terminalSize.getColumns(), 1);
     }
 
+    public void setMenuItems(MenuItems menuItems) {
+        this.menuItems = menuItems;
+    }
+
     @Override
     public void draw() {
-
-        if (ClientState.isLoggedIn()) {
-            menuItems = MenuItems.LOGGED_IN;
-        } else {
-            menuItems = MenuItems.NOT_LOGGED_IN;
-        }
 
         textGraphics.setBackgroundColor(TextColor.ANSI.CYAN_BRIGHT);
         textGraphics.fillRectangle(new TerminalPosition(0, 0), textGraphics.getSize(), ' ');
