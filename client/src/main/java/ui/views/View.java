@@ -4,9 +4,10 @@ import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import ui.Drawable;
+import ui.EventObserver;
 import ui.TerminalController;
 
-public abstract class View extends Drawable {
+public abstract class View extends Drawable implements EventObserver {
 
     protected TerminalController terminalController;
 
@@ -27,6 +28,8 @@ public abstract class View extends Drawable {
     @Override
     abstract public void draw();
 
-    public void onLoad() { };
-    public void onUnload() { };
+    public void onLoad() { }
+    public void onUnload() {
+        cancelEventHandlers();
+    }
 }
