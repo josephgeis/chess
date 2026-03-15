@@ -1,5 +1,6 @@
 package ui.views;
 
+import com.googlecode.lanterna.SGR;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
@@ -7,12 +8,15 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 import ui.EscapeSequences;
 import ui.TerminalController;
 
+import java.util.EnumSet;
+
 public class ChessBoardView extends View {
 
-    private static final TextColor SAND = new TextColor.RGB(163, 147, 130);
-    final TextColor NAVY = new TextColor.RGB(0, 46, 93);
-    final TextColor ROYAL = new TextColor.RGB(0, 61, 165);
-    final TextColor ORANGE = new TextColor.RGB(209, 65, 36);
+    private static final TextColor NAVY = new TextColor.RGB(0, 46, 93);
+    private static final TextColor ROYAL = new TextColor.RGB(0, 61, 165);
+    private static final TextColor ORANGE = new TextColor.RGB(209, 65, 36);
+    private static final TextColor EDGE_COLOR = new TextColor.RGB(209, 204, 189);
+    private static final TextColor LABEL_COLOR = new TextColor.RGB(163, 147, 130);
 
     final int SQUARE_COLS = 5;
     final int SQUARE_ROWS = 3;
@@ -35,7 +39,7 @@ public class ChessBoardView extends View {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 TerminalPosition position = startPosition.withRelative(5*j, 3*i);
-                drawSquare(position, (i + j) % 2 == 0 ? NAVY : ROYAL,
+                drawSquare(position, (i + j) % 2 == 0 ? ROYAL : NAVY,
                         new ChessPiece(EscapeSequences.BLACK_PAWN, i < 4));
             }
         }
@@ -43,7 +47,7 @@ public class ChessBoardView extends View {
     }
 
     private void drawBoardEdge(TerminalPosition startPosition) {
-        textGraphics.setBackgroundColor(new TextColor.RGB(209, 204, 189));
+        textGraphics.setBackgroundColor(EDGE_COLOR);
 
         TerminalSize horizontalEdge = new TerminalSize(SQUARE_COLS * 8 + 2 * EDGE_THICK_V, 1);
         TerminalPosition topEdge = startPosition.withRelative( -EDGE_THICK_V, -EDGE_THICK_H);
@@ -61,27 +65,29 @@ public class ChessBoardView extends View {
     }
 
     private void drawEdgeAlphaNumber(TerminalPosition startPosition) {
+        final Character[] LETTERS = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
         for (int i = 0; i < 8; i++) {
-            textGraphics.setForegroundColor(SAND);
+            textGraphics.setForegroundColor(LABEL_COLOR);
+            textGraphics.setModifiers(EnumSet.of(SGR.BOLD));
             TerminalPosition topLetterPosition = startPosition.withRelative(2 + SQUARE_COLS * i, -1);
-            textGraphics.putString(topLetterPosition, "%d".formatted(i + 1));
+            textGraphics.putString(topLetterPosition, "%c".formatted(LETTERS[i]));
             TerminalPosition bottomLetterPosition = startPosition.withRelative(2 + SQUARE_COLS * i, 8 * SQUARE_ROWS);
-            textGraphics.putString(bottomLetterPosition, "%d".formatted(i + 1));
+            textGraphics.putString(bottomLetterPosition, "%c".formatted(LETTERS[i]));
 
             TerminalPosition leftNumberPosition = startPosition.withRelative(-1, 1 + SQUARE_ROWS * i);
-            textGraphics.putString(leftNumberPosition, "%d".formatted(i + 1));
+            textGraphics.putString(leftNumberPosition, "%d".formatted(8 - i));
             TerminalPosition rightNumberPosition = startPosition.withRelative(8 * SQUARE_COLS, 1 + SQUARE_ROWS * i);
-            textGraphics.putString(rightNumberPosition, "%d".formatted(i + 1));
+            textGraphics.putString(rightNumberPosition, "%d".formatted(8 - i));
         }
     }
 
     record ChessPiece(String symbol, boolean blackWhite) {
         public TextColor color() {
-            return blackWhite ? TextColor.ANSI.WHITE : TextColor.ANSI.BLACK;
+            return blackWhite ? TextColor.ANSI.WHITE_BRIGHT : TextColor.ANSI.BLACK;
         }
 
         public TextColor textColor() {
-            return blackWhite ? TextColor.ANSI.BLACK : TextColor.ANSI.WHITE;
+            return blackWhite ? TextColor.ANSI.BLACK : TextColor.ANSI.WHITE_BRIGHT;
         }
     }
 
