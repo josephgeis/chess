@@ -93,10 +93,11 @@ public class TerminalController implements EventObserver {
 
         if (fnKeys.contains(keyType)) {
             eventType = menuBar.getEventForMenuKey(keyType);
-        }
-
-        if (eventType != null) {
-            eventPublisher.fireEvent(eventType);
+            if (eventType != null) {
+                eventPublisher.fireEvent(eventType);
+            }
+        } else {
+            activeView().onKeyStroke(keyStroke);
         }
     }
 
