@@ -3,7 +3,9 @@ package ui.menubar;
 import static ui.EventPublisher.EventType.*;
 
 public abstract class MenuItems {
-    public static MenuItems NOT_LOGGED_IN = new MenuItems() {
+    public static final MenuItems NONE = new MenuItems() { };
+
+    public static final MenuItems NOT_LOGGED_IN = new MenuItems() {
         @Override
         protected MenuBarItem itemAt(int i) {
             return switch (i) {
@@ -16,7 +18,7 @@ public abstract class MenuItems {
         }
     };
 
-    public static MenuItems LOGGED_IN = new MenuItems() {
+    public static final MenuItems LOGGED_IN = new MenuItems() {
         @Override
         protected MenuBarItem itemAt(int i) {
             return switch(i) {

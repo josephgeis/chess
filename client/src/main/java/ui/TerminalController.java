@@ -76,6 +76,7 @@ public class TerminalController implements EventObserver {
         }
 
         view.draw();
+        menuBar.setMenuItems(view.getMenuItems());
         menuBar.draw();
         screen.refresh();
 

@@ -7,14 +7,21 @@ import com.googlecode.lanterna.input.KeyStroke;
 import ui.Drawable;
 import ui.EventObserver;
 import ui.TerminalController;
+import ui.menubar.MenuItems;
 
 public abstract class View extends Drawable implements EventObserver {
 
     protected TerminalController terminalController;
+    protected MenuItems menuItems = MenuItems.NONE;
 
     public View(TextGraphics parentTextGraphics, TerminalController terminalController) {
         super(parentTextGraphics);
         this.terminalController = terminalController;
+
+    }
+
+    public MenuItems getMenuItems() {
+        return menuItems;
     }
 
     @Override
