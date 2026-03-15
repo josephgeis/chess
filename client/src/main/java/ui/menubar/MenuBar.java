@@ -6,7 +6,7 @@ import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyType;
-import ui.TerminalController;
+import ui.EventPublisher;
 
 public class MenuBar extends ui.Drawable {
     MenuItems menuItems;
@@ -58,7 +58,7 @@ public class MenuBar extends ui.Drawable {
         }
     }
 
-    public TerminalController.EventType getEventForMenuKey(KeyType keyType) {
+    public EventPublisher.EventType getEventForMenuKey(KeyType keyType) {
         int itemNumber = switch (keyType) {
             case F1 -> 1;
             case F2 -> 2;

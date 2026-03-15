@@ -1,6 +1,6 @@
 package ui.menubar;
 
-import static ui.TerminalController.EventType.*;
+import static ui.EventPublisher.EventType.*;
 
 public abstract class MenuItems {
     public static MenuItems NOT_LOGGED_IN = new MenuItems() {

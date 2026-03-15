@@ -20,49 +20,14 @@ import static com.googlecode.lanterna.input.KeyType.*;
  * 1. Field (where the chess board, games list are drawn [depending on context])
  * 2. Menu bar
  */
-public class TerminalController {
+public class TerminalController implements EventObserver {
+    EventPublisher eventPublisher = EventPublisher.getInstance();
     DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
     Screen screen;
     TextGraphics textGraphics;
 
     ArrayDeque<View> viewStack = new ArrayDeque<>();
     MenuBar menuBar;
-
-    HashMap<EventType, HashSet<Runnable>> eventHandlers = new HashMap<>();
-
-    public enum EventType {
-        LOG_IN,
-        DO_LOG_IN,
-        REGISTER,
-        QUIT_PROGRAM,
-        NEW_GAME,
-        JOIN_GAME,
-        LIST_GAME,
-        SPECTATE_GAME,
-        LOG_OUT,
-        SHOW_HELP
-    }
-
-    void fireEvent(EventType eventType) {
-        HashSet<Runnable> callbacks = eventHandlers.get(eventType);
-        if (callbacks == null) {
-            return;
-        }
-
-        for (Runnable callback : callbacks) {
-            callback.run();
-        }
-    }
-
-    public void registerEventHandler(EventType eventType, Runnable callback) {
-        HashSet<Runnable> callbacks = eventHandlers.computeIfAbsent(eventType, k -> new HashSet<>());
-        callbacks.add(callback);
-    }
-
-    public void removeEventHandler(EventType eventType, Runnable callback) {
-        HashSet<Runnable> callbacks = eventHandlers.computeIfAbsent(eventType, k -> new HashSet<>());
-        callbacks.remove(callback);
-    }
 
     View activeView() {
         return viewStack.peek();
@@ -100,7 +65,7 @@ public class TerminalController {
     public void eventLoop() throws IOException {
         View view = activeView();
         if (view == null) {
-            fireEvent(EventType.QUIT_PROGRAM);
+            eventPublisher.fireEvent(EventPublisher.EventType.QUIT_PROGRAM);
             return;
         }
 
@@ -124,14 +89,14 @@ public class TerminalController {
         Set<KeyType> fnKeys = Set.of(new KeyType[]{F1, F2, F3, F4, F5, F6});
 
         KeyType keyType = keyStroke.getKeyType();
-        EventType eventType = null;
+        EventPublisher.EventType eventType = null;
 
         if (fnKeys.contains(keyType)) {
             eventType = menuBar.getEventForMenuKey(keyType);
         }
 
         if (eventType != null) {
-            fireEvent(eventType);
+            eventPublisher.fireEvent(eventType);
         }
     }
 

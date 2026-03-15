@@ -1,6 +1,7 @@
 package client;
 
 import chess.*;
+import ui.EventPublisher;
 import ui.TerminalController;
 
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.io.IOException;
  */
 public class ClientMain {
     static TerminalController terminalController;
+    static EventPublisher eventPublisher = EventPublisher.getInstance();
 
     public static void main(String[] args) {
         var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
@@ -35,9 +37,9 @@ public class ClientMain {
 
     private static void init() throws IOException {
         terminalController.init();
-        terminalController.registerEventHandler(TerminalController.EventType.QUIT_PROGRAM, ClientMain::quitProgram);
-        terminalController.registerEventHandler(TerminalController.EventType.DO_LOG_IN, ClientMain::logIn);
-        terminalController.registerEventHandler(TerminalController.EventType.LOG_OUT, ClientMain::logOut);
+        eventPublisher.registerEventHandler(EventPublisher.EventType.QUIT_PROGRAM, ClientMain::quitProgram);
+        eventPublisher.registerEventHandler(EventPublisher.EventType.DO_LOG_IN, ClientMain::logIn);
+        eventPublisher.registerEventHandler(EventPublisher.EventType.LOG_OUT, ClientMain::logOut);
     }
 
     static void eventLoop() throws Exception {
