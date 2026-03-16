@@ -5,7 +5,9 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
+import request.LoginRequest;
 import request.RegisterRequest;
+import response.LoginResponse;
 import response.RegisterResponse;
 import server.Server;
 import service.ServiceManager;
@@ -82,7 +84,19 @@ public class ServerFacadeTests {
 
     @Test
     void loginUser() {
-        fail("Not implemented.");
+        LoginRequest request = new LoginRequest(TEST_USER.username(), TEST_USER.password());
+        LoginResponse response = assertDoesNotThrow(() -> serverFacade.loginUser(request));
+
+        AuthData authData = assertDoesNotThrow(() -> authDAO.retrieveAuth(response.authToken()));
+        assertEquals(authData.authToken(), response.authToken());
+        assertEquals(authData.username(), response.username());
+    }
+
+    @Test
+    void loginUserDoesntExist() {
+        LoginRequest request = new LoginRequest("fake_user", "fake_password");
+        ServerFacade.ErrorResponseException error = assertThrows(ServerFacade.ErrorResponseException.class, () -> serverFacade.loginUser(request));
+        assertEquals("Error: unauthorized", error.getMessage());
     }
 
     @Test

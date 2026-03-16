@@ -65,8 +65,19 @@ public class ServerFacade {
         return deserializeResponse(res, RegisterResponse.class);
     }
 
-    public LoginResponse loginUser(LoginRequest request) {
-        return new LoginResponse("joseph", "fakeToken");
+    public LoginResponse loginUser(LoginRequest request) throws ServerFacadeException {
+        String data = gson.toJson(request);
+
+        HttpResponse<String> res;
+        try {
+            res = httpClient.post("/session", data).join();
+        } catch (CompletionException e) {
+            throw new RequestErrorException(e.getCause());
+        } catch (Exception e) {
+            throw new ServerFacadeException(e);
+        }
+
+        return deserializeResponse(res, LoginResponse.class);
     }
 
     public void logoutUser() { }
