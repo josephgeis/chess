@@ -1,6 +1,9 @@
 package client;
 
 import dataaccess.*;
+import model.AuthData;
+import model.GameData;
+import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
 import service.ServiceManager;
@@ -15,6 +18,10 @@ public class ServerFacadeTests {
     private static AuthDAO authDAO;
     private static GameDAO gameDAO;
     private static UserDAO userDAO;
+
+    private static final UserData TEST_USER = new UserData("user", "password", "john@example.com");
+    private static final AuthData TEST_AUTH = AuthData.createFor("user")
+    private static final GameData TEST_GAME = GameData.withName("test_game");
 
     @BeforeAll
     public static void init() {
@@ -32,6 +39,9 @@ public class ServerFacadeTests {
     public void setUp() {
         try {
             serviceManager.clearDatabases();
+            userDAO.createUser(TEST_USER);
+            authDAO.createAuth(TEST_AUTH);
+            gameDAO.createGame(TEST_GAME);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -40,12 +50,6 @@ public class ServerFacadeTests {
     @AfterAll
     static void stopServer() {
         server.stop();
-    }
-
-
-    @Test
-    public void sampleTest() {
-        Assertions.assertTrue(true);
     }
 
 }
