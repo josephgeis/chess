@@ -36,7 +36,7 @@ public class ServerFacadeTests {
         userDAO = new MemoryUserDAO();
         serviceManager = new ServiceManager(authDAO, gameDAO, userDAO);
 
-        server = new Server();
+        server = new Server(serviceManager);
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
 
