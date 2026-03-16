@@ -6,10 +6,15 @@ import response.*;
 import java.util.Collections;
 
 public class ServerFacade {
-    String baseURI;
+    String host;
+    int port;
 
-    public ServerFacade(String baseURI) {
-        this.baseURI = baseURI;
+    ChessHttpClient httpClient;
+
+    public ServerFacade(String host, int port) {
+        this.host = host;
+        this.port = port;
+        this.httpClient = new ChessHttpClient(host, port);
     }
 
     public RegisterResponse registerUser(RegisterRequest request) {
