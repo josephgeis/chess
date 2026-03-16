@@ -5,8 +5,12 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
+import request.RegisterRequest;
+import response.RegisterResponse;
 import server.Server;
 import service.ServiceManager;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class ServerFacadeTests {
@@ -23,6 +27,8 @@ public class ServerFacadeTests {
     private static final AuthData TEST_AUTH = AuthData.createFor("user");
     private static final GameData TEST_GAME = GameData.withName("test_game");
 
+    private static ServerFacade serverFacade;
+
     @BeforeAll
     public static void init() {
         authDAO = new MemoryAuthDAO();
@@ -33,6 +39,9 @@ public class ServerFacadeTests {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
+
+        // FIXME: This constructor's call signature probably will change.
+        serverFacade = new ServerFacade("http://localhost:" + port);
     }
 
     @BeforeEach
@@ -52,4 +61,52 @@ public class ServerFacadeTests {
         server.stop();
     }
 
+    @Test
+    void registerUser() {
+        RegisterRequest request = new RegisterRequest("new_user", "new_password", "new@example.com");
+        RegisterResponse response = assertDoesNotThrow(() -> serverFacade.registerUser(request));
+
+        UserData userData = assertDoesNotThrow(() -> userDAO.getUser("new_user"));
+
+        assertEquals("new_user", response.username());
+        assertDoesNotThrow(() -> authDAO.retrieveAuth(response.authToken()));
+        assertEquals("new_user", userData.username());
+        assertEquals("new@example.com", userData.email());
+    }
+
+    @Test
+    void registerUserAlreadyExists() {
+        // should throw an error, report the already taken message.
+        fail("Not implemented.");
+    }
+
+    @Test
+    void loginUser() {
+        fail("Not implemented.");
+    }
+
+    @Test
+    void logoutUser() {
+        fail("Not implemented.");
+    }
+
+    @Test
+    void listGames() {
+        fail("Not implemented.");
+    }
+
+    @Test
+    void createGame() {
+        fail("Not implemented.");
+    }
+
+    @Test
+    void joinGame() {
+        fail("Not implemented.");
+    }
+
+    @Test
+    void clearDb() {
+        fail("Not implemented.");
+    }
 }
