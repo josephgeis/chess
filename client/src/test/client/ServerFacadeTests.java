@@ -20,7 +20,7 @@ public class ServerFacadeTests {
     private static UserDAO userDAO;
 
     private static final UserData TEST_USER = new UserData("user", "password", "john@example.com");
-    private static final AuthData TEST_AUTH = AuthData.createFor("user")
+    private static final AuthData TEST_AUTH = AuthData.createFor("user");
     private static final GameData TEST_GAME = GameData.withName("test_game");
 
     @BeforeAll
