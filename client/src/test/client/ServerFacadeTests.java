@@ -40,8 +40,7 @@ public class ServerFacadeTests {
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
 
-        // FIXME: This constructor's call signature probably will change.
-        serverFacade = new ServerFacade("http://localhost:" + port);
+        serverFacade = new ServerFacade("localhost", port);
     }
 
     @BeforeEach
