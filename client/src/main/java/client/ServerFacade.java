@@ -28,20 +28,38 @@ public class ServerFacade {
 
     record ErrorResponse(String message) { };
 
-    public static class ErrorResponseException extends Exception {
+    public static class ServerFacadeException extends Exception {
+        public ServerFacadeException(String message) {
+            super(message);
+        }
+
+        public ServerFacadeException(Throwable cause) {
+            super(cause);
+        }
+    }
+
+    public static class ErrorResponseException extends ServerFacadeException {
         public ErrorResponseException(String message) {
             super(message);
         }
     }
 
-    public RegisterResponse registerUser(RegisterRequest request) throws Exception {
+    public static class RequestErrorException extends ServerFacadeException {
+        public RequestErrorException(Throwable cause) {
+            super(cause);
+        }
+    }
+
+    public RegisterResponse registerUser(RegisterRequest request) throws ServerFacadeException {
         String data = gson.toJson(request);
 
         HttpResponse<String> res;
         try {
             res = httpClient.post("/user", data).join();
         } catch (CompletionException e) {
-            throw (RuntimeException) e.getCause();
+            throw new RequestErrorException(e.getCause());
+        } catch (Exception e) {
+            throw new ServerFacadeException(e);
         }
 
         return deserializeResponse(res, RegisterResponse.class);
