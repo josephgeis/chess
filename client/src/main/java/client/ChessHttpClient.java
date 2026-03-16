@@ -20,16 +20,73 @@ public class ChessHttpClient {
         this.port = port;
     }
 
-    void get(String path) throws Exception {
-        String urlString = String.format(Locale.getDefault(), "http://%s:%d%s", host, port, path);
+    CompletableFuture<HttpResponse<String>> getAuthenticated(String path, String token) throws Exception {
+        HttpRequest request = buildAuthenticatedRequest(path, token)
+                .GET()
+                .build();
+
+        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    CompletableFuture<HttpResponse<String>> post(String path, String data) throws Exception {
+        String urlString = buildUrlString(path);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(urlString))
                 .timeout(Duration.ofMillis(5000))
-                .GET()
+                .POST(HttpRequest.BodyPublishers.ofString(data))
                 .build();
 
-//        HttpResponse<String> response =
-//                httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    CompletableFuture<HttpResponse<String>> postAuthenticated(String path, String data, String token) throws Exception {
+        HttpRequest request = buildAuthenticatedRequest(path, token)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(data))
+                .build();
+
+        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    CompletableFuture<HttpResponse<String>> putAuthenticated(String path, String data, String token) throws Exception {
+        HttpRequest request = buildAuthenticatedRequest(path, token)
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(data))
+                .build();
+
+        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    CompletableFuture<HttpResponse<String>> delete(String path) throws Exception {
+        String urlString = buildUrlString(path);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(urlString))
+                .timeout(Duration.ofMillis(5000))
+                .DELETE()
+                .build();
+
+        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    CompletableFuture<HttpResponse<String>> deleteAuthenticated(String path, String token) throws Exception {
+        HttpRequest request = buildAuthenticatedRequest(path, token)
+                .DELETE()
+                .build();
+
+        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    private HttpRequest.Builder buildAuthenticatedRequest(String path, String token) throws Exception {
+        String urlString = buildUrlString(path);
+
+        return HttpRequest.newBuilder()
+                .uri(new URI(urlString))
+                .timeout(Duration.ofMillis(5000))
+                .header("Authorization", token);
+    }
+    private String buildUrlString(String path) {
+        return String.format(Locale.getDefault(), "http://%s:%d%s", host, port, path);
     }
 }
