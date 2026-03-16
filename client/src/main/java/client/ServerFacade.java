@@ -59,7 +59,7 @@ public class ServerFacade {
         } catch (CompletionException e) {
             throw new RequestErrorException(e.getCause());
         } catch (Exception e) {
-            throw new ServerFacadeException(e);
+            throw new RequestErrorException(e);
         }
 
         return deserializeResponse(res, RegisterResponse.class);
@@ -74,7 +74,7 @@ public class ServerFacade {
         } catch (CompletionException e) {
             throw new RequestErrorException(e.getCause());
         } catch (Exception e) {
-            throw new ServerFacadeException(e);
+            throw new RequestErrorException(e);
         }
 
         return deserializeResponse(res, LoginResponse.class);
