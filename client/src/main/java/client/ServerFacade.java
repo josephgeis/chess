@@ -1,9 +1,15 @@
 package client;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import request.*;
 import response.*;
 
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Collections;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 public class ServerFacade {
     String host;
@@ -11,14 +17,43 @@ public class ServerFacade {
 
     ChessHttpClient httpClient;
 
+    Gson gson;
+
     public ServerFacade(String host, int port) {
         this.host = host;
         this.port = port;
         this.httpClient = new ChessHttpClient(host, port);
+        gson = new Gson();
     }
 
-    public RegisterResponse registerUser(RegisterRequest request) {
-        return new RegisterResponse("joseph", "fakeToken");
+    record ErrorResponse(String message) { };
+
+    public static class ErrorResponseException extends Exception {
+        public ErrorResponseException(String message) {
+            super(message);
+        }
+    }
+
+    public RegisterResponse registerUser(RegisterRequest request) throws Exception {
+        String data = gson.toJson(request);
+
+        HttpResponse<String> res;
+        try {
+            res = httpClient.post("/user", data).join();
+        } catch (CompletionException e) {
+            throw (RuntimeException) e.getCause();
+        }
+
+        try {
+            if (res.statusCode() < 200 || res.statusCode() >= 300) {
+                ErrorResponse error = gson.fromJson(res.body(), ErrorResponse.class);
+                throw new ErrorResponseException(error.message());
+            }
+
+            return gson.fromJson(res.body(), RegisterResponse.class);
+        } catch (JsonSyntaxException e) {
+            throw new ErrorResponseException("Server sent an unexpected response");
+        }
     }
 
     public LoginResponse loginUser(LoginRequest request) {
