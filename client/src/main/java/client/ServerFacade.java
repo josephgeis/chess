@@ -44,16 +44,7 @@ public class ServerFacade {
             throw (RuntimeException) e.getCause();
         }
 
-        try {
-            if (res.statusCode() < 200 || res.statusCode() >= 300) {
-                ErrorResponse error = gson.fromJson(res.body(), ErrorResponse.class);
-                throw new ErrorResponseException(error.message());
-            }
-
-            return gson.fromJson(res.body(), RegisterResponse.class);
-        } catch (JsonSyntaxException e) {
-            throw new ErrorResponseException("Server sent an unexpected response");
-        }
+        return deserializeResponse(res, RegisterResponse.class);
     }
 
     public LoginResponse loginUser(LoginRequest request) {
@@ -73,4 +64,17 @@ public class ServerFacade {
     public void joinGame(JoinGameRequest request) { }
 
     public void clearDb() { }
+
+    private <T> T deserializeResponse(HttpResponse<String> res, Class<T> responseType) throws ErrorResponseException {
+        try {
+            if (res.statusCode() < 200 || res.statusCode() >= 300) {
+                ErrorResponse error = gson.fromJson(res.body(), ErrorResponse.class);
+                throw new ErrorResponseException(error.message());
+            }
+
+            return gson.fromJson(res.body(), responseType);
+        } catch (JsonSyntaxException e) {
+            throw new ErrorResponseException("Server sent an unexpected response");
+        }
+    }
 }
