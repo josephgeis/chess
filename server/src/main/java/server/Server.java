@@ -15,10 +15,10 @@ public class Server {
     private final ServiceManager serviceManager;
     Gson gson = new Gson();
 
-    public Server() {
+    public Server(ServiceManager serviceManager) {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
-        serviceManager = ServiceManager.createPersistent();
+        this.serviceManager = serviceManager;
 
         // Register your endpoints and exception handlers here.
         javalin.post("/user", this::handleRegister)
@@ -29,6 +29,10 @@ public class Server {
                 .put("/game", this::handleJoinGame)
                 .delete("/db", this::handleClearDb)
                 .exception(Exception.class, this::handleException);
+    }
+
+    public Server() {
+        this(ServiceManager.createPersistent());
     }
 
     public int run(int desiredPort) {
