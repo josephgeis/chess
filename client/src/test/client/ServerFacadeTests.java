@@ -75,8 +75,9 @@ public class ServerFacadeTests {
 
     @Test
     void registerUserAlreadyExists() {
-        // should throw an error, report the already taken message.
-        fail("Not implemented.");
+        RegisterRequest request = new RegisterRequest(TEST_USER.username(), "new_password", "new@example.com");
+        ServerFacade.ErrorResponseException error = assertThrows(ServerFacade.ErrorResponseException.class, () -> serverFacade.registerUser(request));
+        assertEquals("Error: Already Taken", error.getMessage());
     }
 
     @Test
