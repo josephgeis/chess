@@ -28,7 +28,7 @@ public class ServerFacade {
 
     record ErrorResponse(String message) { };
 
-    public static class ServerFacadeException extends Exception {
+    public static abstract class ServerFacadeException extends Exception {
         public ServerFacadeException(String message) {
             super(message);
         }
@@ -87,7 +87,7 @@ public class ServerFacade {
         } catch (CompletionException e) {
             throw new RequestErrorException(e.getCause());
         } catch (Exception e) {
-            throw new ServerFacadeException(e);
+            throw new RequestErrorException(e);
         }
 
         deserializeResponse(res, Object.class);
@@ -100,7 +100,7 @@ public class ServerFacade {
         } catch (CompletionException e) {
             throw new RequestErrorException(e.getCause());
         } catch (Exception e) {
-            throw new ServerFacadeException(e);
+            throw new RequestErrorException(e);
         }
 
         return deserializeResponse(res, ListGamesResponse.class);
