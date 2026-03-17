@@ -5,10 +5,7 @@ import com.google.gson.JsonSyntaxException;
 import request.*;
 import response.*;
 
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Collections;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
 public class ServerFacade {
@@ -26,7 +23,7 @@ public class ServerFacade {
         gson = new Gson();
     }
 
-    record ErrorResponse(String message) { };
+    record ErrorResponse(String message) { }
 
     public static abstract class ServerFacadeException extends Exception {
         public ServerFacadeException(String message) {
