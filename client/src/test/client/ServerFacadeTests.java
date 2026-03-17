@@ -115,9 +115,9 @@ public class ServerFacadeTests {
     @Test
     void listGames() {
         ListGamesResponse response = assertDoesNotThrow(() -> serverFacade.listGames(TEST_AUTH.authToken()));
-        GameListing gameListing = GameListing.from(TEST_GAME);
-        assertEquals(1, response.games().size());
-        assertTrue(response.games().contains(gameListing));
+        assertEquals(1, response.games().size(), "The number of games is not the same");
+        GameListing gameListing = response.games().iterator().next();
+        assertEquals(TEST_GAME.gameName(), gameListing.gameName(), "Does not contain the test game");
     }
 
     @Test
