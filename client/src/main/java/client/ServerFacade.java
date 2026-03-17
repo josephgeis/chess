@@ -106,13 +106,13 @@ public class ServerFacade {
         return deserializeResponse(res, ListGamesResponse.class);
     }
 
-    public CreateGameResponse createGame(CreateGameRequest request) {
+    public CreateGameResponse createGame(CreateGameRequest request, String token) throws ServerFacadeException {
         return new CreateGameResponse(0);
     }
 
-    public void joinGame(JoinGameRequest request) { }
+    public void joinGame(JoinGameRequest request, String token) throws ServerFacadeException { }
 
-    public void clearDb() { }
+    public void clearDb() throws ServerFacadeException { }
 
     private <T> T deserializeResponse(HttpResponse<String> res, Class<T> responseType) throws ErrorResponseException {
         try {
