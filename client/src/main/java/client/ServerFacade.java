@@ -80,7 +80,18 @@ public class ServerFacade {
         return deserializeResponse(res, LoginResponse.class);
     }
 
-    public void logoutUser() { }
+    public void logoutUser(String token) throws ServerFacadeException {
+        HttpResponse<String> res;
+        try {
+            res = httpClient.deleteAuthenticated("/session", token).join();
+        } catch (CompletionException e) {
+            throw new RequestErrorException(e.getCause());
+        } catch (Exception e) {
+            throw new ServerFacadeException(e);
+        }
+
+        deserializeResponse(res, Object.class);
+    }
 
     public ListGamesResponse listGames() {
         return new ListGamesResponse(Collections.emptyList());
