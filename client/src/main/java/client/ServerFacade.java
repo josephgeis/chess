@@ -136,7 +136,18 @@ public class ServerFacade {
         deserializeResponse(res, Object.class);
     }
 
-    public void clearDb() throws ServerFacadeException { }
+    public void clearDb() throws ServerFacadeException {
+        HttpResponse<String> res;
+        try {
+            res = httpClient.delete("/db").join();
+        } catch (CompletionException e) {
+            throw new RequestErrorException(e.getCause());
+        } catch (Exception e) {
+            throw new RequestErrorException(e);
+        }
+
+        deserializeResponse(res, Object.class);
+    }
 
     private <T> T deserializeResponse(HttpResponse<String> res, Class<T> responseType) throws ErrorResponseException {
         try {
