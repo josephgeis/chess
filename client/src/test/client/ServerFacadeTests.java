@@ -101,7 +101,13 @@ public class ServerFacadeTests {
 
     @Test
     void logoutUser() {
-        fail("Not implemented.");
+        assertDoesNotThrow(() -> serverFacade.logoutUser(TEST_AUTH.authToken()));
+    }
+
+    @Test
+    void logoutUserDoesntExist() {
+        ServerFacade.ErrorResponseException error = assertThrows(ServerFacade.ErrorResponseException.class, () -> serverFacade.logoutUser("fake_token"));
+        assertEquals("Error: unauthorized", error.getMessage());
     }
 
     @Test
