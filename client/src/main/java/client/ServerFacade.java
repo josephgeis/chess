@@ -115,32 +115,29 @@ public class ServerFacade {
         return deserializeResponse(res, CreateGameResponse.class);
     }
 
-    public void joinGame(JoinGameRequest request, String token) throws ServerFacadeException {
+    public CompletableFuture<Void> joinGameAsync(JoinGameRequest request, String token) throws ServerFacadeException {
         String data = gson.toJson(request);
+        return makeAsyncRequest(() -> httpClient.putAuthenticated("/game", data, token));
+    }
 
-        HttpResponse<String> res;
+    public void joinGame(JoinGameRequest request, String token) throws ServerFacadeException {
         try {
-            res = httpClient.putAuthenticated("/game", data, token).join();
+            joinGameAsync(request, token).join();
         } catch (CompletionException e) {
-            throw new RequestErrorException(e.getCause());
-        } catch (Exception e) {
-            throw new RequestErrorException(e);
+            throw (ServerFacadeException) e.getCause();
         }
+    }
 
-        deserializeResponse(res, Object.class);
+    public CompletableFuture<Void> clearDbAsync() throws ServerFacadeException {
+        return makeAsyncRequest(() -> httpClient.delete("/db"));
     }
 
     public void clearDb() throws ServerFacadeException {
-        HttpResponse<String> res;
         try {
-            res = httpClient.delete("/db").join();
+            clearDbAsync().join();
         } catch (CompletionException e) {
-            throw new RequestErrorException(e.getCause());
-        } catch (Exception e) {
-            throw new RequestErrorException(e);
+            throw (ServerFacadeException) e.getCause();
         }
-
-        deserializeResponse(res, Object.class);
     }
 
     private CompletableFuture<Void> makeAsyncRequest(Callable<CompletableFuture<HttpResponse<String>>> fn)
