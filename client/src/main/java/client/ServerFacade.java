@@ -6,6 +6,8 @@ import request.*;
 import response.*;
 
 import java.net.http.HttpResponse;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
 public class ServerFacade {
@@ -47,19 +49,36 @@ public class ServerFacade {
         }
     }
 
-    public RegisterResponse registerUser(RegisterRequest request) throws ServerFacadeException {
+    public CompletableFuture<RegisterResponse> registerUserAsync(RegisterRequest request) throws ServerFacadeException {
+        CompletableFuture<RegisterResponse> responseFuture = new CompletableFuture<>();
         String data = gson.toJson(request);
 
-        HttpResponse<String> res;
         try {
-            res = httpClient.post("/user", data).join();
-        } catch (CompletionException e) {
-            throw new RequestErrorException(e.getCause());
+            httpClient.post("/user", data)
+                    .thenAccept(res -> {
+                        try {
+                            responseFuture.complete(deserializeResponse(res, RegisterResponse.class));
+                        } catch (ErrorResponseException e) {
+                            responseFuture.completeExceptionally(e);
+                        }
+                    })
+                    .exceptionally(throwable -> {
+                        responseFuture.completeExceptionally(new RequestErrorException(throwable));
+                        return null;
+                    });
         } catch (Exception e) {
             throw new RequestErrorException(e);
         }
 
-        return deserializeResponse(res, RegisterResponse.class);
+        return responseFuture;
+    }
+
+    public RegisterResponse registerUser(RegisterRequest request) throws ServerFacadeException {
+        try {
+            return registerUserAsync(request).join();
+        } catch (CompletionException e) {
+            throw (ServerFacadeException) e.getCause();
+        }
     }
 
     public LoginResponse loginUser(LoginRequest request) throws ServerFacadeException {
