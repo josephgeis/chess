@@ -75,17 +75,16 @@ public class ServerFacade {
         }
     }
 
-    public void logoutUser(String token) throws ServerFacadeException {
-        HttpResponse<String> res;
-        try {
-            res = httpClient.deleteAuthenticated("/session", token).join();
-        } catch (CompletionException e) {
-            throw new RequestErrorException(e.getCause());
-        } catch (Exception e) {
-            throw new RequestErrorException(e);
-        }
+    public CompletableFuture<Void> logoutUserAsync(String token) throws ServerFacadeException {
+        return makeAsyncRequest(() -> httpClient.deleteAuthenticated("/session", token));
+    }
 
-        deserializeResponse(res, Object.class);
+    public void logoutUser(String token) throws ServerFacadeException {
+        try {
+            logoutUserAsync(token).join();
+        } catch (CompletionException e) {
+            throw (ServerFacadeException) e.getCause();
+        }
     }
 
      public ListGamesResponse listGames(String token) throws ServerFacadeException {
@@ -144,7 +143,12 @@ public class ServerFacade {
         deserializeResponse(res, Object.class);
     }
 
-    private <T extends Record> CompletableFuture<T> makeAsyncRequest(Callable<CompletableFuture<HttpResponse<String>>> fn, Class<T> responseType)
+    private CompletableFuture<Void> makeAsyncRequest(Callable<CompletableFuture<HttpResponse<String>>> fn)
+            throws ServerFacadeException {
+        return makeAsyncRequest(fn, Void.TYPE);
+    }
+
+    private <T> CompletableFuture<T> makeAsyncRequest(Callable<CompletableFuture<HttpResponse<String>>> fn, Class<T> responseType)
             throws ServerFacadeException {
         CompletableFuture<T> responseFuture = new CompletableFuture<>();
 
@@ -176,7 +180,11 @@ public class ServerFacade {
                 throw new ErrorResponseException(error.message());
             }
 
-            return gson.fromJson(res.body(), responseType);
+            if (responseType == Void.TYPE) {
+                return null;
+            } else {
+                return gson.fromJson(res.body(), responseType);
+            }
         } catch (JsonSyntaxException e) {
             throw new ErrorResponseException("Server sent an unexpected response");
         }
