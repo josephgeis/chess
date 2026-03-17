@@ -93,7 +93,7 @@ public class ServerFacade {
         deserializeResponse(res, Object.class);
     }
 
-    public ListGamesResponse listGames() {
+    public ListGamesResponse listGames(String token) {
         return new ListGamesResponse(Collections.emptyList());
     }
 
