@@ -93,8 +93,17 @@ public class ServerFacade {
         deserializeResponse(res, Object.class);
     }
 
-    public ListGamesResponse listGames(String token) {
-        return new ListGamesResponse(Collections.emptyList());
+     public ListGamesResponse listGames(String token) throws ServerFacadeException {
+        HttpResponse<String> res;
+        try {
+            res = httpClient.getAuthenticated("/game", token).join();
+        } catch (CompletionException e) {
+            throw new RequestErrorException(e.getCause());
+        } catch (Exception e) {
+            throw new ServerFacadeException(e);
+        }
+
+        return deserializeResponse(res, ListGamesResponse.class);
     }
 
     public CreateGameResponse createGame(CreateGameRequest request) {
