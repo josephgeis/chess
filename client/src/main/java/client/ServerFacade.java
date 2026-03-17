@@ -50,27 +50,8 @@ public class ServerFacade {
     }
 
     public CompletableFuture<RegisterResponse> registerUserAsync(RegisterRequest request) throws ServerFacadeException {
-        CompletableFuture<RegisterResponse> responseFuture = new CompletableFuture<>();
         String data = gson.toJson(request);
-
-        try {
-            httpClient.post("/user", data)
-                    .thenAccept(res -> {
-                        try {
-                            responseFuture.complete(deserializeResponse(res, RegisterResponse.class));
-                        } catch (ErrorResponseException e) {
-                            responseFuture.completeExceptionally(e);
-                        }
-                    })
-                    .exceptionally(throwable -> {
-                        responseFuture.completeExceptionally(new RequestErrorException(throwable));
-                        return null;
-                    });
-        } catch (Exception e) {
-            throw new RequestErrorException(e);
-        }
-
-        return responseFuture;
+        return makeAsyncRequest(() -> httpClient.post("/user", data), RegisterResponse.class);
     }
 
     public RegisterResponse registerUser(RegisterRequest request) throws ServerFacadeException {
@@ -81,19 +62,17 @@ public class ServerFacade {
         }
     }
 
-    public LoginResponse loginUser(LoginRequest request) throws ServerFacadeException {
+    public CompletableFuture<LoginResponse> loginUserAsync(LoginRequest request) throws ServerFacadeException {
         String data = gson.toJson(request);
+        return makeAsyncRequest(() -> httpClient.post("/session", data), LoginResponse.class);
+    }
 
-        HttpResponse<String> res;
+    public LoginResponse loginUser(LoginRequest request) throws ServerFacadeException {
         try {
-            res = httpClient.post("/session", data).join();
+            return loginUserAsync(request).join();
         } catch (CompletionException e) {
-            throw new RequestErrorException(e.getCause());
-        } catch (Exception e) {
-            throw new RequestErrorException(e);
+            throw (ServerFacadeException) e.getCause();
         }
-
-        return deserializeResponse(res, LoginResponse.class);
     }
 
     public void logoutUser(String token) throws ServerFacadeException {
@@ -164,6 +143,31 @@ public class ServerFacade {
 
         deserializeResponse(res, Object.class);
     }
+
+    private <T extends Record> CompletableFuture<T> makeAsyncRequest(Callable<CompletableFuture<HttpResponse<String>>> fn, Class<T> responseType)
+            throws ServerFacadeException {
+        CompletableFuture<T> responseFuture = new CompletableFuture<>();
+
+        try {
+            fn.call()
+                    .thenAccept(res -> {
+                        try {
+                            responseFuture.complete(deserializeResponse(res, responseType));
+                        } catch (ErrorResponseException e) {
+                            responseFuture.completeExceptionally(e);
+                        }
+                    })
+                    .exceptionally(throwable -> {
+                        responseFuture.completeExceptionally(new RequestErrorException(throwable));
+                        return null;
+                    });
+        } catch (Exception e) {
+            throw new RequestErrorException(e);
+        }
+
+        return responseFuture;
+    }
+
 
     private <T> T deserializeResponse(HttpResponse<String> res, Class<T> responseType) throws ErrorResponseException {
         try {
