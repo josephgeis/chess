@@ -1,18 +1,18 @@
 package client;
 
+import chess.ChessGame;
 import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import request.CreateGameRequest;
+import request.JoinGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
 import response.*;
 import server.Server;
 import service.ServiceManager;
-
-import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.*;
@@ -31,6 +31,7 @@ public class ServerFacadeTests {
     private static final UserData TEST_USER = new UserData("user", "password", "john@example.com");
     private static final AuthData TEST_AUTH = AuthData.createFor("user");
     private static final GameData TEST_GAME = GameData.withName("test_game");
+    private static int testGameID;
 
     private static ServerFacade serverFacade;
 
@@ -54,7 +55,7 @@ public class ServerFacadeTests {
             serviceManager.clearDatabases();
             userDAO.createUser(TEST_USER);
             authDAO.createAuth(TEST_AUTH);
-            gameDAO.createGame(TEST_GAME);
+            testGameID = gameDAO.createGame(TEST_GAME);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -150,7 +151,37 @@ public class ServerFacadeTests {
 
     @Test
     void joinGame() {
-        fail("Not implemented.");
+        JoinGameRequest request = new JoinGameRequest(ChessGame.TeamColor.BLACK, testGameID);
+        assertDoesNotThrow(() -> serverFacade.joinGame(request, TEST_AUTH.authToken()));
+
+        GameData gameDataAfter = null;
+        try {
+            gameDataAfter = gameDAO.retrieveGame(testGameID);
+        } catch (DataAccessException e) {
+            abort("Couldn't access the game");
+        }
+        assertEquals(TEST_USER.username(), gameDataAfter.blackUsername());
+        assertNull(gameDataAfter.whiteUsername());
+
+        JoinGameRequest requestWhite = new JoinGameRequest(ChessGame.TeamColor.WHITE, testGameID);
+        assertDoesNotThrow(() -> serverFacade.joinGame(requestWhite, TEST_AUTH.authToken()));
+
+        GameData gameDataAfterWhite = null;
+        try {
+            gameDataAfterWhite = gameDAO.retrieveGame(testGameID);
+        } catch (DataAccessException e) {
+            abort("Couldn't access the game");
+        }
+        assertEquals(TEST_USER.username(), gameDataAfterWhite.blackUsername());
+        assertEquals(TEST_USER.username(), gameDataAfterWhite.whiteUsername());
+    }
+
+    @Test
+    void joinGameAlreadyTaken() {
+        JoinGameRequest request = new JoinGameRequest(ChessGame.TeamColor.BLACK, testGameID);
+        assertDoesNotThrow(() -> serverFacade.joinGame(request, TEST_AUTH.authToken()));
+        ServerFacade.ErrorResponseException error = assertThrows(ServerFacade.ErrorResponseException.class, () -> serverFacade.joinGame(request, TEST_AUTH.authToken()));
+        assertEquals("Error: Already Taken", error.getMessage());
     }
 
     @Test

@@ -121,7 +121,20 @@ public class ServerFacade {
         return deserializeResponse(res, CreateGameResponse.class);
     }
 
-    public void joinGame(JoinGameRequest request, String token) throws ServerFacadeException { }
+    public void joinGame(JoinGameRequest request, String token) throws ServerFacadeException {
+        String data = gson.toJson(request);
+
+        HttpResponse<String> res;
+        try {
+            res = httpClient.putAuthenticated("/game", data, token).join();
+        } catch (CompletionException e) {
+            throw new RequestErrorException(e.getCause());
+        } catch (Exception e) {
+            throw new RequestErrorException(e);
+        }
+
+        deserializeResponse(res, Object.class);
+    }
 
     public void clearDb() throws ServerFacadeException { }
 
