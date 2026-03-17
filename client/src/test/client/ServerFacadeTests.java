@@ -5,6 +5,7 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
+import request.CreateGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
 import response.GameListing;
@@ -14,7 +15,10 @@ import response.RegisterResponse;
 import server.Server;
 import service.ServiceManager;
 
+import java.util.Collection;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
 
 public class ServerFacadeTests {
@@ -128,7 +132,33 @@ public class ServerFacadeTests {
 
     @Test
     void createGame() {
-        fail("Not implemented.");
+        CreateGameRequest request = new CreateGameRequest("new_game");
+        assertDoesNotThrow(() -> serverFacade.createGame(request, TEST_AUTH.authToken()));
+
+        Collection<GameData> games;
+        try {
+            games = gameDAO.retrieveAllGames();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+        assertNotEquals(1, games.size(), "Game was not added to the database");
+        assertEquals(2, games.size(), "Game was not inserted properly");
+
+        boolean foundNewGame = false;
+        for (GameData game : games) {
+            if (game.gameName().equals("new_game")) {
+                foundNewGame = true;
+                break;
+            }
+        }
+        assertTrue(foundNewGame, "Game was not inserted");
+    }
+
+    @Test
+    void createGameUnauthorized() {
+        ServerFacade.ErrorResponseException error = assertThrows(ServerFacade.ErrorResponseException.class, () -> serverFacade.listGames("fake_token"));
+        assertEquals("Error: unauthorized", error.getMessage());
     }
 
     @Test
