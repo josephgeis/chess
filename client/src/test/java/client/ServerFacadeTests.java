@@ -110,7 +110,8 @@ public class ServerFacadeTests {
 
     @Test
     void logoutUserDoesntExist() {
-        ServerFacade.ErrorResponseException error = assertThrows(ServerFacade.ErrorResponseException.class, () -> serverFacade.logoutUser("fake_token"));
+        ServerFacade.ErrorResponseException error = assertThrows(ServerFacade.ErrorResponseException.class,
+                () -> serverFacade.logoutUser("fake_token"));
         assertEquals("Error: unauthorized", error.getMessage());
     }
 
@@ -124,7 +125,8 @@ public class ServerFacadeTests {
 
     @Test
     void listGamesUnauthenticated() {
-        ServerFacade.ErrorResponseException error = assertThrows(ServerFacade.ErrorResponseException.class, () -> serverFacade.listGames("fake_token"));
+        ServerFacade.ErrorResponseException error = assertThrows(ServerFacade.ErrorResponseException.class,
+                () -> serverFacade.listGames("fake_token"));
         assertEquals("Error: unauthorized", error.getMessage());
     }
 
@@ -145,7 +147,8 @@ public class ServerFacadeTests {
 
     @Test
     void createGameUnauthorized() {
-        ServerFacade.ErrorResponseException error = assertThrows(ServerFacade.ErrorResponseException.class, () -> serverFacade.listGames("fake_token"));
+        ServerFacade.ErrorResponseException error = assertThrows(ServerFacade.ErrorResponseException.class,
+                () -> serverFacade.listGames("fake_token"));
         assertEquals("Error: unauthorized", error.getMessage());
     }
 
@@ -180,7 +183,8 @@ public class ServerFacadeTests {
     void joinGameAlreadyTaken() {
         JoinGameRequest request = new JoinGameRequest(ChessGame.TeamColor.BLACK, testGameID);
         assertDoesNotThrow(() -> serverFacade.joinGame(request, TEST_AUTH.authToken()));
-        ServerFacade.ErrorResponseException error = assertThrows(ServerFacade.ErrorResponseException.class, () -> serverFacade.joinGame(request, TEST_AUTH.authToken()));
+        ServerFacade.ErrorResponseException error = assertThrows(ServerFacade.ErrorResponseException.class,
+                () -> serverFacade.joinGame(request, TEST_AUTH.authToken()));
         assertEquals("Error: Already Taken", error.getMessage());
     }
 
