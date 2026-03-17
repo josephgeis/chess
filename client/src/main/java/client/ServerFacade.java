@@ -87,32 +87,29 @@ public class ServerFacade {
         }
     }
 
-     public ListGamesResponse listGames(String token) throws ServerFacadeException {
-        HttpResponse<String> res;
-        try {
-            res = httpClient.getAuthenticated("/game", token).join();
-        } catch (CompletionException e) {
-            throw new RequestErrorException(e.getCause());
-        } catch (Exception e) {
-            throw new RequestErrorException(e);
-        }
+    public CompletableFuture<ListGamesResponse> listGamesAsync(String token) throws ServerFacadeException {
+        return makeAsyncRequest(() -> httpClient.getAuthenticated("/game", token), ListGamesResponse.class);
+    }
 
-        return deserializeResponse(res, ListGamesResponse.class);
+     public ListGamesResponse listGames(String token) throws ServerFacadeException {
+        try {
+            return listGamesAsync(token).join();
+        } catch (CompletionException e) {
+            throw (ServerFacadeException) e.getCause();
+        }
+    }
+
+    public CompletableFuture<CreateGameResponse> createGameAsync(CreateGameRequest request, String token) throws ServerFacadeException {
+        String data = gson.toJson(request);
+        return makeAsyncRequest(() -> httpClient.postAuthenticated("/game", data, token), CreateGameResponse.class);
     }
 
     public CreateGameResponse createGame(CreateGameRequest request, String token) throws ServerFacadeException {
-        String data = gson.toJson(request);
-
-        HttpResponse<String> res;
         try {
-            res = httpClient.postAuthenticated("/game", data, token).join();
+            return createGameAsync(request, token).join();
         } catch (CompletionException e) {
-            throw new RequestErrorException(e.getCause());
-        } catch (Exception e) {
-            throw new RequestErrorException(e);
+            throw (ServerFacadeException) e.getCause();
         }
-
-        return deserializeResponse(res, CreateGameResponse.class);
     }
 
     public CompletableFuture<Void> joinGameAsync(JoinGameRequest request, String token) throws ServerFacadeException {
