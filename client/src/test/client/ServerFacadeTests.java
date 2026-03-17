@@ -186,6 +186,22 @@ public class ServerFacadeTests {
 
     @Test
     void clearDb() {
-        fail("Not implemented.");
+        try {
+            assumeTrue(authDAO.retrieveAuth(TEST_AUTH.authToken()).equals(TEST_AUTH), "Failed to get test auth");
+            assumeTrue(gameDAO.retrieveAllGames().size() == 1, "There isn't exactly one game");
+            assumeTrue(userDAO.getUser(TEST_USER.username()).equals(TEST_USER), "Failed to get test user");
+        } catch (Exception e) {
+            abort("Failed checking test data");
+        }
+
+        assertDoesNotThrow(() -> serverFacade.clearDb());
+
+        try {
+            assertThrows(AuthDAO.AuthDoesNotExistException.class, () -> authDAO.retrieveAuth(TEST_AUTH.authToken()), "Test auth wasn't cleared");
+            assertEquals(0, gameDAO.retrieveAllGames().size(), "Games weren't all cleared");
+            assertNull(userDAO.getUser(TEST_USER.username()));
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
