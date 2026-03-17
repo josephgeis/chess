@@ -8,10 +8,7 @@ import org.junit.jupiter.api.*;
 import request.CreateGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
-import response.GameListing;
-import response.ListGamesResponse;
-import response.LoginResponse;
-import response.RegisterResponse;
+import response.*;
 import server.Server;
 import service.ServiceManager;
 
@@ -133,26 +130,16 @@ public class ServerFacadeTests {
     @Test
     void createGame() {
         CreateGameRequest request = new CreateGameRequest("new_game");
-        assertDoesNotThrow(() -> serverFacade.createGame(request, TEST_AUTH.authToken()));
+        CreateGameResponse response = assertDoesNotThrow(() -> serverFacade.createGame(request, TEST_AUTH.authToken()));
 
-        Collection<GameData> games;
+        GameData game;
         try {
-            games = gameDAO.retrieveAllGames();
+            game = gameDAO.retrieveGame(response.gameID());
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
 
-        assertNotEquals(1, games.size(), "Game was not added to the database");
-        assertEquals(2, games.size(), "Game was not inserted properly");
-
-        boolean foundNewGame = false;
-        for (GameData game : games) {
-            if (game.gameName().equals("new_game")) {
-                foundNewGame = true;
-                break;
-            }
-        }
-        assertTrue(foundNewGame, "Game was not inserted");
+        assertEquals("new_game", game.gameName());
     }
 
     @Test
