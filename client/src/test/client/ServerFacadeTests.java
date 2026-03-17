@@ -7,6 +7,8 @@ import model.UserData;
 import org.junit.jupiter.api.*;
 import request.LoginRequest;
 import request.RegisterRequest;
+import response.GameListing;
+import response.ListGamesResponse;
 import response.LoginResponse;
 import response.RegisterResponse;
 import server.Server;
@@ -112,7 +114,16 @@ public class ServerFacadeTests {
 
     @Test
     void listGames() {
-        fail("Not implemented.");
+        ListGamesResponse response = assertDoesNotThrow(() -> serverFacade.listGames(TEST_AUTH.authToken()));
+        GameListing gameListing = GameListing.from(TEST_GAME);
+        assertEquals(1, response.games().size());
+        assertTrue(response.games().contains(gameListing));
+    }
+
+    @Test
+    void listGamesUnauthenticated() {
+        ServerFacade.ErrorResponseException error = assertThrows(ServerFacade.ErrorResponseException.class, () -> serverFacade.listGames("fake_token"));
+        assertEquals("Error: unauthorized", error.getMessage());
     }
 
     @Test
