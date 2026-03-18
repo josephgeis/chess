@@ -46,13 +46,13 @@ import ui.TerminalController;
                     ServerFacade serverFacade = new ServerFacade("localhost", 8080);
                     try {
                         serverFacade.loginUserAsync(new LoginRequest(fields[0], fields[1]))
-                                .thenAccept(loginResponse -> {
+                                .exceptionally(throwable -> {
+                                    onLoginFailure(throwable);
+                                    return null;
+                                }).thenAccept(loginResponse -> {
                                     var clientState = ClientState.getInstance();
                                     clientState.setAuthData(new AuthData(loginResponse.authToken(), loginResponse.username()));
                                     onLoginSuccess();
-                                }).exceptionally(throwable -> {
-                                    onLoginFailure();
-                                    return null;
                                 });
                     } catch (ServerFacade.ServerFacadeException e) {
                         throw new RuntimeException(e);
@@ -107,6 +107,6 @@ import ui.TerminalController;
         }
 
         protected abstract void onLoginSuccess();
-        protected abstract void onLoginFailure();
+        protected abstract void onLoginFailure(Throwable throwable);
         protected abstract void onCancel();
   }
