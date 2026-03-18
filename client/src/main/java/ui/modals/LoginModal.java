@@ -1,10 +1,14 @@
   package ui.modals;
 
+import client.ClientState;
+import client.ServerFacade;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
+import model.AuthData;
+import request.LoginRequest;
 import ui.TerminalController;
 
   public abstract class LoginModal extends Modal {
@@ -23,7 +27,6 @@ import ui.TerminalController;
 
     @Override
     public void onKeyStroke(KeyStroke keyStroke) {
-        super.onKeyStroke(keyStroke);
         switch (keyStroke.getKeyType()) {
             case Character -> {
                 if (fields[field] != null) {
@@ -39,8 +42,23 @@ import ui.TerminalController;
             case ArrowDown, ArrowRight, Tab -> field = (field + 1) % fields.length;
             case ArrowUp, ArrowLeft, ReverseTab -> field = (field + fields.length - 1) % fields.length;
             case Enter -> {
-                if (field == 3) {
-                    close();
+                if (field == 2) {
+                    ServerFacade serverFacade = new ServerFacade("localhost", 8080);
+                    try {
+                        serverFacade.loginUserAsync(new LoginRequest(fields[0], fields[1]))
+                                .thenAccept(loginResponse -> {
+                                    var clientState = ClientState.getInstance();
+                                    clientState.setAuthData(new AuthData(loginResponse.authToken(), loginResponse.username()));
+                                    onLoginSuccess();
+                                }).exceptionally(throwable -> {
+                                    onLoginFailure();
+                                    return null;
+                                });
+                    } catch (ServerFacade.ServerFacadeException e) {
+                        throw new RuntimeException(e);
+                    }
+                } else if (field == 3) {
+                    onCancel();
                 }
             }
         }
@@ -87,4 +105,8 @@ import ui.TerminalController;
               textGraphics.setForegroundColor(TextColor.ANSI.BLACK);
           }
         }
+
+        protected abstract void onLoginSuccess();
+        protected abstract void onLoginFailure();
+        protected abstract void onCancel();
   }

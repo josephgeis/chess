@@ -1,23 +1,35 @@
 package client;
 
-public final class ClientState {
-    static boolean quit = false;
+import model.AuthData;
 
-    public static void quitProgram() {
+public final class ClientState {
+    private static final ClientState INSTANCE = new ClientState();
+
+    public static ClientState getInstance() {
+        return INSTANCE;
+    }
+
+    boolean quit = false;
+
+    public void quitProgram() {
         quit = true;
     }
 
-    static String authToken = null;
+    AuthData authData = null;
 
-    public static String getAuthToken() {
-        return authToken;
+    public String getAuthToken() {
+        return authData.authToken();
     }
 
-    static void setAuthToken(String authToken) {
-        ClientState.authToken = authToken;
+    public String getLoggedInUser() {
+        return authData.username();
     }
 
-    public static boolean isLoggedIn() {
-        return authToken != null;
+    public void setAuthData(AuthData authData) {
+        this.authData = authData;
+    }
+
+    public boolean isLoggedIn() {
+        return authData != null;
     }
 }

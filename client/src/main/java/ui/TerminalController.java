@@ -98,6 +98,8 @@ public class TerminalController implements EventObserver {
             if (eventType != null) {
                 eventPublisher.fireEvent(eventType);
             }
+        } else if (keyStroke.getKeyType() == EOF) {
+            eventPublisher.fireEvent(EventPublisher.EventType.QUIT_PROGRAM);
         } else {
             activeView().onKeyStroke(keyStroke);
         }
