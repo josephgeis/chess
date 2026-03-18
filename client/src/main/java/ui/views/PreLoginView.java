@@ -1,16 +1,15 @@
  package ui.views;
 
-import client.ClientState;
+import client.ServerFacade;
 import com.googlecode.lanterna.SGR;
 import com.googlecode.lanterna.TerminalPosition;
-import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import ui.EventPublisher;
 import ui.TerminalController;
 import ui.menubar.MenuItems;
 import ui.modals.LoginModal;
-import ui.modals.Modal;
+import ui.modals.MessageModal;
 
 import java.util.EnumSet;
 
@@ -73,38 +72,18 @@ import java.util.EnumSet;
              @Override
              protected void onLoginSuccess() {
                  terminalController.popView();
-                 draw();
-                 terminalController.pushView(new Modal(textGraphics, terminalController) {
-                     @Override
-                     protected TerminalSize getSize() {
-                         return new TerminalSize(20, 3);
-                     }
-
-                     @Override
-                     public void draw() {
-                         super.draw();
-                         textGraphics.putString(TerminalPosition.OFFSET_1x1, "Login success.");
-                         textGraphics.putString(TerminalPosition.OFFSET_1x1.withRelativeRow(1),
-                                 "Welcome %s".formatted(ClientState.getInstance().getLoggedInUser()));
-                     }
-                 });
+                 terminalController.pushView(new MessageModal("Success", "Logged in as user.", textGraphics, terminalController));
              }
 
              @Override
-             protected void onLoginFailure() {
+             protected void onLoginFailure(Throwable throwable) {
                  terminalController.popView();
-                 terminalController.pushView(new Modal(textGraphics, terminalController) {
-                     @Override
-                     protected TerminalSize getSize() {
-                         return new TerminalSize(20, 3);
-                     }
-
-                     @Override
-                     public void draw() {
-                         super.draw();
-                         textGraphics.putString(TerminalPosition.OFFSET_1x1, "Login failed.");
-                     }
-                 });
+                 String errorMessage = "Unable to log in.";
+                 if (throwable instanceof ServerFacade.ErrorResponseException) {
+                     ServerFacade.ErrorResponseException error = (ServerFacade.ErrorResponseException) throwable;
+                     errorMessage = error.getMessage();
+                 }
+                 terminalController.pushView(new MessageModal("Error", errorMessage, textGraphics, terminalController));
              }
 
              @Override
