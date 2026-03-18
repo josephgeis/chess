@@ -3,28 +3,127 @@
   <database-model serializer="dbm" dbms="MARIADB" family-id="MARIADB" format-version="4.54">
     <root id="1">
       <DefaultAuthPlugin>mysql_native_password</DefaultAuthPlugin>
-      <DefaultCasing>exact</DefaultCasing>
+      <DefaultCasing>mixed/mixed</DefaultCasing>
       <DefaultEngine>InnoDB</DefaultEngine>
-      <Grants>chess|schema||joseph|localhost|ALTER|G
-chess|schema||joseph|localhost|ALTER ROUTINE|G
-chess|schema||joseph|localhost|CREATE|G
-chess|schema||joseph|localhost|CREATE ROUTINE|G
-chess|schema||joseph|localhost|CREATE TEMPORARY TABLES|G
-chess|schema||joseph|localhost|CREATE VIEW|G
-chess|schema||joseph|localhost|DELETE|G
-chess|schema||joseph|localhost|DELETE HISTORY|G
-chess|schema||joseph|localhost|DROP|G
-chess|schema||joseph|localhost|EVENT|G
-chess|schema||joseph|localhost|EXECUTE|G
-chess|schema||joseph|localhost|INDEX|G
-chess|schema||joseph|localhost|INSERT|G
-chess|schema||joseph|localhost|LOCK TABLES|G
-chess|schema||joseph|localhost|REFERENCES|G
-chess|schema||joseph|localhost|SELECT|G
-chess|schema||joseph|localhost|SHOW CREATE ROUTINE|G
-chess|schema||joseph|localhost|SHOW VIEW|G
-chess|schema||joseph|localhost|TRIGGER|G
-chess|schema||joseph|localhost|UPDATE|G</Grants>
+      <Grants>|root||joseph||ALTER|G
+|root||joseph|localhost|ALTER|G
+|root||root|localhost|ALTER|G
+|root||joseph||ALTER ROUTINE|G
+|root||joseph|localhost|ALTER ROUTINE|G
+|root||root|localhost|ALTER ROUTINE|G
+|root||joseph||BINLOG ADMIN|G
+|root||joseph|localhost|BINLOG ADMIN|G
+|root||root|localhost|BINLOG ADMIN|G
+|root||joseph||BINLOG MONITOR|G
+|root||joseph|localhost|BINLOG MONITOR|G
+|root||root|localhost|BINLOG MONITOR|G
+|root||joseph||BINLOG REPLAY|G
+|root||joseph|localhost|BINLOG REPLAY|G
+|root||root|localhost|BINLOG REPLAY|G
+|root||joseph||CONNECTION ADMIN|G
+|root||joseph|localhost|CONNECTION ADMIN|G
+|root||root|localhost|CONNECTION ADMIN|G
+|root||joseph||CREATE|G
+|root||joseph|localhost|CREATE|G
+|root||root|localhost|CREATE|G
+|root||joseph||CREATE ROUTINE|G
+|root||joseph|localhost|CREATE ROUTINE|G
+|root||root|localhost|CREATE ROUTINE|G
+|root||joseph||CREATE TABLESPACE|G
+|root||joseph|localhost|CREATE TABLESPACE|G
+|root||root|localhost|CREATE TABLESPACE|G
+|root||joseph||CREATE TEMPORARY TABLES|G
+|root||joseph|localhost|CREATE TEMPORARY TABLES|G
+|root||root|localhost|CREATE TEMPORARY TABLES|G
+|root||joseph||CREATE USER|G
+|root||joseph|localhost|CREATE USER|G
+|root||root|localhost|CREATE USER|G
+|root||joseph||CREATE VIEW|G
+|root||joseph|localhost|CREATE VIEW|G
+|root||root|localhost|CREATE VIEW|G
+|root||joseph||DELETE|G
+|root||joseph|localhost|DELETE|G
+|root||root|localhost|DELETE|G
+|root||joseph||DELETE HISTORY|G
+|root||joseph|localhost|DELETE HISTORY|G
+|root||root|localhost|DELETE HISTORY|G
+|root||joseph||DROP|G
+|root||joseph|localhost|DROP|G
+|root||root|localhost|DROP|G
+|root||joseph||EVENT|G
+|root||joseph|localhost|EVENT|G
+|root||root|localhost|EVENT|G
+|root||joseph||EXECUTE|G
+|root||joseph|localhost|EXECUTE|G
+|root||root|localhost|EXECUTE|G
+|root||joseph||FEDERATED ADMIN|G
+|root||joseph|localhost|FEDERATED ADMIN|G
+|root||root|localhost|FEDERATED ADMIN|G
+|root||joseph||FILE|G
+|root||joseph|localhost|FILE|G
+|root||root|localhost|FILE|G
+|root||joseph||INDEX|G
+|root||joseph|localhost|INDEX|G
+|root||root|localhost|INDEX|G
+|root||joseph||INSERT|G
+|root||joseph|localhost|INSERT|G
+|root||root|localhost|INSERT|G
+|root||joseph||LOCK TABLES|G
+|root||joseph|localhost|LOCK TABLES|G
+|root||root|localhost|LOCK TABLES|G
+|root||joseph||PROCESS|G
+|root||joseph|localhost|PROCESS|G
+|root||root|localhost|PROCESS|G
+|root||joseph||READ_ONLY ADMIN|G
+|root||joseph|localhost|READ_ONLY ADMIN|G
+|root||root|localhost|READ_ONLY ADMIN|G
+|root||joseph||REFERENCES|G
+|root||joseph|localhost|REFERENCES|G
+|root||root|localhost|REFERENCES|G
+|root||joseph||RELOAD|G
+|root||joseph|localhost|RELOAD|G
+|root||root|localhost|RELOAD|G
+|root||joseph||REPLICATION MASTER ADMIN|G
+|root||joseph|localhost|REPLICATION MASTER ADMIN|G
+|root||root|localhost|REPLICATION MASTER ADMIN|G
+|root||joseph||REPLICATION SLAVE|G
+|root||joseph|localhost|REPLICATION SLAVE|G
+|root||root|localhost|REPLICATION SLAVE|G
+|root||joseph||REPLICATION SLAVE ADMIN|G
+|root||joseph|localhost|REPLICATION SLAVE ADMIN|G
+|root||root|localhost|REPLICATION SLAVE ADMIN|G
+|root||joseph||SELECT|G
+|root||joseph|localhost|SELECT|G
+|root||root|localhost|SELECT|G
+|root||joseph||SET USER|G
+|root||joseph|localhost|SET USER|G
+|root||root|localhost|SET USER|G
+|root||joseph||SHOW CREATE ROUTINE|G
+|root||joseph|localhost|SHOW CREATE ROUTINE|G
+|root||root|localhost|SHOW CREATE ROUTINE|G
+|root||joseph||SHOW DATABASES|G
+|root||joseph|localhost|SHOW DATABASES|G
+|root||root|localhost|SHOW DATABASES|G
+|root||joseph||SHOW VIEW|G
+|root||joseph|localhost|SHOW VIEW|G
+|root||root|localhost|SHOW VIEW|G
+|root||joseph||SHUTDOWN|G
+|root||joseph|localhost|SHUTDOWN|G
+|root||root|localhost|SHUTDOWN|G
+|root||joseph||SLAVE MONITOR|G
+|root||joseph|localhost|SLAVE MONITOR|G
+|root||root|localhost|SLAVE MONITOR|G
+|root||joseph||SUPER|G
+|root||joseph|localhost|SUPER|G
+|root||root|localhost|SUPER|G
+|root||joseph||TRIGGER|G
+|root||joseph|localhost|TRIGGER|G
+|root||root|localhost|TRIGGER|G
+|root||joseph||UPDATE|G
+|root||joseph|localhost|UPDATE|G
+|root||root|localhost|UPDATE|G
+|root||joseph|localhost|grant option|G
+|root||root|localhost|grant option|G</Grants>
       <ServerVersion>12.2.2</ServerVersion>
     </root>
     <collation id="2" parent="1" name="armscii8_bin">
@@ -1354,137 +1453,150 @@ chess|schema||joseph|localhost|UPDATE|G</Grants>
       <AutoIntrospectionLevel>3</AutoIntrospectionLevel>
       <Current>1</Current>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2026-03-12.05:33:44</LastIntrospectionLocalTimestamp>
-      <CollationName>utf8mb4_unicode_ci</CollationName>
+      <LastIntrospectionLocalTimestamp>2026-03-18.03:15:50</LastIntrospectionLocalTimestamp>
+      <CollationName>utf8mb4_general_ci</CollationName>
     </schema>
     <schema id="555" parent="1" name="information_schema">
       <CollationName>utf8mb3_general_ci</CollationName>
     </schema>
-    <schema id="556" parent="1" name="test">
-      <CollationName>utf8mb4_uca1400_ai_ci</CollationName>
+    <schema id="556" parent="1" name="mysql">
+      <CollationName>utf8mb4_general_ci</CollationName>
     </schema>
-    <user id="557" parent="1" name="joseph">
+    <schema id="557" parent="1" name="performance_schema">
+      <CollationName>utf8mb3_general_ci</CollationName>
+    </schema>
+    <schema id="558" parent="1" name="sys">
+      <CollationName>utf8mb3_general_ci</CollationName>
+    </schema>
+    <user id="559" parent="1" name="joseph"/>
+    <user id="560" parent="1" name="joseph">
       <Host>localhost</Host>
     </user>
-    <table id="558" parent="554" name="game">
+    <user id="561" parent="1" name="mariadb.sys">
+      <Host>localhost</Host>
+    </user>
+    <user id="562" parent="1" name="root">
+      <Host>localhost</Host>
+    </user>
+    <table id="563" parent="554" name="game">
       <DetailsLevel>3</DetailsLevel>
       <Engine>InnoDB</Engine>
-      <CollationName>utf8mb4_unicode_ci</CollationName>
+      <CollationName>utf8mb4_general_ci</CollationName>
     </table>
-    <table id="559" parent="554" name="session">
+    <table id="564" parent="554" name="session">
       <DetailsLevel>3</DetailsLevel>
       <Engine>InnoDB</Engine>
-      <CollationName>utf8mb4_unicode_ci</CollationName>
+      <CollationName>utf8mb4_general_ci</CollationName>
     </table>
-    <table id="560" parent="554" name="user">
+    <table id="565" parent="554" name="user">
       <DetailsLevel>3</DetailsLevel>
       <Engine>InnoDB</Engine>
-      <CollationName>utf8mb4_unicode_ci</CollationName>
+      <CollationName>utf8mb4_general_ci</CollationName>
     </table>
-    <column id="561" parent="558" name="id">
+    <column id="566" parent="563" name="id">
       <AutoIncrement>1</AutoIncrement>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>int(11)|0s</StoredType>
     </column>
-    <column id="562" parent="558" name="whiteUsername">
+    <column id="567" parent="563" name="whiteUsername">
       <Position>2</Position>
       <StoredType>varchar(32)|0s</StoredType>
     </column>
-    <column id="563" parent="558" name="blackUsername">
+    <column id="568" parent="563" name="blackUsername">
       <Position>3</Position>
       <StoredType>varchar(32)|0s</StoredType>
     </column>
-    <column id="564" parent="558" name="gameName">
+    <column id="569" parent="563" name="gameName">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StoredType>varchar(32)|0s</StoredType>
     </column>
-    <column id="565" parent="558" name="game">
+    <column id="570" parent="563" name="game">
       <Position>5</Position>
       <StoredType>text|0s</StoredType>
     </column>
-    <foreign-key id="566" parent="558" name="1">
+    <foreign-key id="571" parent="563" name="1">
       <ColNames>whiteUsername</ColNames>
       <OnDelete>set-null</OnDelete>
       <RefColNames>username</RefColNames>
       <RefTableName>user</RefTableName>
     </foreign-key>
-    <foreign-key id="567" parent="558" name="2">
+    <foreign-key id="572" parent="563" name="2">
       <ColNames>blackUsername</ColNames>
       <OnDelete>set-null</OnDelete>
       <RefColNames>username</RefColNames>
       <RefTableName>user</RefTableName>
     </foreign-key>
-    <index id="568" parent="558" name="PRIMARY">
+    <index id="573" parent="563" name="PRIMARY">
       <ColNames>id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="569" parent="558" name="whiteUsername">
+    <index id="574" parent="563" name="whiteUsername">
       <ColNames>whiteUsername</ColNames>
       <Type>btree</Type>
     </index>
-    <index id="570" parent="558" name="blackUsername">
+    <index id="575" parent="563" name="blackUsername">
       <ColNames>blackUsername</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="571" parent="558" name="PRIMARY">
+    <key id="576" parent="563" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="572" parent="559" name="username">
+    <column id="577" parent="564" name="username">
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>varchar(32)|0s</StoredType>
     </column>
-    <column id="573" parent="559" name="token">
+    <column id="578" parent="564" name="token">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(36)|0s</StoredType>
     </column>
-    <foreign-key id="574" parent="559" name="1">
+    <foreign-key id="579" parent="564" name="1">
       <ColNames>username</ColNames>
       <OnDelete>cascade</OnDelete>
       <RefColNames>username</RefColNames>
       <RefTableName>user</RefTableName>
     </foreign-key>
-    <index id="575" parent="559" name="PRIMARY">
+    <index id="580" parent="564" name="PRIMARY">
       <ColNames>token</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="576" parent="559" name="username">
+    <index id="581" parent="564" name="username">
       <ColNames>username</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="577" parent="559" name="PRIMARY">
+    <key id="582" parent="564" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <column id="578" parent="560" name="username">
+    <column id="583" parent="565" name="username">
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StoredType>varchar(32)|0s</StoredType>
     </column>
-    <column id="579" parent="560" name="email">
+    <column id="584" parent="565" name="email">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StoredType>varchar(128)|0s</StoredType>
     </column>
-    <column id="580" parent="560" name="password">
+    <column id="585" parent="565" name="password">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StoredType>varchar(128)|0s</StoredType>
     </column>
-    <index id="581" parent="560" name="PRIMARY">
+    <index id="586" parent="565" name="PRIMARY">
       <ColNames>username</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <key id="582" parent="560" name="PRIMARY">
+    <key id="587" parent="565" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
