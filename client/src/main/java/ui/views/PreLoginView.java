@@ -79,9 +79,8 @@ import java.util.EnumSet;
              protected void onLoginFailure(Throwable throwable) {
                  terminalController.popView();
                  String errorMessage = "Unable to log in.";
-                 if (throwable instanceof ServerFacade.ErrorResponseException) {
-                     ServerFacade.ErrorResponseException error = (ServerFacade.ErrorResponseException) throwable;
-                     errorMessage = error.getMessage();
+                 if (throwable instanceof ServerFacade.ErrorResponseException error) {
+                     errorMessage = error.getMessage().replaceFirst("Error: ", "");
                  }
                  terminalController.pushView(new MessageModal("Error", errorMessage, textGraphics, terminalController));
              }

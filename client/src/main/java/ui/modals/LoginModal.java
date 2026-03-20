@@ -13,6 +13,7 @@ import ui.TerminalController;
 
   public abstract class LoginModal extends Modal {
     int field = 0;
+    boolean submitted = false;
 
     String[] fields = {"", "", null, null};
 
@@ -27,6 +28,10 @@ import ui.TerminalController;
 
     @Override
     public void onKeyStroke(KeyStroke keyStroke) {
+        if (submitted) {
+            return;
+        }
+
         switch (keyStroke.getKeyType()) {
             case Character -> {
                 if (fields[field] != null) {
@@ -43,6 +48,7 @@ import ui.TerminalController;
             case ArrowUp, ArrowLeft, ReverseTab -> field = (field + fields.length - 1) % fields.length;
             case Enter -> {
                 if (field == 2) {
+                    submitted = true;
                     ServerFacade serverFacade = new ServerFacade("localhost", 8080);
                     try {
                         serverFacade.loginUserAsync(new LoginRequest(fields[0], fields[1]))
@@ -98,7 +104,11 @@ import ui.TerminalController;
 
         private void highlightSelectedField(int field) {
           if (this.field == field) {
-              textGraphics.setBackgroundColor(TextColor.ANSI.YELLOW);
+              if (!submitted) {
+                  textGraphics.setBackgroundColor(TextColor.ANSI.YELLOW);
+              } else {
+                  textGraphics.setBackgroundColor(TextColor.ANSI.BLACK_BRIGHT);
+              }
               textGraphics.setForegroundColor(TextColor.ANSI.WHITE_BRIGHT);
           } else {
               textGraphics.setBackgroundColor(TextColor.ANSI.WHITE);
