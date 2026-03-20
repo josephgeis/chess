@@ -6,6 +6,8 @@ import ui.TerminalController;
 
 import java.io.IOException;
 
+import static java.lang.Thread.sleep;
+
 /**
  * Initializes the terminal objects and has the event loop
  */
@@ -25,6 +27,7 @@ public class ClientMain {
             init();
             while (!clientState.quit) {
                 eventLoop();
+                sleep(10);
             }
         } catch (Exception e) {
             throw new RuntimeException("An unhandled exception was thrown.", e);
