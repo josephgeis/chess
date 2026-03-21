@@ -21,50 +21,24 @@ import static com.googlecode.lanterna.input.KeyType.*;
  * 2. Menu bar
  */
 public class TerminalController implements EventObserver {
+    ViewPresenter viewPresenter;
     EventPublisher eventPublisher = EventPublisher.getInstance();
     DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
     Screen screen;
     TextGraphics textGraphics;
 
-    ArrayDeque<View> viewStack = new ArrayDeque<>();
     MenuBar menuBar;
 
-    View activeView() {
-        return viewStack.peek();
-    }
-
     public void pushView(View newView) {
-        if (activeView() != null) {
-            activeView().onUnload();
-        }
-        viewStack.push(newView);
-        activeView().onLoad();
-    }
-
-    public <T extends View> void pushNewView(Class<T> viewClass) {
-        T newView;
-        try {
-            newView = viewClass
-                    .getConstructor(TextGraphics.class, TerminalController.class)
-                    .newInstance(textGraphics, this);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        pushView(newView);
+        viewPresenter.pushView(newView);
     }
 
     public void popView() {
-        activeView().onUnload();
-        viewStack.pop();
-        if (activeView() != null) {
-            activeView().onLoad();
-            activeView().setTextGraphics(textGraphics);
-        }
+        viewPresenter.popView();
     }
 
-
     public void eventLoop() throws IOException {
-        View view = activeView();
+        View view = viewPresenter.activeView();
         if (view == null) {
             eventPublisher.fireEvent(EventPublisher.EventType.QUIT_PROGRAM);
             return;
@@ -101,16 +75,17 @@ public class TerminalController implements EventObserver {
         } else if (keyStroke.getKeyType() == EOF) {
             eventPublisher.fireEvent(EventPublisher.EventType.QUIT_PROGRAM);
         } else {
-            activeView().onKeyStroke(keyStroke);
+            viewPresenter.activeView().onKeyStroke(keyStroke);
         }
     }
 
     public void init() throws IOException {
         screen = defaultTerminalFactory.createScreen();
         textGraphics = screen.newTextGraphics();
+        viewPresenter = new ViewPresenter(this, textGraphics);
 
         menuBar = new MenuBar(textGraphics);
-        pushNewView(PreLoginView.class);
+        viewPresenter.pushNewView(PreLoginView.class);
 
         screen.startScreen();
     }
