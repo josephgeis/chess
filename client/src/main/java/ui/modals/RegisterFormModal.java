@@ -2,18 +2,13 @@ package ui.modals;
 
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
-import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 
-public abstract class RegisterModal extends Modal {
-    int field = 0;
-    boolean submitted = false;
+public abstract class RegisterFormModal extends FormModal {
 
-    String[] fields = {"", "", "", null, null};
-
-    public RegisterModal(TextGraphics parentTextGraphics, Runnable onDismiss) {
-        super(parentTextGraphics, onDismiss);
+    public RegisterFormModal(TextGraphics parentTextGraphics, Runnable onDismiss) {
+        super(parentTextGraphics, new String[]{"", "", "", null, null}, onDismiss);
     }
 
     @Override
@@ -34,11 +29,7 @@ public abstract class RegisterModal extends Modal {
     }
 
     @Override
-    public void onKeyStroke(KeyStroke keyStroke) {
-        if (submitted) {
-            return;
-        }
-
+    public void handleKeyStroke(KeyStroke keyStroke) {
         switch (keyStroke.getKeyType()) {
             case Character -> {
                 if (fields[field] != null) {
@@ -70,17 +61,17 @@ public abstract class RegisterModal extends Modal {
         textGraphics.putString(2, 0, "Register");
 
         TerminalPosition fieldStartPosition = TerminalPosition.OFFSET_1x1.withRelativeColumn(1);
-        drawField(0, fieldStartPosition, "Username", getUsername().replace(' ', '␣'));
+        drawField(0, fieldStartPosition, "Username", getUsername());
 
         fieldStartPosition = fieldStartPosition.withRelativeRow(3);
-        drawField(1, fieldStartPosition, "Email", getEmail().replace(' ', '␣'));
+        drawField(1, fieldStartPosition, "Email", getEmail());
 
         fieldStartPosition = fieldStartPosition.withRelativeRow(3);
-        String password = getPassword();
         drawField(2,
                 fieldStartPosition,
                 "Password",
-                !password.isEmpty() ? "*".repeat(password.length() - 1) + password.charAt(password.length() - 1) : ""
+                getPassword(),
+                FieldFormat.PASSWORD_PEEK
         );
 
         fieldStartPosition = fieldStartPosition.withRelativeRow(3);
@@ -92,29 +83,6 @@ public abstract class RegisterModal extends Modal {
         defaultColor();
         highlightSelectedField(4);
         textGraphics.putString(fieldStartPosition, "<Cancel>");
-    }
-
-    private void drawField(int index, TerminalPosition fieldStartPosition, String name, String value) {
-        defaultColor();
-        textGraphics.putString(fieldStartPosition, "%s:".formatted(name));
-        highlightSelectedField(index);
-        textGraphics.putString(fieldStartPosition.withRelativeRow(1), "[");
-        textGraphics.putString(fieldStartPosition.withRelative(1, 1), "%-32s".formatted(value));
-        textGraphics.putString(fieldStartPosition.withRelative(33, 1), "]");
-    }
-
-    private void highlightSelectedField(int field) {
-        if (this.field == field) {
-            if (!submitted) {
-                textGraphics.setBackgroundColor(TextColor.ANSI.YELLOW);
-            } else {
-                textGraphics.setBackgroundColor(TextColor.ANSI.BLACK_BRIGHT);
-            }
-            textGraphics.setForegroundColor(TextColor.ANSI.WHITE_BRIGHT);
-        } else {
-            textGraphics.setBackgroundColor(TextColor.ANSI.WHITE);
-            textGraphics.setForegroundColor(TextColor.ANSI.BLACK);
-        }
     }
 
     protected abstract void onSubmit();
