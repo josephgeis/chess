@@ -20,10 +20,10 @@ public class ListGamesView extends View {
             @Override
             protected MenuBarItem itemAt(int i) {
                 return switch (i) {
-                    case 2 -> new MenuBarItem("JoinGame", JOIN_GAME);
-                    case 3 -> new MenuBarItem("Refresh", LIST_GAME);
-                    case 4 -> new MenuBarItem("SpecGame", SPECTATE_GAME);
-                    case 6 -> new MenuBarItem("Done", CANCEL);
+                    case 2 -> MenuBarItem.withEvent("JoinGame", JOIN_GAME);
+                    case 3 -> MenuBarItem.withEvent("Refresh", LIST_GAME);
+                    case 4 -> MenuBarItem.withEvent("SpecGame", SPECTATE_GAME);
+                    case 6 -> MenuBarItem.withEvent("Done", CANCEL);
                     default -> null;
                 };
             }
