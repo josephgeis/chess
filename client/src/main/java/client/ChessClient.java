@@ -1,8 +1,10 @@
 package client;
 
 import model.AuthData;
+import request.CreateGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
+import response.CreateGameResponse;
 import response.LoginResponse;
 import response.RegisterResponse;
 
@@ -75,5 +77,10 @@ public class ChessClient {
                     );
                     return response;
                 });
+    }
+
+    public CompletableFuture<CreateGameResponse> makeCreateGameRequest(String gameName) {
+        CreateGameRequest request = new CreateGameRequest(gameName);
+        return makeAuthenticatedRequest(authToken -> serverFacade.createGameAsync(request, authToken), CreateGameResponse.class);
     }
 }

@@ -5,15 +5,30 @@ import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import ui.EventPublisher;
+import ui.menubar.MenuBarItem;
 import ui.menubar.MenuItems;
 
 import java.util.EnumSet;
+
+import static ui.EventPublisher.EventType.*;
+import static ui.EventPublisher.EventType.QUIT_PROGRAM;
 
 public abstract class PreLoginView extends MainMenuView {
     public PreLoginView(TextGraphics parentTextGraphics) {
         super(parentTextGraphics);
 
-        menuItems = MenuItems.NOT_LOGGED_IN;
+        menuItems = new MenuItems() {
+            @Override
+            protected MenuBarItem itemAt(int i) {
+                return switch (i) {
+                    case 1 -> MenuBarItem.withCallback("Login", PreLoginView.this::showLoginModal);
+                    case 2 -> MenuBarItem.withCallback("Register", PreLoginView.this::showRegisterModal);
+                    case 5 -> MenuBarItem.withCallback("Help", PreLoginView.this::toggleHelpScreen);
+                    case 6 -> MenuBarItem.withEvent("Quit", QUIT_PROGRAM);
+                    default -> null;
+                };
+            }
+        };
 
         fnKeys = new String[]{"F1", "F2", "F5", "F6"};
         helpStrings = new String[]{

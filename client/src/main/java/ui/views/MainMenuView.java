@@ -4,7 +4,6 @@ import com.googlecode.lanterna.SGR;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
-import ui.EventPublisher;
 
 import java.util.EnumSet;
 
@@ -51,11 +50,9 @@ public abstract class MainMenuView extends View {
     public void onLoad() {
         super.onLoad();
         showHelp = false;
-
-        registerEventHandler(EventPublisher.EventType.SHOW_HELP, this::showHelpScreen);
     }
 
-    public void showHelpScreen() {
+    public void toggleHelpScreen() {
         showHelp = !showHelp;
     }
 }
