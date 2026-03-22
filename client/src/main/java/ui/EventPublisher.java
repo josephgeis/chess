@@ -49,6 +49,7 @@ public class EventPublisher {
         LIST_GAME,
         SPECTATE_GAME,
         LOG_OUT,
-        SHOW_HELP
+        SHOW_HELP,
+        CANCEL
     }
 }
