@@ -26,7 +26,7 @@ public abstract class MenuItems {
                 case 2 -> new MenuBarItem("JoinGame", JOIN_GAME);
                 case 3 -> new MenuBarItem("ListGame", LIST_GAME);
                 case 4 -> new MenuBarItem("SpecGame", SPECTATE_GAME);
-                case 5 -> new MenuBarItem("Help", null);
+                case 5 -> new MenuBarItem("Help", SHOW_HELP);
                 case 6 -> new MenuBarItem("Log Out", LOG_OUT);
                 default -> null;
             };

@@ -9,63 +9,33 @@ import ui.menubar.MenuItems;
 
 import java.util.EnumSet;
 
-public class PreLoginView extends View {
-
-    boolean showHelp = false;
+public class PreLoginView extends MainMenuView {
 
     Runnable performLoginSegue;
 
     public PreLoginView(TextGraphics parentTextGraphics, Runnable performLoginSegue) {
         super(parentTextGraphics);
+        this.performLoginSegue = performLoginSegue;
+
         menuItems = MenuItems.NOT_LOGGED_IN;
 
-        this.performLoginSegue = performLoginSegue;
-    }
+        fnKeys = new String[]{"F1", "F2", "F5", "F6"};
+        helpStrings = new String[]{
+                "Log in as an existing user",
+                "Register as a new user",
+                "Toggle this help message",
+                "Quit the program"
+        };
+        tagline = "Not Logged In";
 
-    @Override
-    public void draw() {
-        textGraphics.setBackgroundColor(TextColor.ANSI.BLUE);
-        textGraphics.setForegroundColor(TextColor.ANSI.WHITE_BRIGHT);
-        textGraphics.fillRectangle(
-                TerminalPosition.TOP_LEFT_CORNER,
-                textGraphics.getSize(),
-                ' '
-        );
-
-        textGraphics.putString(TerminalPosition.OFFSET_1x1, "240 Chess Client");
-        textGraphics.putString(new TerminalPosition(2, 2), "Not Logged In");
-
-        if (showHelp) {
-            String[] fnKeys = {"F1", "F2", "F5", "F6"};
-            String[] helpStrings = {
-                    "Log in as an existing user",
-                    "Register as a new user",
-                    "Toggle this help message",
-                    "Quit the program"
-            };
-
-            TerminalPosition helpPosition = new TerminalPosition(2, 4);
-            for (int i = 0; i < helpStrings.length; i++) {
-                textGraphics.setModifiers(EnumSet.of(SGR.BOLD));
-                textGraphics.putString(helpPosition.withRelativeRow(i), fnKeys[i]);
-
-                textGraphics.clearModifiers();
-                textGraphics.putString(helpPosition.withRelative(fnKeys[i].length() + 1, i), helpStrings[i]);
-            }
-        }
+        backgroundColor = TextColor.ANSI.BLUE;
+        foregroundColor = TextColor.ANSI.WHITE_BRIGHT;
     }
 
     @Override
     public void onLoad() {
         super.onLoad();
-        showHelp = false;
-
-        registerEventHandler(EventPublisher.EventType.SHOW_HELP, this::showHelpScreen);
         registerEventHandler(EventPublisher.EventType.LOG_IN, this::showLoginModal);
-    }
-
-    public void showHelpScreen() {
-        showHelp = !showHelp;
     }
 
     public void showLoginModal() {

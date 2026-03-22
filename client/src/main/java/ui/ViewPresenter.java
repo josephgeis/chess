@@ -4,6 +4,7 @@ import client.ChessClient;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import ui.modals.LoginModal;
 import ui.modals.MessageModal;
+import ui.views.LoggedInView;
 import ui.views.PreLoginView;
 import ui.views.View;
 
@@ -49,7 +50,13 @@ public abstract class ViewPresenter {
 
             @Override
             protected void onLoginSuccess() {
+                assert activeView() instanceof LoginModal;
                 viewStack.pop();
+                assert activeView() instanceof PreLoginView;
+                viewStack.pop();
+                viewStack.push(
+                        new LoggedInView(ViewPresenter.this.textGraphics, chessClient.getState().getLoggedInUser())
+                );
                 viewStack.push(
                         new MessageModal(
                                 "Success",

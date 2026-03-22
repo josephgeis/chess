@@ -37,4 +37,8 @@ public class ChessClient {
             return CompletableFuture.failedFuture(e.getCause());
         }
     }
+
+    public ClientState getState() {
+        return clientState;
+    }
 }
