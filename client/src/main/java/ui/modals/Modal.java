@@ -22,7 +22,7 @@ public abstract class Modal extends View {
         this.onDismiss = onDismiss;
     }
 
-    void defaultColor() {
+    protected void defaultColor() {
         textGraphics.setBackgroundColor(TextColor.ANSI.WHITE);
         textGraphics.setForegroundColor(TextColor.ANSI.BLACK);
     }

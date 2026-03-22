@@ -24,6 +24,7 @@ public class ClientMain {
         chessClient = new ChessClient(serverFacade, clientState);
         terminalController = new TerminalController(chessClient);
 
+        RuntimeException exitException = null;
         try {
             init();
             while (!clientState.quit) {
@@ -31,13 +32,31 @@ public class ClientMain {
                 sleep(10);
             }
         } catch (Exception e) {
-            throw new RuntimeException("An unhandled exception was thrown.", e);
+            try {
+                terminalController.displayUnhandledException(e);
+                exitException = new RuntimeException(e);
+            } catch (IOException ex) {
+                RuntimeException runtimeException = new RuntimeException(ex);
+                runtimeException.addSuppressed(e);
+                exitException = runtimeException;
+            }
         } finally {
             try {
                 terminalController.tearDown();
             } catch (IOException e) {
-                throw new RuntimeException("An exception was thrown while closing.", e);
+                if (exitException != null) {
+                    RuntimeException tearDownException = new RuntimeException("An exception was thrown while closing.", e);
+                    tearDownException.addSuppressed(exitException.getCause());
+                    for (Throwable throwable : exitException.getSuppressed()) {
+                        tearDownException.addSuppressed(throwable);
+                    }
+                    exitException = tearDownException;
+                }
             }
+        }
+
+        if (exitException != null) {
+            throw exitException;
         }
     }
 
