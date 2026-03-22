@@ -32,6 +32,7 @@ public abstract class ViewPresenter {
         activeView().onUnload();
         viewStack.pop();
         if (activeView() != null) {
+            activeView().setTextGraphics(parentTextGraphics);
             activeView().onLoad();
         }
     }
@@ -122,7 +123,7 @@ public abstract class ViewPresenter {
 
     void performFailedRequestSegue(Throwable throwable) {
         assert activeView() instanceof FormModal;
-        replaceView(
+        loadView(
                 new MessageModal("Error", throwable.getMessage(), parentTextGraphics, this::unwind)
         );
     }

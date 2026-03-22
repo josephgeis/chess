@@ -4,6 +4,7 @@ import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.input.KeyType;
 
 public abstract class FormModal extends Modal {
     int field = 0;
@@ -28,7 +29,11 @@ public abstract class FormModal extends Modal {
         }
     }
 
-    protected void handleKeyStroke(KeyStroke keyStroke) { }
+    protected void handleKeyStroke(KeyStroke keyStroke) {
+        if (keyStroke.getKeyType() == KeyType.Escape) {
+            onDismiss.run();
+        }
+    }
 
     protected void drawField(int index, TerminalPosition fieldStartPosition, String name, String value) {
         drawField(index, fieldStartPosition, name, value, FieldFormat.NORMAL);
@@ -60,5 +65,12 @@ public abstract class FormModal extends Modal {
             textGraphics.setBackgroundColor(TextColor.ANSI.WHITE);
             textGraphics.setForegroundColor(TextColor.ANSI.BLACK);
         }
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        submitted = false;
+        field = 0;
     }
 }
