@@ -39,10 +39,5 @@ public abstract class View extends Drawable implements EventObserver {
         cancelEventHandlers();
     }
 
-    public void onKeyStroke(KeyStroke keyStroke) {
-        System.out.println("Key stroke handled by " +
-                this.getClass() +
-                ": " +
-                keyStroke);
-    }
+    public void onKeyStroke(KeyStroke keyStroke) { }
 }

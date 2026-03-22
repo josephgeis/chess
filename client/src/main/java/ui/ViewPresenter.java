@@ -2,6 +2,7 @@ package ui;
 
 import client.ChessClient;
 import com.googlecode.lanterna.graphics.TextGraphics;
+import response.GameListing;
 import ui.modals.*;
 import ui.views.ListGamesView;
 import ui.views.LoggedInView;
@@ -9,6 +10,7 @@ import ui.views.PreLoginView;
 import ui.views.View;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 
 public abstract class ViewPresenter {
     final TextGraphics parentTextGraphics;
@@ -131,7 +133,18 @@ public abstract class ViewPresenter {
     void performListGamesSegue() {
         assert activeView() instanceof LoggedInView;
         loadView(
-                new ListGamesView(parentTextGraphics, this::unwind)
+                new ListGamesView(parentTextGraphics, this::unwind) {
+                    @Override
+                    protected void reloadGames() {
+                        int start = (int) Math.floor(Math.random() * 10);
+                        ArrayList<GameListing> games = new ArrayList<>();
+                        for (int i = 0; i < 100; i++) {
+                            games.add(new GameListing(i, i % 2 == 0 ? "white" : null, i % 4 > 1 ? "black" : null, "Game %d".formatted(i + start)));
+                        }
+                        setGames(games);
+                        setCursor(0);
+                    }
+                }
         );
     }
 
