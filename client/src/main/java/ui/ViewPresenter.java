@@ -29,16 +29,29 @@ public abstract class ViewPresenter {
 
     void unwind() {
         assert !viewStack.isEmpty();
+        activeView().onUnload();
         viewStack.pop();
         if (activeView() != null) {
             activeView().onLoad();
         }
     }
 
+    void loadView(View view) {
+        if (!viewStack.isEmpty()) {
+            activeView().onUnload();
+        }
+        viewStack.push(view);
+        view.onLoad();
+    }
+
+    void replaceView(View newView) {
+        unwind();
+        loadView(newView);
+    }
+
     void performLoginSegue() {
         assert activeView() instanceof PreLoginView;
-        activeView().onUnload();
-        viewStack.push(new LoginModal(parentTextGraphics, this::unwind) {
+        loadView(new LoginModal(parentTextGraphics, this::unwind) {
             @Override
             protected void onSubmit() {
                 chessClient.makeLoginRequest(getUsername(), getPassword())
@@ -52,9 +65,9 @@ public abstract class ViewPresenter {
             @Override
             protected void onLoginSuccess() {
                 assert activeView() instanceof LoginModal;
-                viewStack.pop();
+                unwind();
                 assert activeView() instanceof PreLoginView;
-                viewStack.pop();
+                unwind();
                 viewStack.push(
                         new LoggedInView(parentTextGraphics, chessClient.getState().getLoggedInUser()) {
                             @Override
@@ -70,7 +83,7 @@ public abstract class ViewPresenter {
                             }
                         }
                 );
-                viewStack.push(
+                loadView(
                         new MessageModal(
                                 "Success",
                                 "Logged in as " + getUsername(),
@@ -81,8 +94,8 @@ public abstract class ViewPresenter {
 
             @Override
             protected void onLoginFailure(Throwable throwable) {
-                viewStack.pop();
-                viewStack.push(
+                assert activeView() instanceof LoginModal;
+                replaceView(
                         new MessageModal("Login Failed", throwable.getMessage(), parentTextGraphics, onDismiss)
                 );
             }
@@ -91,16 +104,12 @@ public abstract class ViewPresenter {
 
     void performLogoutSegue() {
         assert activeView() instanceof LoggedInView;
-        activeView().onUnload();
-        viewStack.pop();
-        viewStack.push(
+        replaceView(
                 new PreLoginView(parentTextGraphics, this::performLoginSegue)
         );
-        activeView().onLoad();
 
         chessClient.makeLogoutRequest().exceptionally(throwable -> {
-            activeView().onUnload();
-            viewStack.push(
+            loadView(
                     new MessageModal("Logout Failed", throwable.getCause().getMessage(), parentTextGraphics, this::unwind)
             );
             return null;
@@ -109,10 +118,8 @@ public abstract class ViewPresenter {
 
     void performListGamesSegue() {
         assert activeView() instanceof LoggedInView;
-        activeView().onUnload();
-        viewStack.push(
+        loadView(
                 new ListGamesView(parentTextGraphics, this::unwind)
         );
-        activeView().onLoad();
     }
 }
