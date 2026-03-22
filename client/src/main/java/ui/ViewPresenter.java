@@ -1,5 +1,6 @@
 package ui;
 
+import client.ChessClient;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import ui.modals.LoginModal;
 import ui.modals.MessageModal;
@@ -10,13 +11,15 @@ import java.util.ArrayDeque;
 
 public abstract class ViewPresenter {
     final TextGraphics textGraphics;
-    ArrayDeque<View> viewStack = new ArrayDeque<View>();
+    protected ArrayDeque<View> viewStack = new ArrayDeque<View>();
+    private final ChessClient chessClient;
 
-    public ViewPresenter(TextGraphics textGraphics) {
+    public ViewPresenter(TextGraphics textGraphics, ChessClient chessClient) {
         this.textGraphics = textGraphics;
+        this.chessClient = chessClient;
     }
 
-    View activeView() {
+    public View activeView() {
         return viewStack.peek();
     }
 
@@ -33,18 +36,28 @@ public abstract class ViewPresenter {
     void performLoginSegue() {
         assert activeView() instanceof PreLoginView;
         activeView().onUnload();
-        viewStack.push(new LoginModal(textGraphics, this::unwind) {
+        viewStack.push(new LoginModal(ViewPresenter.this.textGraphics, this::unwind) {
             @Override
             protected void onSubmit() {
-                // TODO: properly dispatch the TerminalController to do the login
-                onLoginSuccess();
+                chessClient.makeLoginRequest(getUsername(), getPassword())
+                        .thenAccept(loginResponse -> {
+                    onLoginSuccess();
+                })
+                        .exceptionally(ex -> {
+                            onLoginFailure(ex.getCause());
+                            return null;
+                        });
             }
 
             @Override
             protected void onLoginSuccess() {
                 viewStack.pop();
                 viewStack.push(
-                        new MessageModal("Success", "Logged in as", textGraphics, onDismiss)
+                        new MessageModal(
+                                "Success",
+                                "Logged in as " + getUsername(),
+                                ViewPresenter.this.textGraphics,
+                                onDismiss)
                 );
             }
 
@@ -52,7 +65,7 @@ public abstract class ViewPresenter {
             protected void onLoginFailure(Throwable throwable) {
                 viewStack.pop();
                 viewStack.push(
-                        new MessageModal("Error", "Login failed", textGraphics, onDismiss)
+                        new MessageModal("Error", throwable.getMessage(), ViewPresenter.this.textGraphics, onDismiss)
                 );
             }
         });

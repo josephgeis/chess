@@ -3,12 +3,6 @@ package client;
 import model.AuthData;
 
 public final class ClientState {
-    private static final ClientState INSTANCE = new ClientState();
-
-    public static ClientState getInstance() {
-        return INSTANCE;
-    }
-
     boolean quit = false;
 
     public void quitProgram() {

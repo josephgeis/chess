@@ -1,5 +1,8 @@
 package ui;
 
+import client.ChessClient;
+import client.ClientState;
+import client.ServerFacade;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
@@ -21,13 +24,19 @@ import static com.googlecode.lanterna.input.KeyType.*;
  * 2. Menu bar
  */
 public class TerminalController implements EventObserver {
-    ViewPresenter viewPresenter;
+    private final ChessClient chessClient;
     EventPublisher eventPublisher = EventPublisher.getInstance();
+
     DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
     Screen screen;
     TextGraphics textGraphics;
+    ViewPresenter viewPresenter;
 
     MenuBar menuBar;
+
+    public TerminalController(ChessClient chessClient) {
+        this.chessClient = chessClient;
+    }
 
     public void eventLoop() throws IOException {
         View view = viewPresenter.activeView();
@@ -74,7 +83,7 @@ public class TerminalController implements EventObserver {
     public void init() throws IOException {
         screen = defaultTerminalFactory.createScreen();
         textGraphics = screen.newTextGraphics();
-        viewPresenter = new ViewPresenter(textGraphics) {
+        viewPresenter = new ViewPresenter(textGraphics, chessClient) {
             @Override
             void entryPoint() {
                 viewStack.push(new PreLoginView(textGraphics, this::performLoginSegue));

@@ -14,14 +14,17 @@ import static java.lang.Thread.sleep;
 public class ClientMain {
     static TerminalController terminalController;
     static EventPublisher eventPublisher = EventPublisher.getInstance();
-    static ClientState clientState = ClientState.getInstance();
+    static ServerFacade serverFacade = new ServerFacade("localhost", 8080);
+    static ClientState clientState = new ClientState();
+    static ChessClient chessClient;
 
     public static void main(String[] args) {
         var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
 
         System.out.println("♕ 240 Chess Client: " + piece);
 
-        terminalController = new TerminalController();
+        chessClient = new ChessClient(serverFacade, clientState);
+        terminalController = new TerminalController(chessClient);
 
         try {
             init();
