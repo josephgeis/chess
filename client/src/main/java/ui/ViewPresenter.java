@@ -55,51 +55,49 @@ public abstract class ViewPresenter {
             @Override
             protected void onSubmit() {
                 chessClient.makeLoginRequest(getUsername(), getPassword())
-                        .thenAccept(loginResponse -> onLoginSuccess())
+                        .thenAccept(loginResponse -> performCompleteLoginSegue(loginResponse.username()))
                         .exceptionally(ex -> {
-                            onLoginFailure(ex.getCause());
+                            performFailedLoginSegue(ex.getCause());
                             return null;
                         });
             }
-
-            @Override
-            protected void onLoginSuccess() {
-                assert activeView() instanceof LoginModal;
-                unwind();
-                assert activeView() instanceof PreLoginView;
-                unwind();
-                viewStack.push(
-                        new LoggedInView(parentTextGraphics, chessClient.getState().getLoggedInUser()) {
-                            @Override
-                            protected void onLogout() {
-                                super.onLogout();
-                                performLogoutSegue();
-                            }
-
-                            @Override
-                            protected void onListGames() {
-                                super.onListGames();
-                                performListGamesSegue();
-                            }
-                        }
-                );
-                loadView(
-                        new MessageModal(
-                                "Success",
-                                "Logged in as " + getUsername(),
-                                parentTextGraphics,
-                                onDismiss)
-                );
-            }
-
-            @Override
-            protected void onLoginFailure(Throwable throwable) {
-                assert activeView() instanceof LoginModal;
-                replaceView(
-                        new MessageModal("Login Failed", throwable.getMessage(), parentTextGraphics, onDismiss)
-                );
-            }
         });
+    }
+
+    void performCompleteLoginSegue(String username) {
+        assert activeView() instanceof LoginModal;
+        unwind();
+        assert activeView() instanceof PreLoginView;
+        unwind();
+        viewStack.push(
+                new LoggedInView(parentTextGraphics, chessClient.getState().getLoggedInUser()) {
+                    @Override
+                    protected void onLogout() {
+                        super.onLogout();
+                        performLogoutSegue();
+                    }
+
+                    @Override
+                    protected void onListGames() {
+                        super.onListGames();
+                        performListGamesSegue();
+                    }
+                }
+        );
+        loadView(
+                new MessageModal(
+                        "Success",
+                        "Logged in as " + username,
+                        parentTextGraphics,
+                        this::unwind)
+        );
+    }
+
+    void performFailedLoginSegue(Throwable throwable) {
+        assert activeView() instanceof LoginModal;
+        replaceView(
+                new MessageModal("Login Failed", throwable.getMessage(), parentTextGraphics, this::unwind)
+        );
     }
 
     void performLogoutSegue() {

@@ -107,8 +107,4 @@ public abstract class LoginModal extends Modal {
     }
 
     protected abstract void onSubmit();
-
-    protected abstract void onLoginSuccess();
-
-    protected abstract void onLoginFailure(Throwable throwable);
 }
