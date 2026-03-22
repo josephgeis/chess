@@ -118,14 +118,6 @@ public class ChessBoardView extends View {
         }
     }
 
-    int adjustedCoordinate(int i) {
-        assert i >= 0 && i < 8;
-        return switch (myTeam) {
-            case BLACK -> 7 - i;
-            case WHITE -> i;
-        };
-    }
-
     void drawSquare(TerminalPosition position, TextColor squareColor, ChessPiece piece) {
         textGraphics.setBackgroundColor(squareColor);
         textGraphics.fillRectangle(position,
