@@ -4,13 +4,12 @@ import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
+
 import ui.Drawable;
-import ui.TerminalController;
 import ui.menubar.MenuItems;
 
 public abstract class View extends Drawable {
 
-    protected TerminalController terminalController;
     protected MenuItems menuItems = MenuItems.NONE;
 
     public View(TextGraphics parentTextGraphics) {

@@ -1,6 +1,5 @@
 package ui.views;
 
-import chess.ChessGame;
 import com.googlecode.lanterna.SGR;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
