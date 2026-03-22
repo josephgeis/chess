@@ -1,33 +1,28 @@
- package ui.views;
+package ui.views;
 
-import client.ServerFacade;
 import com.googlecode.lanterna.SGR;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import ui.EventPublisher;
-import ui.TerminalController;
 import ui.menubar.MenuItems;
-import ui.modals.LoginModal;
-import ui.modals.MessageModal;
 
 import java.util.EnumSet;
-import java.util.concurrent.Callable;
 
- public class PreLoginView extends View {
+public class PreLoginView extends View {
 
-     boolean showHelp = false;
+    boolean showHelp = false;
 
-     Runnable performLoginSegue;
+    Runnable performLoginSegue;
 
-     public PreLoginView(TextGraphics parentTextGraphics, Runnable performLoginSegue) {
-         super(parentTextGraphics);
-         menuItems = MenuItems.NOT_LOGGED_IN;
+    public PreLoginView(TextGraphics parentTextGraphics, Runnable performLoginSegue) {
+        super(parentTextGraphics);
+        menuItems = MenuItems.NOT_LOGGED_IN;
 
-         this.performLoginSegue = performLoginSegue;
-     }
+        this.performLoginSegue = performLoginSegue;
+    }
 
-     @Override
+    @Override
     public void draw() {
         textGraphics.setBackgroundColor(TextColor.ANSI.BLUE);
         textGraphics.setForegroundColor(TextColor.ANSI.WHITE_BRIGHT);
@@ -60,19 +55,20 @@ import java.util.concurrent.Callable;
         }
     }
 
-     @Override
-     public void onLoad() {
-         super.onLoad();
-         showHelp = false;
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        showHelp = false;
 
-         registerEventHandler(EventPublisher.EventType.SHOW_HELP, this::showHelpScreen);
-         registerEventHandler(EventPublisher.EventType.LOG_IN, this::showLoginModal);
-     }
+        registerEventHandler(EventPublisher.EventType.SHOW_HELP, this::showHelpScreen);
+        registerEventHandler(EventPublisher.EventType.LOG_IN, this::showLoginModal);
+    }
 
-     public void showHelpScreen() {
+    public void showHelpScreen() {
         showHelp = !showHelp;
-     }
-     public void showLoginModal() {
-         performLoginSegue.run();
-     }
- }
+    }
+
+    public void showLoginModal() {
+        performLoginSegue.run();
+    }
+}
