@@ -84,7 +84,17 @@ public class TerminalController implements EventObserver {
         viewPresenter = new ViewPresenter(textGraphics, chessClient) {
             @Override
             void entryPoint() {
-                viewStack.push(new PreLoginView(textGraphics, this::performLoginSegue));
+                viewStack.push(new PreLoginView(textGraphics) {
+                    @Override
+                    public void showLoginModal() {
+                        performLoginSegue();
+                    }
+
+                    @Override
+                    public void showRegisterModal() {
+                        performRegisterSegue();
+                    }
+                });
                 activeView().onLoad();
             }
         };
