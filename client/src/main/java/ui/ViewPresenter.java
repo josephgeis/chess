@@ -4,6 +4,7 @@ import client.ChessClient;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import ui.modals.LoginModal;
 import ui.modals.MessageModal;
+import ui.views.ListGamesView;
 import ui.views.LoggedInView;
 import ui.views.PreLoginView;
 import ui.views.View;
@@ -11,12 +12,12 @@ import ui.views.View;
 import java.util.ArrayDeque;
 
 public abstract class ViewPresenter {
-    final TextGraphics textGraphics;
+    final TextGraphics parentTextGraphics;
     protected ArrayDeque<View> viewStack = new ArrayDeque<>();
     private final ChessClient chessClient;
 
     public ViewPresenter(TextGraphics textGraphics, ChessClient chessClient) {
-        this.textGraphics = textGraphics;
+        this.parentTextGraphics = textGraphics;
         this.chessClient = chessClient;
     }
 
@@ -37,7 +38,7 @@ public abstract class ViewPresenter {
     void performLoginSegue() {
         assert activeView() instanceof PreLoginView;
         activeView().onUnload();
-        viewStack.push(new LoginModal(ViewPresenter.this.textGraphics, this::unwind) {
+        viewStack.push(new LoginModal(parentTextGraphics, this::unwind) {
             @Override
             protected void onSubmit() {
                 chessClient.makeLoginRequest(getUsername(), getPassword())
@@ -55,11 +56,17 @@ public abstract class ViewPresenter {
                 assert activeView() instanceof PreLoginView;
                 viewStack.pop();
                 viewStack.push(
-                        new LoggedInView(ViewPresenter.this.textGraphics, chessClient.getState().getLoggedInUser()) {
+                        new LoggedInView(parentTextGraphics, chessClient.getState().getLoggedInUser()) {
                             @Override
                             protected void onLogout() {
                                 super.onLogout();
                                 performLogoutSegue();
+                            }
+
+                            @Override
+                            protected void onListGames() {
+                                super.onListGames();
+                                performListGamesSegue();
                             }
                         }
                 );
@@ -67,7 +74,7 @@ public abstract class ViewPresenter {
                         new MessageModal(
                                 "Success",
                                 "Logged in as " + getUsername(),
-                                ViewPresenter.this.textGraphics,
+                                parentTextGraphics,
                                 onDismiss)
                 );
             }
@@ -76,7 +83,7 @@ public abstract class ViewPresenter {
             protected void onLoginFailure(Throwable throwable) {
                 viewStack.pop();
                 viewStack.push(
-                        new MessageModal("Login Failed", throwable.getMessage(), ViewPresenter.this.textGraphics, onDismiss)
+                        new MessageModal("Login Failed", throwable.getMessage(), parentTextGraphics, onDismiss)
                 );
             }
         });
@@ -87,16 +94,25 @@ public abstract class ViewPresenter {
         activeView().onUnload();
         viewStack.pop();
         viewStack.push(
-                new PreLoginView(ViewPresenter.this.textGraphics, this::performLoginSegue)
+                new PreLoginView(parentTextGraphics, this::performLoginSegue)
         );
         activeView().onLoad();
 
         chessClient.makeLogoutRequest().exceptionally(throwable -> {
             activeView().onUnload();
             viewStack.push(
-                    new MessageModal("Logout Failed", throwable.getCause().getMessage(), ViewPresenter.this.textGraphics, this::unwind)
+                    new MessageModal("Logout Failed", throwable.getCause().getMessage(), parentTextGraphics, this::unwind)
             );
             return null;
         });
+    }
+
+    void performListGamesSegue() {
+        assert activeView() instanceof LoggedInView;
+        activeView().onUnload();
+        viewStack.push(
+                new ListGamesView(parentTextGraphics, this::unwind)
+        );
+        activeView().onLoad();
     }
 }

@@ -32,7 +32,10 @@ public class LoggedInView extends MainMenuView {
     public void onLoad() {
         super.onLoad();
         registerEventHandler(EventPublisher.EventType.LOG_OUT, this::onLogout);
+        registerEventHandler(EventPublisher.EventType.LIST_GAME, this::onListGames);
     }
 
     protected void onLogout() { }
+
+    protected void onListGames() { };
 }

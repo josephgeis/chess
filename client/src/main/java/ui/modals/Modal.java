@@ -70,4 +70,14 @@ public abstract class Modal extends View {
             onDismiss.run();
         }
     }
+
+    @Override
+    final public void onLoad() {
+        super.onLoad();
+    }
+
+    @Override
+    final public void onUnload() {
+        super.onUnload();
+    }
 }
