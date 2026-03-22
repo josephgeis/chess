@@ -20,23 +20,31 @@ public abstract class ListGamesView extends View {
     Runnable unwind;
     ArrayList<GameListing> games;
     int cursor = 0;
+    final ViewMode viewMode;
 
-    public ListGamesView(TextGraphics parentTextGraphics, Runnable unwind) {
+    public ListGamesView(TextGraphics parentTextGraphics, ViewMode viewMode, Runnable unwind) {
         super(parentTextGraphics);
         this.unwind = unwind;
+        this.viewMode = viewMode;
 
         menuItems = new MenuItems() {
             @Override
             protected MenuBarItem itemAt(int i) {
                 return switch (i) {
-                    case 2 -> MenuBarItem.withEvent("JoinGame", JOIN_GAME);
+                    case 2 -> viewMode == ViewMode.JOIN_GAME ? MenuBarItem.withEvent("JoinGame", JOIN_GAME) : null;
                     case 3 -> MenuBarItem.withCallback("Refresh", ListGamesView.this::reloadGames);
-                    case 4 -> MenuBarItem.withEvent("SpecGame", SPECTATE_GAME);
-                    case 6 -> MenuBarItem.withCallback("Done", unwind);
+                    case 4 -> viewMode == ViewMode.SPECTATE_GAME ? MenuBarItem.withEvent("SpecGame", SPECTATE_GAME) : null;
+                    case 6 -> MenuBarItem.withCallback("Back", unwind);
                     default -> null;
                 };
             }
         };
+    }
+
+    public enum ViewMode {
+        LIST_ONLY,
+        JOIN_GAME,
+        SPECTATE_GAME
     }
 
     public void setCursor(int cursor) {
@@ -88,8 +96,12 @@ public abstract class ListGamesView extends View {
 
         textGraphics.putString(TerminalPosition.OFFSET_1x1, "Active Games");
 
+        drawGames(TerminalPosition.OFFSET_1x1.withRelative(2, 2));
+    }
+
+    protected void drawGames(TerminalPosition startPosition) {
         textGraphics.setModifiers(EnumSet.of(SGR.BOLD, SGR.UNDERLINE));
-        drawGameListing(TerminalPosition.OFFSET_1x1.withRelative(2, 2), "Name", "White Player", "Black Player");
+        drawGameListing(startPosition, "Name", "White Player", "Black Player");
 
         for (int i = 0; i < maxGamesToList() &&  i + skipGames() < games.size(); i++) {
             TerminalPosition position = TerminalPosition.OFFSET_1x1.withRelative(2, 3 + i);
