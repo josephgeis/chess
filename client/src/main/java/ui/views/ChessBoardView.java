@@ -1,5 +1,8 @@
 package ui.views;
 
+import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import com.googlecode.lanterna.SGR;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
@@ -25,6 +28,8 @@ public class ChessBoardView extends View {
     final int EDGE_THICK_V = 2;
 
     Runnable unwind;
+    ChessGame chessGame;
+    ChessGame.TeamColor myTeam;
 
     public ChessBoardView(TextGraphics parentTextGraphics, Runnable unwind) {
         super(parentTextGraphics);
@@ -34,11 +39,31 @@ public class ChessBoardView extends View {
             @Override
             protected MenuBarItem itemAt(int i) {
                 return switch (i) {
+                    case 5 -> MenuBarItem.withCallback("Switch", () -> myTeam = myTeam.otherTeam());
                     case 6 -> MenuBarItem.withCallback("Close", unwind);
                     default -> null;
                 };
             }
         };
+
+        chessGame = new ChessGame();
+        myTeam = ChessGame.TeamColor.WHITE;
+    }
+
+    record ScreenPosition(int row, int col) {
+        public ChessPosition toChessPosition(ChessGame.TeamColor perspective) {
+            return switch (perspective) {
+                case WHITE -> new ChessPosition(8 - row, col + 1);
+                case BLACK -> new ChessPosition(row + 1, 8 - col);
+            };
+        }
+
+        public static ScreenPosition fromChessPosition(ChessPosition chessPosition, ChessGame.TeamColor perspective) {
+            return switch (perspective) {
+                case WHITE -> new ScreenPosition(8 - chessPosition.getRow(), chessPosition.getColumn() - 1);
+                case BLACK -> new ScreenPosition(chessPosition.getRow() - 1, 8 - chessPosition.getColumn());
+            };
+        }
     }
 
     @Override
@@ -52,12 +77,14 @@ public class ChessBoardView extends View {
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
+                ScreenPosition screenPosition = new ScreenPosition(i, j);
+
                 TerminalPosition position = startPosition.withRelative(5*j, 3*i);
                 drawSquare(position, (i + j) % 2 == 0 ? ROYAL : NAVY,
-                        new ChessPiece(EscapeSequences.BLACK_PAWN, i < 4));
+                        chessGame.getBoard().getPiece(screenPosition.toChessPosition(myTeam))
+                );
             }
         }
-
     }
 
     private void drawBoardEdge(TerminalPosition startPosition) {
@@ -81,28 +108,29 @@ public class ChessBoardView extends View {
     private void drawEdgeAlphaNumber(TerminalPosition startPosition) {
         final Character[] LETTERS = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
         for (int i = 0; i < 8; i++) {
+            ScreenPosition screenPosition = new ScreenPosition(i, i);
+            ChessPosition chessPosition = screenPosition.toChessPosition(myTeam);
+
             textGraphics.setForegroundColor(LABEL_COLOR);
             textGraphics.setModifiers(EnumSet.of(SGR.BOLD));
             TerminalPosition topLetterPosition = startPosition.withRelative(2 + SQUARE_COLS * i, -1);
-            textGraphics.putString(topLetterPosition, "%c".formatted(LETTERS[i]));
+            textGraphics.putString(topLetterPosition, "%c".formatted(LETTERS[chessPosition.getColumn() - 1]));
             TerminalPosition bottomLetterPosition = startPosition.withRelative(2 + SQUARE_COLS * i, 8 * SQUARE_ROWS);
-            textGraphics.putString(bottomLetterPosition, "%c".formatted(LETTERS[i]));
+            textGraphics.putString(bottomLetterPosition, "%c".formatted(LETTERS[chessPosition.getColumn() - 1]));
 
             TerminalPosition leftNumberPosition = startPosition.withRelative(-1, 1 + SQUARE_ROWS * i);
-            textGraphics.putString(leftNumberPosition, "%d".formatted(8 - i));
+            textGraphics.putString(leftNumberPosition, "%d".formatted(chessPosition.getRow()));
             TerminalPosition rightNumberPosition = startPosition.withRelative(8 * SQUARE_COLS, 1 + SQUARE_ROWS * i);
-            textGraphics.putString(rightNumberPosition, "%d".formatted(8 - i));
+            textGraphics.putString(rightNumberPosition, "%d".formatted(chessPosition.getRow()));
         }
     }
 
-    record ChessPiece(String symbol, boolean blackWhite) {
-        public TextColor color() {
-            return blackWhite ? TextColor.ANSI.WHITE_BRIGHT : TextColor.ANSI.BLACK;
-        }
-
-        public TextColor textColor() {
-            return blackWhite ? TextColor.ANSI.BLACK : TextColor.ANSI.WHITE_BRIGHT;
-        }
+    int adjustedCoordinate(int i) {
+        assert i >= 0 && i < 8;
+        return switch (myTeam) {
+            case BLACK -> 7 - i;
+            case WHITE -> i;
+        };
     }
 
     void drawSquare(TerminalPosition position, TextColor squareColor, ChessPiece piece) {
@@ -111,9 +139,17 @@ public class ChessBoardView extends View {
                 new TerminalSize(5, 3), ' ');
 
         if (piece != null) {
-            textGraphics.setBackgroundColor(piece.color());
-            textGraphics.setForegroundColor(piece.textColor());
-            textGraphics.putString(position.withRelative(1, 1), piece.symbol());
+            textGraphics.setBackgroundColor(colorFor(piece.getTeamColor()));
+            textGraphics.setForegroundColor(colorFor(piece.getTeamColor().otherTeam()));
+            textGraphics.putString(position.withRelative(1, 1),
+                    " %s ".formatted(piece.getPieceType()));
         }
+    }
+
+    TextColor colorFor(ChessGame.TeamColor teamColor) {
+        return switch (teamColor) {
+            case WHITE -> TextColor.ANSI.WHITE_BRIGHT;
+            case BLACK -> TextColor.ANSI.BLACK;
+        };
     }
 }
