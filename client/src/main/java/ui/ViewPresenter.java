@@ -158,6 +158,11 @@ public abstract class ViewPresenter {
                                     setGames(new ArrayList<>(response.games()));
                                     setCursor(0);
                                     isLoading = false;
+                                })
+                                .exceptionally(throwable -> {
+                                    unwind();
+                                    performFailedRequestSegue(throwable.getCause());
+                                    return null;
                                 });
                     }
 

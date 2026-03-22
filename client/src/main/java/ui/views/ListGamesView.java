@@ -63,7 +63,15 @@ public abstract class ListGamesView extends View {
         reloadGames();
     }
 
-    int maxGamesToList() {
+    String getTitle() {
+        return switch (viewMode) {
+            case LIST_ONLY -> "Currently active games";
+            case JOIN_GAME -> "Choose a game to join";
+            case SPECTATE_GAME -> "Choose a game to spectate";
+        };
+    }
+
+    int gamesPerPage() {
         return Integer.max(textGraphics.getSize().getRows() - 5, 0);
     }
 
@@ -76,21 +84,20 @@ public abstract class ListGamesView extends View {
     }
 
     int getPage() {
-        return cursor / maxGamesToList();
+        return cursor / gamesPerPage();
     }
 
     int skipGames() {
-        return getPage() * maxGamesToList();
+        return getPage() * gamesPerPage();
     }
 
     @Override
     public void onKeyStroke(KeyStroke keyStroke) {
-        System.out.println(keyStroke);
         switch (keyStroke.getKeyType()) {
             case ArrowDown -> cursor = Integer.min(++cursor, games.size() - 1);
             case ArrowUp -> cursor = Integer.max(--cursor, 0);
-            case PageDown -> cursor = Integer.min(cursor + maxGamesToList(), games.size() - 1);
-            case PageUp -> cursor = Integer.max(cursor - maxGamesToList(), 0);
+            case PageDown -> cursor = Integer.min(cursor + gamesPerPage(), games.size() - 1);
+            case PageUp -> cursor = Integer.max(cursor - gamesPerPage(), 0);
         }
     }
 
@@ -104,7 +111,7 @@ public abstract class ListGamesView extends View {
                 ' '
         );
 
-        textGraphics.putString(TerminalPosition.OFFSET_1x1, "Active Games");
+        textGraphics.putString(TerminalPosition.OFFSET_1x1, getTitle());
 
         drawGames(TerminalPosition.OFFSET_1x1.withRelative(2, 2));
     }
@@ -113,11 +120,11 @@ public abstract class ListGamesView extends View {
         textGraphics.setModifiers(EnumSet.of(SGR.BOLD, SGR.UNDERLINE));
         drawGameListing(startPosition, "Name", "White Player", "Black Player");
 
-        for (int i = 0; i < maxGamesToList() &&  i + skipGames() < games.size(); i++) {
+        for (int i = 0; i < gamesPerPage() &&  i + skipGames() < games.size(); i++) {
             TerminalPosition position = TerminalPosition.OFFSET_1x1.withRelative(2, 3 + i);
             textGraphics.clearModifiers();
 
-            if (cursor % maxGamesToList() == i) {
+            if (cursor % gamesPerPage() == i) {
                 textGraphics.setBackgroundColor(TextColor.ANSI.YELLOW);
                 textGraphics.fillRectangle(position.withRelativeColumn(-1), new TerminalSize(70, 1), ' ');
             } else {
