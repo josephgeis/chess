@@ -15,8 +15,11 @@ public abstract class Modal extends View {
 
     protected abstract TerminalSize getSize();
 
-    public Modal(TextGraphics parentTextGraphics, TerminalController terminalController) {
-        super(parentTextGraphics, terminalController);
+    protected Runnable onDismiss;
+
+    public Modal(TextGraphics parentTextGraphics, Runnable onDismiss) {
+        super(parentTextGraphics);
+        this.onDismiss = onDismiss;
     }
 
     void defaultColor() {
@@ -64,7 +67,7 @@ public abstract class Modal extends View {
     @Override
     public void onKeyStroke(KeyStroke keyStroke) {
         if (keyStroke.getKeyType() == KeyType.Enter) {
-            terminalController.popView();
+            onDismiss.run();
         }
     }
 }

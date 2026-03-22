@@ -29,14 +29,6 @@ public class TerminalController implements EventObserver {
 
     MenuBar menuBar;
 
-    public void pushView(View newView) {
-        viewPresenter.pushView(newView);
-    }
-
-    public void popView() {
-        viewPresenter.popView();
-    }
-
     public void eventLoop() throws IOException {
         View view = viewPresenter.activeView();
         if (view == null) {
@@ -82,10 +74,16 @@ public class TerminalController implements EventObserver {
     public void init() throws IOException {
         screen = defaultTerminalFactory.createScreen();
         textGraphics = screen.newTextGraphics();
-        viewPresenter = new ViewPresenter(this, textGraphics);
+        viewPresenter = new ViewPresenter(textGraphics) {
+            @Override
+            void entryPoint() {
+                viewStack.push(new PreLoginView(textGraphics, this::performLoginSegue));
+                activeView().onLoad();
+            }
+        };
 
         menuBar = new MenuBar(textGraphics);
-        viewPresenter.pushNewView(PreLoginView.class);
+        viewPresenter.entryPoint();
 
         screen.startScreen();
     }

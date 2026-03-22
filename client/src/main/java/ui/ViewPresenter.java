@@ -1,17 +1,18 @@
 package ui;
 
 import com.googlecode.lanterna.graphics.TextGraphics;
+import ui.modals.LoginModal;
+import ui.modals.MessageModal;
+import ui.views.PreLoginView;
 import ui.views.View;
 
 import java.util.ArrayDeque;
 
-public class ViewPresenter {
-    final TerminalController terminalController;
+public abstract class ViewPresenter {
     final TextGraphics textGraphics;
     ArrayDeque<View> viewStack = new ArrayDeque<View>();
 
-    public ViewPresenter(TerminalController terminalController, TextGraphics textGraphics) {
-        this.terminalController = terminalController;
+    public ViewPresenter(TextGraphics textGraphics) {
         this.textGraphics = textGraphics;
     }
 
@@ -19,32 +20,41 @@ public class ViewPresenter {
         return viewStack.peek();
     }
 
-    public void pushView(View newView) {
-        if (activeView() != null) {
-            activeView().onUnload();
-        }
-        viewStack.push(newView);
-        activeView().onLoad();
-    }
+    abstract void entryPoint();
 
-    public <T extends View> void pushNewView(Class<T> viewClass) {
-        T newView;
-        try {
-            newView = viewClass
-                    .getConstructor(TextGraphics.class, TerminalController.class)
-                    .newInstance(textGraphics, terminalController);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        pushView(newView);
-    }
-
-    public void popView() {
-        activeView().onUnload();
+    void unwind() {
+        assert !viewStack.isEmpty();
         viewStack.pop();
         if (activeView() != null) {
             activeView().onLoad();
-            activeView().setTextGraphics(terminalController.textGraphics);
         }
+    }
+
+    void performLoginSegue() {
+        assert activeView() instanceof PreLoginView;
+        activeView().onUnload();
+        viewStack.push(new LoginModal(textGraphics, this::unwind) {
+            @Override
+            protected void onSubmit() {
+                // TODO: properly dispatch the TerminalController to do the login
+                onLoginSuccess();
+            }
+
+            @Override
+            protected void onLoginSuccess() {
+                viewStack.pop();
+                viewStack.push(
+                        new MessageModal("Success", "Logged in as", textGraphics, onDismiss)
+                );
+            }
+
+            @Override
+            protected void onLoginFailure(Throwable throwable) {
+                viewStack.pop();
+                viewStack.push(
+                        new MessageModal("Error", "Login failed", textGraphics, onDismiss)
+                );
+            }
+        });
     }
 }

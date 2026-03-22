@@ -17,8 +17,8 @@ import ui.TerminalController;
 
     String[] fields = {"", "", null, null};
 
-    public LoginModal(TextGraphics parentTextGraphics, TerminalController terminalController) {
-        super(parentTextGraphics, terminalController);
+    public LoginModal(TextGraphics parentTextGraphics, Runnable onDismiss) {
+        super(parentTextGraphics, onDismiss);
     }
 
     @Override
@@ -49,22 +49,9 @@ import ui.TerminalController;
             case Enter -> {
                 if (field == 2) {
                     submitted = true;
-                    ServerFacade serverFacade = new ServerFacade("localhost", 8080);
-                    try {
-                        serverFacade.loginUserAsync(new LoginRequest(fields[0], fields[1]))
-                                .exceptionally(throwable -> {
-                                    onLoginFailure(throwable);
-                                    return null;
-                                }).thenAccept(loginResponse -> {
-                                    var clientState = ClientState.getInstance();
-                                    clientState.setAuthData(new AuthData(loginResponse.authToken(), loginResponse.username()));
-                                    onLoginSuccess();
-                                });
-                    } catch (ServerFacade.ServerFacadeException e) {
-                        throw new RuntimeException(e);
-                    }
+                    onSubmit();
                 } else if (field == 3) {
-                    onCancel();
+                    onDismiss.run();
                 }
             }
         }
@@ -116,7 +103,7 @@ import ui.TerminalController;
           }
         }
 
+        protected abstract void onSubmit();
         protected abstract void onLoginSuccess();
         protected abstract void onLoginFailure(Throwable throwable);
-        protected abstract void onCancel();
   }
