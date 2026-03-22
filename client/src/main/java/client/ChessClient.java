@@ -7,7 +7,7 @@ import response.LoginResponse;
 import response.RegisterResponse;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ChessClient {
@@ -37,6 +37,14 @@ public class ChessClient {
         });
     }
 
+    CompletableFuture<Void> makeAuthenticatedRequest(Function<String, CompletableFuture<Void>> request) {
+        return makeRequest(() -> request.apply(clientState.getAuthToken()));
+    }
+
+    <T> CompletableFuture<T> makeAuthenticatedRequest(Function<String, CompletableFuture<T>> request, Class<T> responseType) {
+        return makeRequest(() -> request.apply(clientState.getAuthToken()), responseType);
+    }
+
     public CompletableFuture<LoginResponse> makeLoginRequest(String username, String password) {
         LoginRequest request = new LoginRequest(username, password);
         return makeRequest(() -> serverFacade.loginUserAsync(request), LoginResponse.class)
@@ -50,7 +58,7 @@ public class ChessClient {
     }
 
     public CompletableFuture<Void> makeLogoutRequest() {
-        return makeRequest(() -> serverFacade.logoutUserAsync(clientState.getAuthToken()))
+        return makeAuthenticatedRequest(serverFacade::logoutUserAsync)
                 .thenApply(unused -> {
                     clientState.setAuthData(null);
                     return unused;
