@@ -2,9 +2,7 @@ package ui;
 
 import client.ChessClient;
 import com.googlecode.lanterna.graphics.TextGraphics;
-import ui.modals.LoginFormModal;
-import ui.modals.MessageModal;
-import ui.modals.RegisterFormModal;
+import ui.modals.*;
 import ui.views.ListGamesView;
 import ui.views.LoggedInView;
 import ui.views.PreLoginView;
@@ -58,7 +56,7 @@ public abstract class ViewPresenter {
                 chessClient.makeLoginRequest(getUsername(), getPassword())
                         .thenAccept(response -> performCompleteLoginSegue(response.username()))
                         .exceptionally(ex -> {
-                            performFailedLoginSegue(ex.getCause());
+                            performFailedFormRequestSegue(ex.getCause());
                             return null;
                         });
             }
@@ -73,7 +71,7 @@ public abstract class ViewPresenter {
                 chessClient.makeRegisterRequest(getUsername(), getPassword(), getEmail())
                         .thenAccept(response -> performCompleteLoginSegue(response.username()))
                         .exceptionally(ex -> {
-                            performFailedLoginSegue(ex.getCause());
+                            performFailedFormRequestSegue(ex.getCause());
                             return null;
                         });
             }
@@ -88,14 +86,17 @@ public abstract class ViewPresenter {
                 new LoggedInView(parentTextGraphics, chessClient.getState().getLoggedInUser()) {
                     @Override
                     protected void onLogout() {
-                        super.onLogout();
                         performLogoutSegue();
                     }
 
                     @Override
                     protected void onListGames() {
-                        super.onListGames();
                         performListGamesSegue();
+                    }
+
+                    @Override
+                    protected void onCreateGame() {
+                        performCreateGameSegue();
                     }
                 }
         );
@@ -108,8 +109,8 @@ public abstract class ViewPresenter {
         );
     }
 
-    void performFailedLoginSegue(Throwable throwable) {
-        assert activeView() instanceof LoginFormModal;
+    void performFailedFormRequestSegue(Throwable throwable) {
+        assert activeView() instanceof FormModal;
         replaceView(
                 new MessageModal("Error", throwable.getMessage(), parentTextGraphics, this::unwind)
         );
@@ -132,5 +133,31 @@ public abstract class ViewPresenter {
         loadView(
                 new ListGamesView(parentTextGraphics, this::unwind)
         );
+    }
+
+    void performCreateGameSegue() {
+        assert activeView() instanceof LoggedInView;
+        loadView(
+                new CreateGameModal(parentTextGraphics, this::unwind) {
+                    @Override
+                    protected void onSubmit() {
+                        chessClient.makeCreateGameRequest(getGameName())
+                                .thenAccept(response -> performCompleteCreateGameSegue(getGameName()))
+                                .exceptionally(ex -> {
+                                    performFailedFormRequestSegue(ex.getCause());
+                                    return null;
+                                });
+                    }
+                }
+        );
+    }
+
+    private void performCompleteCreateGameSegue(String gameName) {
+        assert activeView() instanceof CreateGameModal;
+        replaceView(new MessageModal(
+                "Success",
+                "Created new game: " + gameName,
+                parentTextGraphics,
+                this::unwind));
     }
 }
