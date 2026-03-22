@@ -14,8 +14,8 @@ public class MessageModal extends Modal {
     String[] message;
     final String INSTRUCTIONS = "Press any key to continue...";
 
-    public MessageModal(String title, String message, TextGraphics parentTextGraphics, TerminalController terminalController) {
-        super(parentTextGraphics, terminalController);
+    public MessageModal(String title, String message, TextGraphics parentTextGraphics, Runnable onDismiss) {
+        super(parentTextGraphics, onDismiss);
         this.title = title;
         setMessage(message);
         setTextGraphics(parentTextGraphics);

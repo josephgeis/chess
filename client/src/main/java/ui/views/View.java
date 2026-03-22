@@ -14,10 +14,8 @@ public abstract class View extends Drawable implements EventObserver {
     protected TerminalController terminalController;
     protected MenuItems menuItems = MenuItems.NONE;
 
-    public View(TextGraphics parentTextGraphics, TerminalController terminalController) {
+    public View(TextGraphics parentTextGraphics) {
         super(parentTextGraphics);
-        this.terminalController = terminalController;
-
     }
 
     public MenuItems getMenuItems() {

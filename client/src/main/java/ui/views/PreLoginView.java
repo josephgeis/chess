@@ -12,14 +12,19 @@ import ui.modals.LoginModal;
 import ui.modals.MessageModal;
 
 import java.util.EnumSet;
+import java.util.concurrent.Callable;
 
  public class PreLoginView extends View {
 
      boolean showHelp = false;
 
-     public PreLoginView(TextGraphics parentTextGraphics, TerminalController terminalController) {
-         super(parentTextGraphics, terminalController);
+     Runnable performLoginSegue;
+
+     public PreLoginView(TextGraphics parentTextGraphics, Runnable performLoginSegue) {
+         super(parentTextGraphics);
          menuItems = MenuItems.NOT_LOGGED_IN;
+
+         this.performLoginSegue = performLoginSegue;
      }
 
      @Override
@@ -68,28 +73,6 @@ import java.util.EnumSet;
         showHelp = !showHelp;
      }
      public void showLoginModal() {
-         LoginModal loginModal = new LoginModal(textGraphics, terminalController) {
-             @Override
-             protected void onLoginSuccess() {
-                 terminalController.popView();
-                 terminalController.pushView(new MessageModal("Success", "Logged in as user.", textGraphics, terminalController));
-             }
-
-             @Override
-             protected void onLoginFailure(Throwable throwable) {
-                 terminalController.popView();
-                 String errorMessage = "Unable to log in.";
-                 if (throwable instanceof ServerFacade.ErrorResponseException error) {
-                     errorMessage = error.getMessage().replaceFirst("Error: ", "");
-                 }
-                 terminalController.pushView(new MessageModal("Error", errorMessage, textGraphics, terminalController));
-             }
-
-             @Override
-             protected void onCancel() {
-                 terminalController.popView();
-             }
-         };
-         terminalController.pushView(loginModal);
+         performLoginSegue.run();
      }
  }

@@ -23,8 +23,8 @@ public class ChessBoardView extends View {
     final int EDGE_THICK_H = 1;
     final int EDGE_THICK_V = 2;
 
-    public ChessBoardView(TextGraphics parentTextGraphics, TerminalController terminalController) {
-        super(parentTextGraphics, terminalController);
+    public ChessBoardView(TextGraphics parentTextGraphics) {
+        super(parentTextGraphics);
     }
 
     @Override
