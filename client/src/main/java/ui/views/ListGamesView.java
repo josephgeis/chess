@@ -1,16 +1,25 @@
 package ui.views;
 
+import com.googlecode.lanterna.SGR;
 import com.googlecode.lanterna.TerminalPosition;
+import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
+import com.googlecode.lanterna.input.KeyStroke;
+import response.GameListing;
 import ui.menubar.MenuBarItem;
 import ui.menubar.MenuItems;
 
+import java.util.ArrayList;
+import java.util.EnumSet;
+
 import static ui.EventPublisher.EventType.*;
 
-public class ListGamesView extends View {
+public abstract class ListGamesView extends View {
 
     Runnable unwind;
+    ArrayList<GameListing> games;
+    int cursor = 0;
 
     public ListGamesView(TextGraphics parentTextGraphics, Runnable unwind) {
         super(parentTextGraphics);
@@ -21,19 +30,50 @@ public class ListGamesView extends View {
             protected MenuBarItem itemAt(int i) {
                 return switch (i) {
                     case 2 -> MenuBarItem.withEvent("JoinGame", JOIN_GAME);
-                    case 3 -> MenuBarItem.withEvent("Refresh", LIST_GAME);
+                    case 3 -> MenuBarItem.withCallback("Refresh", ListGamesView.this::reloadGames);
                     case 4 -> MenuBarItem.withEvent("SpecGame", SPECTATE_GAME);
-                    case 6 -> MenuBarItem.withEvent("Done", CANCEL);
+                    case 6 -> MenuBarItem.withCallback("Done", unwind);
                     default -> null;
                 };
             }
         };
     }
 
+    public void setCursor(int cursor) {
+        this.cursor = cursor;
+    }
+
+    public void setGames(ArrayList<GameListing> games) {
+        this.games = games;
+    }
+
     @Override
     public void onLoad() {
         super.onLoad();
-        registerEventHandler(CANCEL, unwind);
+        reloadGames();
+    }
+
+    int maxGamesToList() {
+        return Integer.max(textGraphics.getSize().getRows() - 5, 0);
+    }
+
+    int getPage() {
+        return cursor / maxGamesToList();
+    }
+
+    int skipGames() {
+        return getPage() * maxGamesToList();
+    }
+
+    @Override
+    public void onKeyStroke(KeyStroke keyStroke) {
+        System.out.println(keyStroke);
+        switch (keyStroke.getKeyType()) {
+            case ArrowDown -> cursor = Integer.min(++cursor, games.size() - 1);
+            case ArrowUp -> cursor = Integer.max(--cursor, 0);
+            case PageDown -> cursor = Integer.min(cursor + maxGamesToList(), games.size() - 1);
+            case PageUp -> cursor = Integer.max(cursor - maxGamesToList(), 0);
+        }
     }
 
     @Override
@@ -46,6 +86,52 @@ public class ListGamesView extends View {
                 ' '
         );
 
-        textGraphics.putString(TerminalPosition.OFFSET_1x1, "240 Chess Client");
+        textGraphics.putString(TerminalPosition.OFFSET_1x1, "Active Games");
+
+        textGraphics.setModifiers(EnumSet.of(SGR.BOLD, SGR.UNDERLINE));
+        drawGameListing(TerminalPosition.OFFSET_1x1.withRelative(2, 2), "Name", "White Player", "Black Player");
+
+        for (int i = 0; i < maxGamesToList() &&  i + skipGames() < games.size(); i++) {
+            TerminalPosition position = TerminalPosition.OFFSET_1x1.withRelative(2, 3 + i);
+            textGraphics.clearModifiers();
+
+            if (cursor % maxGamesToList() == i) {
+                textGraphics.setBackgroundColor(TextColor.ANSI.YELLOW);
+                textGraphics.fillRectangle(position.withRelativeColumn(-1), new TerminalSize(70, 1), ' ');
+            } else {
+                textGraphics.setBackgroundColor(TextColor.ANSI.GREEN);
+            }
+
+            GameListing game = games.get(i + skipGames());
+            drawGameListing(position,
+                    game.gameName(),
+                    game.whiteUsername(),
+                    game.blackUsername());
+        }
     }
+
+    void drawGameListing(TerminalPosition position, String gameName, String whitePlayer, String blackPlayer) {
+        textGraphics.setForegroundColor(TextColor.ANSI.WHITE_BRIGHT);
+        textGraphics.putString(position, "%-32s".formatted(gameName));
+
+        position = position.withRelativeColumn(34);
+        if (whitePlayer == null) {
+            textGraphics.setForegroundColor(TextColor.ANSI.CYAN_BRIGHT);
+            textGraphics.putString(position, "-- OPEN --", SGR.ITALIC);
+        } else {
+            textGraphics.setForegroundColor(TextColor.ANSI.WHITE_BRIGHT);
+            textGraphics.putString(position, "%-16s".formatted(whitePlayer));
+        }
+
+        position = position.withRelativeColumn(18);
+        if (blackPlayer == null) {
+            textGraphics.setForegroundColor(TextColor.ANSI.CYAN_BRIGHT);
+            textGraphics.putString(position, "-- OPEN --", SGR.ITALIC);
+        } else {
+            textGraphics.setForegroundColor(TextColor.ANSI.WHITE_BRIGHT);
+            textGraphics.putString(position, "%-16s".formatted(blackPlayer));
+        }
+    }
+
+    protected abstract void reloadGames();
 }
