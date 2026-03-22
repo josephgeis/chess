@@ -1,6 +1,5 @@
 package ui.menubar;
 
-import client.ClientState;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
@@ -40,18 +39,18 @@ public class MenuBar extends ui.Drawable {
         textGraphics.setBackgroundColor(TextColor.ANSI.CYAN_BRIGHT);
         textGraphics.fillRectangle(new TerminalPosition(0, 0), textGraphics.getSize(), ' ');
 
-        for (int i = 1; i <= 6; i++) {
-            MenuBarItem item = menuItems.itemAt(i);
+        for (int i = 0; i < 6; i++) {
+            MenuBarItem item = menuItems.itemAt(i + 1);
 
-            String fnKey = "F%d".formatted(i);
+            String fnKey = "F%d".formatted(i + 1);
             textGraphics.setBackgroundColor(TextColor.ANSI.BLACK);
             textGraphics.setForegroundColor(TextColor.ANSI.WHITE);
-            textGraphics.putString(8 * (i - 1), 0, fnKey);
+            textGraphics.putString(10 * i, 0, fnKey);
 
             textGraphics.setBackgroundColor(TextColor.ANSI.CYAN_BRIGHT);
             textGraphics.setForegroundColor(TextColor.ANSI.BLACK);
             if (item != null) {
-                textGraphics.putString(8 * (i - 1) + 2, 0, item.menuTitle());
+                textGraphics.putString(10 * i + 2, 0, item.menuTitle());
             }
         }
     }
