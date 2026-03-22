@@ -64,11 +64,13 @@ public class TerminalController implements EventObserver {
         Set<KeyType> fnKeys = Set.of(new KeyType[]{F1, F2, F3, F4, F5, F6});
 
         KeyType keyType = keyStroke.getKeyType();
-        EventPublisher.EventType eventType;
 
         if (fnKeys.contains(keyType)) {
-            eventType = menuBar.getEventForMenuKey(keyType);
-            if (eventType != null) {
+            Runnable callback = menuBar.getCallbackForMenuKey(keyType);
+            EventPublisher.EventType eventType = menuBar.getEventForMenuKey(keyType);
+            if (callback != null) {
+                callback.run();
+            } else if (eventType != null) {
                 eventPublisher.fireEvent(eventType);
             }
         } else if (keyStroke.getKeyType() == EOF) {

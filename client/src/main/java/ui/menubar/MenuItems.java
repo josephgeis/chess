@@ -9,10 +9,10 @@ public abstract class MenuItems {
         @Override
         protected MenuBarItem itemAt(int i) {
             return switch (i) {
-                case 1 -> new MenuBarItem("Login", LOG_IN);
-                case 2 -> new MenuBarItem("Register", REGISTER);
-                case 5 -> new MenuBarItem("Help", SHOW_HELP);
-                case 6 -> new MenuBarItem("Quit", QUIT_PROGRAM);
+                case 1 -> MenuBarItem.withEvent("Login", LOG_IN);
+                case 2 -> MenuBarItem.withEvent("Register", REGISTER);
+                case 5 -> MenuBarItem.withEvent("Help", SHOW_HELP);
+                case 6 -> MenuBarItem.withEvent("Quit", QUIT_PROGRAM);
                 default -> null;
             };
         }
@@ -22,12 +22,12 @@ public abstract class MenuItems {
         @Override
         protected MenuBarItem itemAt(int i) {
             return switch(i) {
-                case 1 -> new MenuBarItem("New Game", NEW_GAME);
-                case 2 -> new MenuBarItem("JoinGame", JOIN_GAME);
-                case 3 -> new MenuBarItem("ListGame", LIST_GAME);
-                case 4 -> new MenuBarItem("SpecGame", SPECTATE_GAME);
-                case 5 -> new MenuBarItem("Help", SHOW_HELP);
-                case 6 -> new MenuBarItem("Log Out", LOG_OUT);
+                case 1 -> MenuBarItem.withEvent("New Game", NEW_GAME);
+                case 2 -> MenuBarItem.withEvent("JoinGame", JOIN_GAME);
+                case 3 -> MenuBarItem.withEvent("ListGame", LIST_GAME);
+                case 4 -> MenuBarItem.withEvent("SpecGame", SPECTATE_GAME);
+                case 5 -> MenuBarItem.withEvent("Help", SHOW_HELP);
+                case 6 -> MenuBarItem.withEvent("Log Out", LOG_OUT);
                 default -> null;
             };
         }

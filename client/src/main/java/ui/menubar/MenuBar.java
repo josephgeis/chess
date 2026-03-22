@@ -56,6 +56,24 @@ public class MenuBar extends ui.Drawable {
     }
 
     public EventPublisher.EventType getEventForMenuKey(KeyType keyType) {
+        MenuBarItem menuBarItem = menuItems.itemAt(convertFnKey(keyType));
+        if (menuBarItem != null) {
+            return menuBarItem.eventType();
+        } else {
+            return null;
+        }
+    }
+
+    public Runnable getCallbackForMenuKey(KeyType keyType) {
+        MenuBarItem menuBarItem = menuItems.itemAt(convertFnKey(keyType));
+        if (menuBarItem != null) {
+            return menuBarItem.callback();
+        } else {
+            return null;
+        }
+    }
+
+    private int convertFnKey(KeyType keyType) {
         int itemNumber = switch (keyType) {
             case F1 -> 1;
             case F2 -> 2;
@@ -66,11 +84,8 @@ public class MenuBar extends ui.Drawable {
             default -> 0;
         };
 
-        MenuBarItem menuBarItem = menuItems.itemAt(itemNumber);
-        if (menuBarItem != null) {
-            return menuBarItem.eventType();
-        } else {
-            return null;
-        }
+        assert itemNumber != 0;
+
+        return itemNumber;
     }
 }
