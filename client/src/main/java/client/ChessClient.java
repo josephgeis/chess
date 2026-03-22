@@ -1,7 +1,9 @@
 package client;
 
+import chess.ChessGame;
 import model.AuthData;
 import request.CreateGameRequest;
+import request.JoinGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
 import response.CreateGameResponse;
@@ -10,6 +12,7 @@ import response.LoginResponse;
 import response.RegisterResponse;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -87,5 +90,10 @@ public class ChessClient {
 
     public CompletableFuture<ListGamesResponse> makeListGamesRequest() {
         return makeAuthenticatedRequest(serverFacade::listGamesAsync, ListGamesResponse.class);
+    }
+
+    public CompletableFuture<Void> makeJoinGameRequest(ChessGame.TeamColor teamColor, int gameID) {
+        JoinGameRequest request = new JoinGameRequest(teamColor, gameID);
+        return makeAuthenticatedRequest(authToken -> serverFacade.joinGameAsync(request, authToken));
     }
 }

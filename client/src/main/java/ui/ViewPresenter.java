@@ -1,14 +1,11 @@
 package ui;
 
+import chess.ChessGame;
 import client.ChessClient;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.graphics.TextGraphics;
-import response.GameListing;
 import ui.modals.*;
-import ui.views.ListGamesView;
-import ui.views.LoggedInView;
-import ui.views.PreLoginView;
-import ui.views.View;
+import ui.views.*;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -59,7 +56,7 @@ public abstract class ViewPresenter {
                 chessClient.makeLoginRequest(getUsername(), getPassword())
                         .thenAccept(response -> performCompleteLoginSegue(response.username()))
                         .exceptionally(ex -> {
-                            performFailedFormRequestSegue(ex.getCause());
+                            performFailedRequestSegue(ex.getCause());
                             return null;
                         });
             }
@@ -74,7 +71,7 @@ public abstract class ViewPresenter {
                 chessClient.makeRegisterRequest(getUsername(), getPassword(), getEmail())
                         .thenAccept(response -> performCompleteLoginSegue(response.username()))
                         .exceptionally(ex -> {
-                            performFailedFormRequestSegue(ex.getCause());
+                            performFailedRequestSegue(ex.getCause());
                             return null;
                         });
             }
@@ -90,6 +87,16 @@ public abstract class ViewPresenter {
                     @Override
                     protected void onLogout() {
                         performLogoutSegue();
+                    }
+
+                    @Override
+                    protected void onJoinGame() {
+                        performListGamesSegue(ListGamesView.ViewMode.JOIN_GAME);
+                    }
+
+                    @Override
+                    protected void onSpectateGame() {
+                        performListGamesSegue(ListGamesView.ViewMode.SPECTATE_GAME);
                     }
 
                     @Override
@@ -112,7 +119,7 @@ public abstract class ViewPresenter {
         );
     }
 
-    void performFailedFormRequestSegue(Throwable throwable) {
+    void performFailedRequestSegue(Throwable throwable) {
         assert activeView() instanceof FormModal;
         replaceView(
                 new MessageModal("Error", throwable.getMessage(), parentTextGraphics, this::unwind)
@@ -160,8 +167,35 @@ public abstract class ViewPresenter {
                             super.drawGames(startPosition);
                         }
                     }
+
+                    @Override
+                    protected void onJoinGame(ChessGame.TeamColor teamColor) {
+                        performJoinGameSegue(teamColor, getGameAtCursor().gameID());
+                    }
+
+                    @Override
+                    protected void onSpectateGame() {
+                        performSpectateGameSegue(getGameAtCursor().gameID());
+                    }
                 }
         );
+    }
+
+    void performSpectateGameSegue(int i) {
+        assert activeView() instanceof ListGamesView;
+        replaceView(new ChessBoardView(parentTextGraphics, this::unwind));
+    }
+
+    void performJoinGameSegue(ChessGame.TeamColor teamColor, int gameID) {
+        assert activeView() instanceof ListGamesView;
+        chessClient.makeJoinGameRequest(teamColor, gameID)
+                .thenAccept(ignored -> {
+                    replaceView(new ChessBoardView(parentTextGraphics, this::unwind));
+                })
+                .exceptionally(throwable -> {
+                    performFailedRequestSegue(throwable.getCause());
+                    return null;
+                });
     }
 
     void performCreateGameSegue() {
@@ -173,7 +207,7 @@ public abstract class ViewPresenter {
                         chessClient.makeCreateGameRequest(getGameName())
                                 .thenAccept(response -> performCompleteCreateGameSegue(getGameName()))
                                 .exceptionally(ex -> {
-                                    performFailedFormRequestSegue(ex.getCause());
+                                    performFailedRequestSegue(ex.getCause());
                                     return null;
                                 });
                     }

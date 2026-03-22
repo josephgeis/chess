@@ -1,5 +1,6 @@
 package ui.views;
 
+import chess.ChessGame;
 import com.googlecode.lanterna.SGR;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
@@ -7,8 +8,12 @@ import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import ui.EscapeSequences;
 import ui.TerminalController;
+import ui.menubar.MenuBarItem;
+import ui.menubar.MenuItems;
 
 import java.util.EnumSet;
+
+import static ui.EventPublisher.EventType.SPECTATE_GAME;
 
 public class ChessBoardView extends View {
 
@@ -23,8 +28,21 @@ public class ChessBoardView extends View {
     final int EDGE_THICK_H = 1;
     final int EDGE_THICK_V = 2;
 
-    public ChessBoardView(TextGraphics parentTextGraphics) {
+    Runnable unwind;
+
+    public ChessBoardView(TextGraphics parentTextGraphics, Runnable unwind) {
         super(parentTextGraphics);
+        this.unwind = unwind;
+
+        menuItems = new MenuItems() {
+            @Override
+            protected MenuBarItem itemAt(int i) {
+                return switch (i) {
+                    case 6 -> MenuBarItem.withCallback("Close", unwind);
+                    default -> null;
+                };
+            }
+        };
     }
 
     @Override
