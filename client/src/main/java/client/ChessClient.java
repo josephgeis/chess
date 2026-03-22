@@ -5,6 +5,7 @@ import request.CreateGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
 import response.CreateGameResponse;
+import response.ListGamesResponse;
 import response.LoginResponse;
 import response.RegisterResponse;
 
@@ -82,5 +83,9 @@ public class ChessClient {
     public CompletableFuture<CreateGameResponse> makeCreateGameRequest(String gameName) {
         CreateGameRequest request = new CreateGameRequest(gameName);
         return makeAuthenticatedRequest(authToken -> serverFacade.createGameAsync(request, authToken), CreateGameResponse.class);
+    }
+
+    public CompletableFuture<ListGamesResponse> makeListGamesRequest() {
+        return makeAuthenticatedRequest(serverFacade::listGamesAsync, ListGamesResponse.class);
     }
 }

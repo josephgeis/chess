@@ -1,6 +1,7 @@
 package ui;
 
 import client.ChessClient;
+import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import response.GameListing;
 import ui.modals.*;
@@ -93,7 +94,7 @@ public abstract class ViewPresenter {
 
                     @Override
                     protected void onListGames() {
-                        performListGamesSegue();
+                        performListGamesSegue(ListGamesView.ViewMode.LIST_ONLY);
                     }
 
                     @Override
@@ -130,19 +131,34 @@ public abstract class ViewPresenter {
         });
     }
 
-    void performListGamesSegue() {
+    void performListGamesSegue(ListGamesView.ViewMode viewMode) {
         assert activeView() instanceof LoggedInView;
         loadView(
-                new ListGamesView(parentTextGraphics, this::unwind) {
+                new ListGamesView(parentTextGraphics, viewMode, this::unwind) {
+                    boolean isLoading = false;
+
                     @Override
                     protected void reloadGames() {
-                        int start = (int) Math.floor(Math.random() * 10);
-                        ArrayList<GameListing> games = new ArrayList<>();
-                        for (int i = 0; i < 100; i++) {
-                            games.add(new GameListing(i, i % 2 == 0 ? "white" : null, i % 4 > 1 ? "black" : null, "Game %d".formatted(i + start)));
+                        if (isLoading) {
+                            return;
                         }
-                        setGames(games);
-                        setCursor(0);
+
+                        isLoading = true;
+                        chessClient.makeListGamesRequest()
+                                .thenAccept(response -> {
+                                    setGames(new ArrayList<>(response.games()));
+                                    setCursor(0);
+                                    isLoading = false;
+                                });
+                    }
+
+                    @Override
+                    protected void drawGames(TerminalPosition startPosition) {
+                        if (isLoading) {
+                            textGraphics.putString(startPosition, "Loading...");
+                        } else {
+                            super.drawGames(startPosition);
+                        }
                     }
                 }
         );
