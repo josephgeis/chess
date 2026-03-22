@@ -2,23 +2,18 @@ package ui.modals;
 
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
-import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 
-public abstract class LoginModal extends Modal {
-    int field = 0;
-    boolean submitted = false;
+public abstract class LoginFormModal extends FormModal {
 
-    String[] fields = {"", "", null, null};
-
-    public LoginModal(TextGraphics parentTextGraphics, Runnable onDismiss) {
-        super(parentTextGraphics, onDismiss);
+    public LoginFormModal(TextGraphics parentTextGraphics, Runnable onDismiss) {
+        super(parentTextGraphics, new String[]{"", "", null, null}, onDismiss);
     }
 
     @Override
     protected TerminalSize getSize() {
-        return new TerminalSize(37, 9);
+        return new TerminalSize(38, 9);
     }
 
     public String getUsername() {
@@ -30,11 +25,7 @@ public abstract class LoginModal extends Modal {
     }
 
     @Override
-    public void onKeyStroke(KeyStroke keyStroke) {
-        if (submitted) {
-            return;
-        }
-
+    public void handleKeyStroke(KeyStroke keyStroke) {
         switch (keyStroke.getKeyType()) {
             case Character -> {
                 if (fields[field] != null) {
@@ -66,20 +57,10 @@ public abstract class LoginModal extends Modal {
         textGraphics.putString(2, 0, "Login");
 
         TerminalPosition fieldStartPosition = TerminalPosition.OFFSET_1x1.withRelativeColumn(1);
-        defaultColor();
-        textGraphics.putString(fieldStartPosition, "Username:");
-        highlightSelectedField(0);
-        textGraphics.putString(fieldStartPosition.withRelativeRow(1), "[");
-        textGraphics.putString(fieldStartPosition.withRelative(1, 1), "%-32s".formatted(getUsername().replace(' ', '␣')));
-        textGraphics.putString(fieldStartPosition.withRelative(32, 1), "]");
+        drawField(0, fieldStartPosition, "Username", getUsername());
 
         fieldStartPosition = fieldStartPosition.withRelativeRow(3);
-        defaultColor();
-        textGraphics.putString(fieldStartPosition, "Password:");
-        highlightSelectedField(1);
-        textGraphics.putString(fieldStartPosition.withRelativeRow(1), "[");
-        textGraphics.putString(fieldStartPosition.withRelative(1, 1), "%-32s".formatted("*".repeat(getPassword().length())));
-        textGraphics.putString(fieldStartPosition.withRelative(32, 1), "]");
+        drawField(1, fieldStartPosition, "Password", getPassword(), FieldFormat.PASSWORD);
 
         fieldStartPosition = fieldStartPosition.withRelativeRow(3);
         defaultColor();
@@ -90,20 +71,6 @@ public abstract class LoginModal extends Modal {
         defaultColor();
         highlightSelectedField(3);
         textGraphics.putString(fieldStartPosition, "<Cancel>");
-    }
-
-    private void highlightSelectedField(int field) {
-        if (this.field == field) {
-            if (!submitted) {
-                textGraphics.setBackgroundColor(TextColor.ANSI.YELLOW);
-            } else {
-                textGraphics.setBackgroundColor(TextColor.ANSI.BLACK_BRIGHT);
-            }
-            textGraphics.setForegroundColor(TextColor.ANSI.WHITE_BRIGHT);
-        } else {
-            textGraphics.setBackgroundColor(TextColor.ANSI.WHITE);
-            textGraphics.setForegroundColor(TextColor.ANSI.BLACK);
-        }
     }
 
     protected abstract void onSubmit();

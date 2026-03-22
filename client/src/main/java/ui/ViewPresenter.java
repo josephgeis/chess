@@ -2,9 +2,9 @@ package ui;
 
 import client.ChessClient;
 import com.googlecode.lanterna.graphics.TextGraphics;
-import ui.modals.LoginModal;
+import ui.modals.LoginFormModal;
 import ui.modals.MessageModal;
-import ui.modals.RegisterModal;
+import ui.modals.RegisterFormModal;
 import ui.views.ListGamesView;
 import ui.views.LoggedInView;
 import ui.views.PreLoginView;
@@ -52,7 +52,7 @@ public abstract class ViewPresenter {
 
     void performLoginSegue() {
         assert activeView() instanceof PreLoginView;
-        loadView(new LoginModal(parentTextGraphics, this::unwind) {
+        loadView(new LoginFormModal(parentTextGraphics, this::unwind) {
             @Override
             protected void onSubmit() {
                 chessClient.makeLoginRequest(getUsername(), getPassword())
@@ -67,7 +67,7 @@ public abstract class ViewPresenter {
 
     void performRegisterSegue() {
         assert activeView() instanceof PreLoginView;
-        loadView(new RegisterModal(parentTextGraphics, this::unwind) {
+        loadView(new RegisterFormModal(parentTextGraphics, this::unwind) {
             @Override
             protected void onSubmit() {
                 chessClient.makeRegisterRequest(getUsername(), getPassword(), getEmail())
@@ -81,8 +81,8 @@ public abstract class ViewPresenter {
     }
 
     void performCompleteLoginSegue(String username) {
-        assert activeView() instanceof LoginModal ||
-                activeView() instanceof RegisterModal;
+        assert activeView() instanceof LoginFormModal ||
+                activeView() instanceof RegisterFormModal;
         unwind();
         viewStack.push(
                 new LoggedInView(parentTextGraphics, chessClient.getState().getLoggedInUser()) {
@@ -109,7 +109,7 @@ public abstract class ViewPresenter {
     }
 
     void performFailedLoginSegue(Throwable throwable) {
-        assert activeView() instanceof LoginModal;
+        assert activeView() instanceof LoginFormModal;
         replaceView(
                 new MessageModal("Error", throwable.getMessage(), parentTextGraphics, this::unwind)
         );
