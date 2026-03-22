@@ -57,13 +57,6 @@ public class ChessBoardView extends View {
                 case BLACK -> new ChessPosition(row + 1, 8 - col);
             };
         }
-
-        public static ScreenPosition fromChessPosition(ChessPosition chessPosition, ChessGame.TeamColor perspective) {
-            return switch (perspective) {
-                case WHITE -> new ScreenPosition(8 - chessPosition.getRow(), chessPosition.getColumn() - 1);
-                case BLACK -> new ScreenPosition(chessPosition.getRow() - 1, 8 - chessPosition.getColumn());
-            };
-        }
     }
 
     @Override
