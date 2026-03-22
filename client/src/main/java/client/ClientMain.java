@@ -1,7 +1,6 @@
 package client;
 
 import chess.*;
-import ui.EventPublisher;
 import ui.TerminalController;
 
 import java.io.IOException;
@@ -13,7 +12,6 @@ import static java.lang.Thread.sleep;
  */
 public class ClientMain {
     static TerminalController terminalController;
-    static EventPublisher eventPublisher = EventPublisher.getInstance();
     static ServerFacade serverFacade = new ServerFacade("localhost", 8080);
     static ClientState clientState = new ClientState();
     static ChessClient chessClient;
@@ -45,15 +43,9 @@ public class ClientMain {
 
     private static void init() throws IOException {
         terminalController.init();
-        eventPublisher.registerEventHandler(EventPublisher.EventType.QUIT_PROGRAM, ClientMain::quitProgram);
     }
 
     static void eventLoop() throws Exception {
         terminalController.eventLoop();
     }
-
-    static void quitProgram() {
-        clientState.quitProgram();
-    }
-
 }

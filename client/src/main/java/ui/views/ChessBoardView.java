@@ -7,13 +7,10 @@ import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import ui.EscapeSequences;
-import ui.TerminalController;
 import ui.menubar.MenuBarItem;
 import ui.menubar.MenuItems;
 
 import java.util.EnumSet;
-
-import static ui.EventPublisher.EventType.SPECTATE_GAME;
 
 public class ChessBoardView extends View {
 

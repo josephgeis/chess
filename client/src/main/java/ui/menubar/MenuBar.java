@@ -5,7 +5,6 @@ import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyType;
-import ui.EventPublisher;
 
 public class MenuBar extends ui.Drawable {
     MenuItems menuItems = MenuItems.NONE;
@@ -52,15 +51,6 @@ public class MenuBar extends ui.Drawable {
             if (item != null) {
                 textGraphics.putString(10 * i + 2, 0, item.menuTitle());
             }
-        }
-    }
-
-    public EventPublisher.EventType getEventForMenuKey(KeyType keyType) {
-        MenuBarItem menuBarItem = menuItems.itemAt(convertFnKey(keyType));
-        if (menuBarItem != null) {
-            return menuBarItem.eventType();
-        } else {
-            return null;
         }
     }
 

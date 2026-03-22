@@ -1,17 +1,9 @@
 package ui.views;
 
-import com.googlecode.lanterna.SGR;
-import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
-import ui.EventPublisher;
 import ui.menubar.MenuBarItem;
 import ui.menubar.MenuItems;
-
-import java.util.EnumSet;
-
-import static ui.EventPublisher.EventType.*;
-import static ui.EventPublisher.EventType.QUIT_PROGRAM;
 
 public abstract class PreLoginView extends MainMenuView {
     public PreLoginView(TextGraphics parentTextGraphics) {
@@ -24,7 +16,7 @@ public abstract class PreLoginView extends MainMenuView {
                     case 1 -> MenuBarItem.withCallback("Login", PreLoginView.this::showLoginModal);
                     case 2 -> MenuBarItem.withCallback("Register", PreLoginView.this::showRegisterModal);
                     case 5 -> MenuBarItem.withCallback("Help", PreLoginView.this::toggleHelpScreen);
-                    case 6 -> MenuBarItem.withEvent("Quit", QUIT_PROGRAM);
+                    case 6 -> MenuBarItem.withCallback("Quit", PreLoginView.this::onQuit);
                     default -> null;
                 };
             }
@@ -43,13 +35,7 @@ public abstract class PreLoginView extends MainMenuView {
         foregroundColor = TextColor.ANSI.WHITE_BRIGHT;
     }
 
-    @Override
-    public void onLoad() {
-        super.onLoad();
-        registerEventHandler(EventPublisher.EventType.LOG_IN, this::showLoginModal);
-        registerEventHandler(EventPublisher.EventType.REGISTER, this::showRegisterModal);
-    }
-
     public abstract void showLoginModal();
     public abstract void showRegisterModal();
+    public abstract void onQuit();
 }

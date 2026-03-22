@@ -21,9 +21,8 @@ import static com.googlecode.lanterna.input.KeyType.*;
  * 1. Field (where the chess board, games list are drawn [depending on context])
  * 2. Menu bar
  */
-public class TerminalController implements EventObserver {
+public class TerminalController {
     private final ChessClient chessClient;
-    EventPublisher eventPublisher = EventPublisher.getInstance();
 
     DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
     Screen screen;
@@ -39,7 +38,7 @@ public class TerminalController implements EventObserver {
     public void eventLoop() throws IOException {
         View view = viewPresenter.activeView();
         if (view == null) {
-            eventPublisher.fireEvent(EventPublisher.EventType.QUIT_PROGRAM);
+            chessClient.quitProgram();
             return;
         }
 
@@ -67,14 +66,11 @@ public class TerminalController implements EventObserver {
 
         if (fnKeys.contains(keyType)) {
             Runnable callback = menuBar.getCallbackForMenuKey(keyType);
-            EventPublisher.EventType eventType = menuBar.getEventForMenuKey(keyType);
             if (callback != null) {
                 callback.run();
-            } else if (eventType != null) {
-                eventPublisher.fireEvent(eventType);
             }
         } else if (keyStroke.getKeyType() == EOF) {
-            eventPublisher.fireEvent(EventPublisher.EventType.QUIT_PROGRAM);
+            chessClient.quitProgram();
         } else {
             viewPresenter.activeView().onKeyStroke(keyStroke);
         }
@@ -95,6 +91,11 @@ public class TerminalController implements EventObserver {
                     @Override
                     public void showRegisterModal() {
                         performRegisterSegue();
+                    }
+
+                    @Override
+                    public void onQuit() {
+                        chessClient.quitProgram();
                     }
                 });
                 activeView().onLoad();
