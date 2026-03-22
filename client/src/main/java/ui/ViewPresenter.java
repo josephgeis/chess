@@ -11,7 +11,7 @@ import java.util.ArrayDeque;
 
 public abstract class ViewPresenter {
     final TextGraphics textGraphics;
-    protected ArrayDeque<View> viewStack = new ArrayDeque<View>();
+    protected ArrayDeque<View> viewStack = new ArrayDeque<>();
     private final ChessClient chessClient;
 
     public ViewPresenter(TextGraphics textGraphics, ChessClient chessClient) {
@@ -40,9 +40,7 @@ public abstract class ViewPresenter {
             @Override
             protected void onSubmit() {
                 chessClient.makeLoginRequest(getUsername(), getPassword())
-                        .thenAccept(loginResponse -> {
-                    onLoginSuccess();
-                })
+                        .thenAccept(loginResponse -> onLoginSuccess())
                         .exceptionally(ex -> {
                             onLoginFailure(ex.getCause());
                             return null;

@@ -5,7 +5,6 @@ import request.LoginRequest;
 import response.LoginResponse;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 
 public class ChessClient {
     private final ServerFacade serverFacade;
@@ -21,12 +20,12 @@ public class ChessClient {
         LoginRequest request = new LoginRequest(username, password);
         try {
             return serverFacade.loginUserAsync(request).thenApply(loginResponse -> {
-                clientState.setAuthData(
-                        new AuthData(loginResponse.authToken(),
-                                loginResponse.username())
-                );
-                return loginResponse;
-            })
+                        clientState.setAuthData(
+                                new AuthData(loginResponse.authToken(),
+                                        loginResponse.username())
+                        );
+                        return loginResponse;
+                    })
                     .exceptionallyCompose(throwable -> {
                         if (throwable instanceof ServerFacade.ErrorResponseException) {
                             return CompletableFuture.failedFuture(throwable);

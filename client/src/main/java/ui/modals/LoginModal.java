@@ -1,17 +1,12 @@
-  package ui.modals;
+package ui.modals;
 
-import client.ClientState;
-import client.ServerFacade;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
-import model.AuthData;
-import request.LoginRequest;
-import ui.TerminalController;
 
-  public abstract class LoginModal extends Modal {
+public abstract class LoginModal extends Modal {
     int field = 0;
     boolean submitted = false;
 
@@ -74,17 +69,17 @@ import ui.TerminalController;
         defaultColor();
         textGraphics.putString(fieldStartPosition, "Username:");
         highlightSelectedField(0);
-        textGraphics.putString(fieldStartPosition.withRelativeRow(1), "[" );
+        textGraphics.putString(fieldStartPosition.withRelativeRow(1), "[");
         textGraphics.putString(fieldStartPosition.withRelative(1, 1), "%-32s".formatted(getUsername().replace(' ', '␣')));
-        textGraphics.putString(fieldStartPosition.withRelative(32, 1), "]" );
+        textGraphics.putString(fieldStartPosition.withRelative(32, 1), "]");
 
         fieldStartPosition = fieldStartPosition.withRelativeRow(3);
         defaultColor();
         textGraphics.putString(fieldStartPosition, "Password:");
         highlightSelectedField(1);
-        textGraphics.putString(fieldStartPosition.withRelativeRow(1), "[" );
+        textGraphics.putString(fieldStartPosition.withRelativeRow(1), "[");
         textGraphics.putString(fieldStartPosition.withRelative(1, 1), "%-32s".formatted("*".repeat(getPassword().length())));
-        textGraphics.putString(fieldStartPosition.withRelative(32, 1), "]" );
+        textGraphics.putString(fieldStartPosition.withRelative(32, 1), "]");
 
         fieldStartPosition = fieldStartPosition.withRelativeRow(3);
         defaultColor();
@@ -97,21 +92,23 @@ import ui.TerminalController;
         textGraphics.putString(fieldStartPosition, "<Cancel>");
     }
 
-        private void highlightSelectedField(int field) {
-          if (this.field == field) {
-              if (!submitted) {
-                  textGraphics.setBackgroundColor(TextColor.ANSI.YELLOW);
-              } else {
-                  textGraphics.setBackgroundColor(TextColor.ANSI.BLACK_BRIGHT);
-              }
-              textGraphics.setForegroundColor(TextColor.ANSI.WHITE_BRIGHT);
-          } else {
-              textGraphics.setBackgroundColor(TextColor.ANSI.WHITE);
-              textGraphics.setForegroundColor(TextColor.ANSI.BLACK);
-          }
+    private void highlightSelectedField(int field) {
+        if (this.field == field) {
+            if (!submitted) {
+                textGraphics.setBackgroundColor(TextColor.ANSI.YELLOW);
+            } else {
+                textGraphics.setBackgroundColor(TextColor.ANSI.BLACK_BRIGHT);
+            }
+            textGraphics.setForegroundColor(TextColor.ANSI.WHITE_BRIGHT);
+        } else {
+            textGraphics.setBackgroundColor(TextColor.ANSI.WHITE);
+            textGraphics.setForegroundColor(TextColor.ANSI.BLACK);
         }
+    }
 
-        protected abstract void onSubmit();
-        protected abstract void onLoginSuccess();
-        protected abstract void onLoginFailure(Throwable throwable);
-  }
+    protected abstract void onSubmit();
+
+    protected abstract void onLoginSuccess();
+
+    protected abstract void onLoginFailure(Throwable throwable);
+}

@@ -1,8 +1,6 @@
 package ui;
 
 import client.ChessClient;
-import client.ClientState;
-import client.ServerFacade;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
@@ -13,7 +11,7 @@ import ui.views.PreLoginView;
 import ui.views.View;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Set;
 
 import static com.googlecode.lanterna.input.KeyType.*;
 
@@ -66,7 +64,7 @@ public class TerminalController implements EventObserver {
         Set<KeyType> fnKeys = Set.of(new KeyType[]{F1, F2, F3, F4, F5, F6});
 
         KeyType keyType = keyStroke.getKeyType();
-        EventPublisher.EventType eventType = null;
+        EventPublisher.EventType eventType;
 
         if (fnKeys.contains(keyType)) {
             eventType = menuBar.getEventForMenuKey(keyType);
