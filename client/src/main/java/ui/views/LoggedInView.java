@@ -6,8 +6,6 @@ import ui.EventPublisher;
 import ui.menubar.MenuItems;
 
 public class LoggedInView extends MainMenuView {
-    String username;
-
     public LoggedInView(TextGraphics parentTextGraphics, String username) {
         super(parentTextGraphics);
 
