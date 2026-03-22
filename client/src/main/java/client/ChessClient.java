@@ -12,7 +12,6 @@ import response.LoginResponse;
 import response.RegisterResponse;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
