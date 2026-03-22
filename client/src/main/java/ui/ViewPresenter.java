@@ -231,7 +231,9 @@ public abstract class ViewPresenter {
         }
         viewStack.clear();
         viewStack.push(new MessageModal("Fatal Error",
-                "We're sorry, an error occurred that we can't recover from.\nThe program will now quit.", parentTextGraphics,
+                "We're sorry, an error occurred that we can't recover from.\n" +
+                        "The program will now quit.\n\n" +
+                        "Exception: %s".formatted(throwable.getMessage()), parentTextGraphics,
                 chessClient::quitProgram) {
             @Override
             protected void defaultColor() {
