@@ -55,7 +55,13 @@ public abstract class ViewPresenter {
                 assert activeView() instanceof PreLoginView;
                 viewStack.pop();
                 viewStack.push(
-                        new LoggedInView(ViewPresenter.this.textGraphics, chessClient.getState().getLoggedInUser())
+                        new LoggedInView(ViewPresenter.this.textGraphics, chessClient.getState().getLoggedInUser()) {
+                            @Override
+                            protected void onLogout() {
+                                super.onLogout();
+                                performLogoutSegue();
+                            }
+                        }
                 );
                 viewStack.push(
                         new MessageModal(
@@ -70,9 +76,27 @@ public abstract class ViewPresenter {
             protected void onLoginFailure(Throwable throwable) {
                 viewStack.pop();
                 viewStack.push(
-                        new MessageModal("Error", throwable.getMessage(), ViewPresenter.this.textGraphics, onDismiss)
+                        new MessageModal("Login Failed", throwable.getMessage(), ViewPresenter.this.textGraphics, onDismiss)
                 );
             }
+        });
+    }
+
+    void performLogoutSegue() {
+        assert activeView() instanceof LoggedInView;
+        activeView().onUnload();
+        viewStack.pop();
+        viewStack.push(
+                new PreLoginView(ViewPresenter.this.textGraphics, this::performLoginSegue)
+        );
+        activeView().onLoad();
+
+        chessClient.makeLogoutRequest().exceptionally(throwable -> {
+            activeView().onUnload();
+            viewStack.push(
+                    new MessageModal("Logout Failed", throwable.getCause().getMessage(), ViewPresenter.this.textGraphics, this::unwind)
+            );
+            return null;
         });
     }
 }
