@@ -113,4 +113,10 @@ public class TerminalController {
             screen.stopScreen();
         }
     }
+
+    public void displayUnhandledException(Throwable throwable) throws IOException {
+        viewPresenter.displayUnhandledException(throwable);
+        eventLoop();
+        screen.readInput();
+    }
 }

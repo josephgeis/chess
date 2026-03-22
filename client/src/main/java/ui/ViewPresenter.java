@@ -3,6 +3,7 @@ package ui;
 import chess.ChessGame;
 import client.ChessClient;
 import com.googlecode.lanterna.TerminalPosition;
+import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import ui.modals.*;
 import ui.views.*;
@@ -222,5 +223,21 @@ public abstract class ViewPresenter {
                 "Created new game: " + gameName,
                 parentTextGraphics,
                 this::unwind));
+    }
+
+    public void displayUnhandledException(Throwable throwable) {
+        if (!viewStack.isEmpty()) {
+            activeView().onUnload();
+        }
+        viewStack.clear();
+        viewStack.push(new MessageModal("Fatal Error",
+                "We're sorry, an error occurred that we can't recover from.\nThe program will now quit.", parentTextGraphics,
+                chessClient::quitProgram) {
+            @Override
+            protected void defaultColor() {
+                textGraphics.setBackgroundColor(TextColor.ANSI.RED_BRIGHT);
+                textGraphics.setForegroundColor(TextColor.ANSI.WHITE_BRIGHT);
+            }
+        });
     }
 }
