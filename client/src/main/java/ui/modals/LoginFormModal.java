@@ -26,6 +26,8 @@ public abstract class LoginFormModal extends FormModal {
 
     @Override
     public void handleKeyStroke(KeyStroke keyStroke) {
+        super.handleKeyStroke(keyStroke);
+
         switch (keyStroke.getKeyType()) {
             case Character -> {
                 if (fields[field] != null) {

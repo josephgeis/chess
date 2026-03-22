@@ -22,9 +22,7 @@ public abstract class CreateGameModal extends FormModal {
 
     @Override
     public void handleKeyStroke(KeyStroke keyStroke) {
-        if (submitted) {
-            return;
-        }
+        super.handleKeyStroke(keyStroke);
 
         switch (keyStroke.getKeyType()) {
             case Character -> {
