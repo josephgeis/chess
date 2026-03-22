@@ -26,6 +26,14 @@ import ui.TerminalController;
         return new TerminalSize(37, 9);
     }
 
+    public String getUsername() {
+        return fields[0];
+    }
+
+    public String getPassword() {
+        return fields[1];
+    }
+
     @Override
     public void onKeyStroke(KeyStroke keyStroke) {
         if (submitted) {
@@ -67,7 +75,7 @@ import ui.TerminalController;
         textGraphics.putString(fieldStartPosition, "Username:");
         highlightSelectedField(0);
         textGraphics.putString(fieldStartPosition.withRelativeRow(1), "[" );
-        textGraphics.putString(fieldStartPosition.withRelative(1, 1), "%-32s".formatted(fields[0].replace(' ', '␣')));
+        textGraphics.putString(fieldStartPosition.withRelative(1, 1), "%-32s".formatted(getUsername().replace(' ', '␣')));
         textGraphics.putString(fieldStartPosition.withRelative(32, 1), "]" );
 
         fieldStartPosition = fieldStartPosition.withRelativeRow(3);
@@ -75,7 +83,7 @@ import ui.TerminalController;
         textGraphics.putString(fieldStartPosition, "Password:");
         highlightSelectedField(1);
         textGraphics.putString(fieldStartPosition.withRelativeRow(1), "[" );
-        textGraphics.putString(fieldStartPosition.withRelative(1, 1), "%-32s".formatted("*".repeat(fields[1].length())));
+        textGraphics.putString(fieldStartPosition.withRelative(1, 1), "%-32s".formatted("*".repeat(getPassword().length())));
         textGraphics.putString(fieldStartPosition.withRelative(32, 1), "]" );
 
         fieldStartPosition = fieldStartPosition.withRelativeRow(3);
