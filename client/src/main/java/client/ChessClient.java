@@ -15,8 +15,11 @@ public class ChessClient {
         this.clientState = clientState;
     }
 
-    public CompletableFuture<LoginResponse> makeLoginRequest(String username, String password) {
+    public ClientState getState() {
+        return clientState;
+    }
 
+    public CompletableFuture<LoginResponse> makeLoginRequest(String username, String password) {
         LoginRequest request = new LoginRequest(username, password);
         try {
             return serverFacade.loginUserAsync(request).thenApply(loginResponse -> {
@@ -27,8 +30,8 @@ public class ChessClient {
                         return loginResponse;
                     })
                     .exceptionallyCompose(throwable -> {
-                        if (throwable instanceof ServerFacade.ErrorResponseException) {
-                            return CompletableFuture.failedFuture(throwable);
+                        if (throwable.getCause() instanceof ServerFacade.ErrorResponseException) {
+                            return CompletableFuture.failedFuture(throwable.getCause());
                         } else {
                             return CompletableFuture.failedFuture(new Throwable("Unexpected error"));
                         }
@@ -38,7 +41,18 @@ public class ChessClient {
         }
     }
 
-    public ClientState getState() {
-        return clientState;
+    public CompletableFuture<Void> makeLogoutRequest() {
+        try {
+            return serverFacade.logoutUserAsync(clientState.getAuthToken())
+                    .exceptionallyCompose(throwable -> {
+                        if (throwable instanceof ServerFacade.ErrorResponseException) {
+                            return CompletableFuture.failedFuture(throwable);
+                        } else {
+                            return CompletableFuture.failedFuture(new Throwable("Unexpected error"));
+                        }
+                    });
+        } catch (ServerFacade.ServerFacadeException e) {
+            return CompletableFuture.failedFuture(e.getCause());
+        }
     }
 }

@@ -31,5 +31,8 @@ public class LoggedInView extends MainMenuView {
     @Override
     public void onLoad() {
         super.onLoad();
+        registerEventHandler(EventPublisher.EventType.LOG_OUT, this::onLogout);
     }
+
+    protected void onLogout() { }
 }
