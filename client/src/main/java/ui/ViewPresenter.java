@@ -196,9 +196,7 @@ public abstract class ViewPresenter {
     void performJoinGameSegue(ChessGame.TeamColor teamColor, int gameID) {
         assert activeView() instanceof ListGamesView;
         chessClient.makeJoinGameRequest(teamColor, gameID)
-                .thenAccept(ignored -> {
-                    replaceView(new ChessBoardView(parentTextGraphics, this::unwind));
-                })
+                .thenAccept(ignored -> replaceView(new ChessBoardView(parentTextGraphics, this::unwind)))
                 .exceptionally(throwable -> {
                     performFailedRequestSegue(throwable.getCause());
                     return null;
