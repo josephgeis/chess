@@ -118,7 +118,7 @@ public abstract class ListGamesView extends View {
 
     protected void drawGames(TerminalPosition startPosition) {
         textGraphics.setModifiers(EnumSet.of(SGR.BOLD, SGR.UNDERLINE));
-        drawGameListing(startPosition, "Name", "White Player", "Black Player");
+        drawGameListing(startPosition, "#","Name", "White Player", "Black Player");
 
         for (int i = 0; i < gamesPerPage() &&  i + skipGames() < games.size(); i++) {
             TerminalPosition position = TerminalPosition.OFFSET_1x1.withRelative(2, 3 + i);
@@ -132,15 +132,18 @@ public abstract class ListGamesView extends View {
             }
 
             GameListing game = games.get(i + skipGames());
-            drawGameListing(position,
+            drawGameListing(position, "%d".formatted(i + 1),
                     game.gameName(),
                     game.whiteUsername(),
                     game.blackUsername());
         }
     }
 
-    void drawGameListing(TerminalPosition position, String gameName, String whitePlayer, String blackPlayer) {
+    void drawGameListing(TerminalPosition position, String num, String gameName, String whitePlayer, String blackPlayer) {
         textGraphics.setForegroundColor(TextColor.ANSI.WHITE_BRIGHT);
+        textGraphics.putString(position, "%3s".formatted(num));
+
+        position = position.withRelativeColumn(5);
         textGraphics.putString(position, "%-32s".formatted(gameName));
 
         position = position.withRelativeColumn(34);
