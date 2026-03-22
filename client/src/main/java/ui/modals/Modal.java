@@ -6,7 +6,7 @@ import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
-import ui.TerminalController;
+
 import ui.views.View;
 
 public abstract class Modal extends View {
@@ -39,10 +39,10 @@ public abstract class Modal extends View {
         TerminalPosition bottomRight = TerminalPosition.TOP_LEFT_CORNER.withRelative(getSize().getColumns() - 1, getSize().getRows() - 1);
 
         textGraphics.fillRectangle(TerminalPosition.TOP_LEFT_CORNER, getSize(), ' ');
-        textGraphics.drawLine(TerminalPosition.TOP_LEFT_CORNER, topRight, '\u2500');
-        textGraphics.drawLine(bottomLeft, bottomRight, '\u2500');
-        textGraphics.drawLine(TerminalPosition.TOP_LEFT_CORNER, bottomLeft, '\u2502');
-        textGraphics.drawLine(topRight, bottomRight, '\u2502');
+        textGraphics.drawLine(TerminalPosition.TOP_LEFT_CORNER, topRight, '─');
+        textGraphics.drawLine(bottomLeft, bottomRight, '─');
+        textGraphics.drawLine(TerminalPosition.TOP_LEFT_CORNER, bottomLeft, '│');
+        textGraphics.drawLine(topRight, bottomRight, '│');
         textGraphics.putString(TerminalPosition.TOP_LEFT_CORNER, "┌");
         textGraphics.putString(topRight, "┐");
         textGraphics.putString(bottomLeft, "└");
