@@ -96,4 +96,8 @@ public class ChessClient {
         JoinGameRequest request = new JoinGameRequest(teamColor, gameID);
         return makeAuthenticatedRequest(authToken -> serverFacade.joinGameAsync(request, authToken));
     }
+
+    public void quitProgram() {
+        clientState.quitProgram();
+    }
 }

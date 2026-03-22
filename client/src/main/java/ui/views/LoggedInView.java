@@ -2,11 +2,9 @@ package ui.views;
 
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
-import ui.EventPublisher;
+
 import ui.menubar.MenuBarItem;
 import ui.menubar.MenuItems;
-
-import static ui.EventPublisher.EventType.LOG_OUT;
 
 public abstract class LoggedInView extends MainMenuView {
     public LoggedInView(TextGraphics parentTextGraphics, String username) {
@@ -40,13 +38,6 @@ public abstract class LoggedInView extends MainMenuView {
 
         backgroundColor = TextColor.ANSI.GREEN;
         foregroundColor = TextColor.ANSI.WHITE_BRIGHT;
-    }
-
-    @Override
-    public void onLoad() {
-        super.onLoad();
-        registerEventHandler(EventPublisher.EventType.LIST_GAME, this::onListGames);
-        registerEventHandler(EventPublisher.EventType.LOG_OUT, this::onLogout);
     }
 
     protected abstract void onCreateGame();

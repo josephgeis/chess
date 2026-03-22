@@ -22,8 +22,4 @@ public final class ClientState {
     public void setAuthData(AuthData authData) {
         this.authData = authData;
     }
-
-    public boolean isLoggedIn() {
-        return authData != null;
-    }
 }
