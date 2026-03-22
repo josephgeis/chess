@@ -37,5 +37,5 @@ public class LoggedInView extends MainMenuView {
 
     protected void onLogout() { }
 
-    protected void onListGames() { };
+    protected void onListGames() { }
 }
