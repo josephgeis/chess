@@ -9,13 +9,9 @@ import ui.menubar.MenuItems;
 
 import java.util.EnumSet;
 
-public class PreLoginView extends MainMenuView {
-
-    Runnable performLoginSegue;
-
-    public PreLoginView(TextGraphics parentTextGraphics, Runnable performLoginSegue) {
+public abstract class PreLoginView extends MainMenuView {
+    public PreLoginView(TextGraphics parentTextGraphics) {
         super(parentTextGraphics);
-        this.performLoginSegue = performLoginSegue;
 
         menuItems = MenuItems.NOT_LOGGED_IN;
 
@@ -36,9 +32,9 @@ public class PreLoginView extends MainMenuView {
     public void onLoad() {
         super.onLoad();
         registerEventHandler(EventPublisher.EventType.LOG_IN, this::showLoginModal);
+        registerEventHandler(EventPublisher.EventType.REGISTER, this::showRegisterModal);
     }
 
-    public void showLoginModal() {
-        performLoginSegue.run();
-    }
+    public abstract void showLoginModal();
+    public abstract void showRegisterModal();
 }

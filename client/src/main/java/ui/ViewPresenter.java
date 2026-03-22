@@ -4,6 +4,7 @@ import client.ChessClient;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import ui.modals.LoginModal;
 import ui.modals.MessageModal;
+import ui.modals.RegisterModal;
 import ui.views.ListGamesView;
 import ui.views.LoggedInView;
 import ui.views.PreLoginView;
@@ -55,7 +56,22 @@ public abstract class ViewPresenter {
             @Override
             protected void onSubmit() {
                 chessClient.makeLoginRequest(getUsername(), getPassword())
-                        .thenAccept(loginResponse -> performCompleteLoginSegue(loginResponse.username()))
+                        .thenAccept(response -> performCompleteLoginSegue(response.username()))
+                        .exceptionally(ex -> {
+                            performFailedLoginSegue(ex.getCause());
+                            return null;
+                        });
+            }
+        });
+    }
+
+    void performRegisterSegue() {
+        assert activeView() instanceof PreLoginView;
+        loadView(new RegisterModal(parentTextGraphics, this::unwind) {
+            @Override
+            protected void onSubmit() {
+                chessClient.makeRegisterRequest(getUsername(), getPassword(), getEmail())
+                        .thenAccept(response -> performCompleteLoginSegue(response.username()))
                         .exceptionally(ex -> {
                             performFailedLoginSegue(ex.getCause());
                             return null;
@@ -65,9 +81,8 @@ public abstract class ViewPresenter {
     }
 
     void performCompleteLoginSegue(String username) {
-        assert activeView() instanceof LoginModal;
-        unwind();
-        assert activeView() instanceof PreLoginView;
+        assert activeView() instanceof LoginModal ||
+                activeView() instanceof RegisterModal;
         unwind();
         viewStack.push(
                 new LoggedInView(parentTextGraphics, chessClient.getState().getLoggedInUser()) {
@@ -96,19 +111,17 @@ public abstract class ViewPresenter {
     void performFailedLoginSegue(Throwable throwable) {
         assert activeView() instanceof LoginModal;
         replaceView(
-                new MessageModal("Login Failed", throwable.getMessage(), parentTextGraphics, this::unwind)
+                new MessageModal("Error", throwable.getMessage(), parentTextGraphics, this::unwind)
         );
     }
 
     void performLogoutSegue() {
         assert activeView() instanceof LoggedInView;
-        replaceView(
-                new PreLoginView(parentTextGraphics, this::performLoginSegue)
-        );
+        unwind();
 
         chessClient.makeLogoutRequest().exceptionally(throwable -> {
             loadView(
-                    new MessageModal("Logout Failed", throwable.getCause().getMessage(), parentTextGraphics, this::unwind)
+                    new MessageModal("Error", throwable.getCause().getMessage(), parentTextGraphics, this::unwind)
             );
             return null;
         });

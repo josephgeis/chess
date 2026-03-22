@@ -2,9 +2,12 @@ package client;
 
 import model.AuthData;
 import request.LoginRequest;
+import request.RegisterRequest;
 import response.LoginResponse;
+import response.RegisterResponse;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.function.Supplier;
 
 public class ChessClient {
@@ -51,6 +54,18 @@ public class ChessClient {
                 .thenApply(unused -> {
                     clientState.setAuthData(null);
                     return unused;
+                });
+    }
+
+    public CompletableFuture<RegisterResponse> makeRegisterRequest(String username, String password, String email) {
+        RegisterRequest request = new RegisterRequest(username, password, email);
+        return makeRequest(() -> serverFacade.registerUserAsync(request), RegisterResponse.class)
+                .thenApply(response -> {
+                    clientState.setAuthData(
+                            new AuthData(response.authToken(),
+                                    response.username())
+                    );
+                    return response;
                 });
     }
 }
