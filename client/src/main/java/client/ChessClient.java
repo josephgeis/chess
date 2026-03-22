@@ -47,6 +47,10 @@ public class ChessClient {
     }
 
     public CompletableFuture<Void> makeLogoutRequest() {
-        return makeRequest(() -> serverFacade.logoutUserAsync(clientState.getAuthToken()));
+        return makeRequest(() -> serverFacade.logoutUserAsync(clientState.getAuthToken()))
+                .thenApply(unused -> {
+                    clientState.setAuthData(null);
+                    return unused;
+                });
     }
 }
