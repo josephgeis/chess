@@ -49,7 +49,7 @@ public class ServerFacade {
         }
     }
 
-    public CompletableFuture<RegisterResponse> registerUserAsync(RegisterRequest request) throws ServerFacadeException {
+    public CompletableFuture<RegisterResponse> registerUserAsync(RegisterRequest request) {
         String data = gson.toJson(request);
         return makeAsyncRequest(() -> httpClient.post("/user", data), RegisterResponse.class);
     }
@@ -62,7 +62,7 @@ public class ServerFacade {
         }
     }
 
-    public CompletableFuture<LoginResponse> loginUserAsync(LoginRequest request) throws ServerFacadeException {
+    public CompletableFuture<LoginResponse> loginUserAsync(LoginRequest request) {
         String data = gson.toJson(request);
         return makeAsyncRequest(() -> httpClient.post("/session", data), LoginResponse.class);
     }
@@ -75,7 +75,7 @@ public class ServerFacade {
         }
     }
 
-    public CompletableFuture<Void> logoutUserAsync(String token) throws ServerFacadeException {
+    public CompletableFuture<Void> logoutUserAsync(String token) {
         return makeAsyncRequest(() -> httpClient.deleteAuthenticated("/session", token));
     }
 
@@ -87,7 +87,7 @@ public class ServerFacade {
         }
     }
 
-    public CompletableFuture<ListGamesResponse> listGamesAsync(String token) throws ServerFacadeException {
+    public CompletableFuture<ListGamesResponse> listGamesAsync(String token) {
         return makeAsyncRequest(() -> httpClient.getAuthenticated("/game", token), ListGamesResponse.class);
     }
 
@@ -99,7 +99,7 @@ public class ServerFacade {
         }
     }
 
-    public CompletableFuture<CreateGameResponse> createGameAsync(CreateGameRequest request, String token) throws ServerFacadeException {
+    public CompletableFuture<CreateGameResponse> createGameAsync(CreateGameRequest request, String token) {
         String data = gson.toJson(request);
         return makeAsyncRequest(() -> httpClient.postAuthenticated("/game", data, token), CreateGameResponse.class);
     }
@@ -112,7 +112,7 @@ public class ServerFacade {
         }
     }
 
-    public CompletableFuture<Void> joinGameAsync(JoinGameRequest request, String token) throws ServerFacadeException {
+    public CompletableFuture<Void> joinGameAsync(JoinGameRequest request, String token) {
         String data = gson.toJson(request);
         return makeAsyncRequest(() -> httpClient.putAuthenticated("/game", data, token));
     }
@@ -125,7 +125,7 @@ public class ServerFacade {
         }
     }
 
-    public CompletableFuture<Void> clearDbAsync() throws ServerFacadeException {
+    public CompletableFuture<Void> clearDbAsync() {
         return makeAsyncRequest(() -> httpClient.delete("/db"));
     }
 
@@ -138,12 +138,11 @@ public class ServerFacade {
     }
 
     private CompletableFuture<Void> makeAsyncRequest(Callable<CompletableFuture<HttpResponse<String>>> fn)
-            throws ServerFacadeException {
+    {
         return makeAsyncRequest(fn, Void.TYPE);
     }
 
-    private <T> CompletableFuture<T> makeAsyncRequest(Callable<CompletableFuture<HttpResponse<String>>> fn, Class<T> responseType)
-            throws ServerFacadeException {
+    private <T> CompletableFuture<T> makeAsyncRequest(Callable<CompletableFuture<HttpResponse<String>>> fn, Class<T> responseType) {
         CompletableFuture<T> responseFuture = new CompletableFuture<>();
 
         try {
@@ -160,7 +159,7 @@ public class ServerFacade {
                         return null;
                     });
         } catch (Exception e) {
-            throw new RequestErrorException(e);
+            responseFuture.completeExceptionally(new RequestErrorException(e));
         }
 
         return responseFuture;
