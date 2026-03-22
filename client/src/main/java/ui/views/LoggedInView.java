@@ -17,9 +17,9 @@ public abstract class LoggedInView extends MainMenuView {
             protected MenuBarItem itemAt(int i) {
                 return switch(i) {
                     case 1 -> MenuBarItem.withCallback("New Game", LoggedInView.this::onCreateGame);
-                    case 2 -> MenuBarItem.noop("JoinGame");
+                    case 2 -> MenuBarItem.withCallback("JoinGame", LoggedInView.this::onJoinGame);
                     case 3 -> MenuBarItem.withCallback("ListGame", LoggedInView.this::onListGames);
-                    case 4 -> MenuBarItem.noop("SpecGame");
+                    case 4 -> MenuBarItem.withCallback("SpecGame", LoggedInView.this::onSpectateGame);
                     case 5 -> MenuBarItem.withCallback("Help", LoggedInView.this::toggleHelpScreen);
                     case 6 -> MenuBarItem.withCallback("Log Out", LoggedInView.this::onLogout);
                     default -> null;
@@ -50,6 +50,8 @@ public abstract class LoggedInView extends MainMenuView {
     }
 
     protected abstract void onCreateGame();
+    protected abstract void onJoinGame();
     protected abstract void onListGames();
+    protected abstract void onSpectateGame();
     protected abstract void onLogout();
 }

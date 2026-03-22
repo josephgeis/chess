@@ -1,5 +1,6 @@
 package ui.views;
 
+import chess.ChessGame;
 import com.googlecode.lanterna.SGR;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
@@ -12,8 +13,6 @@ import ui.menubar.MenuItems;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
-
-import static ui.EventPublisher.EventType.*;
 
 public abstract class ListGamesView extends View {
 
@@ -31,9 +30,12 @@ public abstract class ListGamesView extends View {
             @Override
             protected MenuBarItem itemAt(int i) {
                 return switch (i) {
-                    case 2 -> viewMode == ViewMode.JOIN_GAME ? MenuBarItem.withEvent("JoinGame", JOIN_GAME) : null;
+                    case 1 -> viewMode == ViewMode.JOIN_GAME ? MenuBarItem.withCallback("JoinWht",
+                            () -> onJoinGame(ChessGame.TeamColor.WHITE)) : null;
+                    case 2 -> viewMode == ViewMode.JOIN_GAME ? MenuBarItem.withCallback("JoinBlk",
+                            () -> onJoinGame(ChessGame.TeamColor.BLACK)) : null;
                     case 3 -> MenuBarItem.withCallback("Refresh", ListGamesView.this::reloadGames);
-                    case 4 -> viewMode == ViewMode.SPECTATE_GAME ? MenuBarItem.withEvent("SpecGame", SPECTATE_GAME) : null;
+                    case 4 -> viewMode == ViewMode.SPECTATE_GAME ? MenuBarItem.withCallback("SpecGame", ListGamesView.this::onSpectateGame) : null;
                     case 6 -> MenuBarItem.withCallback("Back", unwind);
                     default -> null;
                 };
@@ -63,6 +65,14 @@ public abstract class ListGamesView extends View {
 
     int maxGamesToList() {
         return Integer.max(textGraphics.getSize().getRows() - 5, 0);
+    }
+
+    protected GameListing getGameAtCursor() {
+        if (cursor >= games.size()) {
+            return null;
+        }
+
+        return games.get(cursor);
     }
 
     int getPage() {
@@ -146,4 +156,6 @@ public abstract class ListGamesView extends View {
     }
 
     protected abstract void reloadGames();
+    protected abstract void onJoinGame(ChessGame.TeamColor teamColor);
+    protected abstract void onSpectateGame();
 }
