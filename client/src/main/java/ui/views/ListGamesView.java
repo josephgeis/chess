@@ -19,6 +19,7 @@ public abstract class ListGamesView extends View {
     Runnable unwind;
     ArrayList<GameListing> games;
     int cursor = 0;
+    String idEntry = "";
     final ViewMode viewMode;
 
     public ListGamesView(TextGraphics parentTextGraphics, ViewMode viewMode, Runnable unwind) {
@@ -50,6 +51,28 @@ public abstract class ListGamesView extends View {
     }
 
     public void setCursor(int cursor) {
+        this.cursor = Integer.max(Integer.min(cursor, games.size() - 1), 0);
+        idEntry = null;
+    }
+
+    void setIdEntry(String idEntry) {
+        if (idEntry.isEmpty()) {
+            this.idEntry = idEntry;
+            return;
+        }
+
+        int cursor;
+        try {
+            cursor = Integer.parseInt(idEntry) - 1;
+        } catch (NumberFormatException ignored) {
+            assert false;
+            return;
+        }
+
+        if (cursor >= games.size() || cursor < 0) {
+            return;
+        }
+        this.idEntry = idEntry;
         this.cursor = cursor;
     }
 
@@ -76,9 +99,11 @@ public abstract class ListGamesView extends View {
     }
 
     protected GameListing getGameAtCursor() {
-        if (cursor >= games.size()) {
+        if (games == null || games.isEmpty()) {
             return null;
         }
+
+        assert cursor >= 0 && cursor < games.size();
 
         return games.get(cursor);
     }
@@ -94,10 +119,21 @@ public abstract class ListGamesView extends View {
     @Override
     public void onKeyStroke(KeyStroke keyStroke) {
         switch (keyStroke.getKeyType()) {
-            case ArrowDown -> cursor = Integer.min(++cursor, games.size() - 1);
-            case ArrowUp -> cursor = Integer.max(--cursor, 0);
-            case PageDown -> cursor = Integer.min(cursor + gamesPerPage(), games.size() - 1);
-            case PageUp -> cursor = Integer.max(cursor - gamesPerPage(), 0);
+            case ArrowDown -> setCursor(Integer.min(++cursor, games.size() - 1));
+            case ArrowUp -> setCursor(Integer.max(--cursor, 0));
+            case PageDown -> setCursor(Integer.min(cursor + gamesPerPage(), games.size() - 1));
+            case PageUp -> setCursor(Integer.max(cursor - gamesPerPage(), 0));
+            case Character -> {
+                Character chr = keyStroke.getCharacter();
+                if (chr >= '0' && chr <= '9') {
+                    setIdEntry(idEntry != null ? idEntry + chr : chr.toString());
+                }
+            }
+            case Backspace -> {
+                if (idEntry != null && !idEntry.isEmpty()) {
+                    setIdEntry(idEntry.substring(0, idEntry.length() - 1));
+                }
+            }
         }
     }
 
@@ -112,27 +148,50 @@ public abstract class ListGamesView extends View {
         );
 
         textGraphics.putString(TerminalPosition.OFFSET_1x1, getTitle());
-
-        drawGames(TerminalPosition.OFFSET_1x1.withRelative(2, 2));
+        TerminalPosition drawGamesPosition = TerminalPosition.OFFSET_1x1.withRelative(2, 2);
+        if (games != null && !games.isEmpty()) {
+            int idFieldDigits = (int) Math.floor(Math.log10(games.size() * 10));
+            assert idFieldDigits > 0;
+            textGraphics.putString(TerminalPosition.OFFSET_1x1.withRelativeColumn(41),
+                    "Enter ID: [%%%ds]".formatted(idFieldDigits)
+                            .formatted(idEntry != null ? idEntry : cursor + 1));
+            drawGames(drawGamesPosition);
+        } else {
+            textGraphics.putString(drawGamesPosition, "No games available. Go back and create a game first.", SGR.ITALIC);
+        }
     }
 
     protected void drawGames(TerminalPosition startPosition) {
         textGraphics.setModifiers(EnumSet.of(SGR.BOLD, SGR.UNDERLINE));
         drawGameListing(startPosition, "#","Name", "White Player", "Black Player");
 
+        textGraphics.clearModifiers();
+        boolean hasPreviousPage = skipGames() > 0;
+        boolean hasNextPage = skipGames() + gamesPerPage() < games.size();
+        if (gamesPerPage() == 1 && hasPreviousPage && hasNextPage) {
+            textGraphics.putString(startPosition.withRelative(-1, 1), "⬍");
+        } else {
+            if (hasPreviousPage) {
+                textGraphics.putString(startPosition.withRelative(-1, 1), "▲");
+            }
+            if (hasNextPage) {
+                textGraphics.putString(startPosition.withRelative(-1, gamesPerPage()), "▼");
+            }
+        }
+
         for (int i = 0; i < gamesPerPage() &&  i + skipGames() < games.size(); i++) {
-            TerminalPosition position = TerminalPosition.OFFSET_1x1.withRelative(2, 3 + i);
+            TerminalPosition position = startPosition.withRelativeRow(1 + i);
             textGraphics.clearModifiers();
 
             if (cursor % gamesPerPage() == i) {
                 textGraphics.setBackgroundColor(TextColor.ANSI.YELLOW);
-                textGraphics.fillRectangle(position.withRelativeColumn(-1), new TerminalSize(70, 1), ' ');
+                textGraphics.fillRectangle(position, new TerminalSize(73, 1), ' ');
             } else {
                 textGraphics.setBackgroundColor(TextColor.ANSI.GREEN);
             }
 
             GameListing game = games.get(i + skipGames());
-            drawGameListing(position, "%d".formatted(i + 1),
+            drawGameListing(position, "%d".formatted(i + skipGames() + 1),
                     game.gameName(),
                     game.whiteUsername(),
                     game.blackUsername());
