@@ -151,6 +151,10 @@ public class Server {
             context.status(((RequestException) e).getStatusCode());
             context.json((((RequestException) e).asJson(gson)));
         } else {
+            System.err.println("Exception: " + e.getLocalizedMessage());
+            for (StackTraceElement stackTraceElement : e.getStackTrace()) {
+                System.err.println(" - " + stackTraceElement.toString());
+            }
             handleException(
                     new InternalServerError(e),
                     context
