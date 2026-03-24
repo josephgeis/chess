@@ -25,7 +25,7 @@ public class Server {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         this.gson = new GsonBuilder()
-                .registerTypeAdapter(UserGameCommand.class,
+                .registerTypeHierarchyAdapter(UserGameCommand.class,
                         new UserGameCommandAdapter())
                 .registerTypeAdapter(ChessMove.class,
                         new ChessMoveAdapter())

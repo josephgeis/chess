@@ -10,22 +10,18 @@ import java.lang.reflect.Type;
 public class ChessMoveAdapter implements JsonDeserializer<ChessMove>, JsonSerializer<ChessMove> {
     @Override
     public ChessMove deserialize(JsonElement el, Type type, JsonDeserializationContext ctx) throws JsonParseException {
-        try {
-            JsonObject root = el.getAsJsonObject();
-            JsonElement startEl = root.get("start");
-            JsonElement endEl = root.get("end");
-            ChessPosition start = ctx.deserialize(startEl, ChessPosition.class);
-            ChessPosition end = ctx.deserialize(endEl, ChessPosition.class);
-            JsonElement promotionEl = root.get("promotion");
-            String promotion = promotionEl != JsonNull.INSTANCE ? promotionEl.getAsString() : null;
+        JsonObject root = el.getAsJsonObject();
+        JsonElement startEl = root.get("start");
+        JsonElement endEl = root.get("end");
+        ChessPosition start = ctx.deserialize(startEl, ChessPosition.class);
+        ChessPosition end = ctx.deserialize(endEl, ChessPosition.class);
+        JsonElement promotionEl = root.get("promotion");
+        String promotion = promotionEl != null ? promotionEl.getAsString() : null;
 
-            return new ChessMove(
-                    start, end,
-                    promotion != null ? ChessPiece.PieceType.valueOf(promotion) : null
-            );
-        } catch (IllegalStateException | NullPointerException ignored) {
-            return null;
-        }
+        return new ChessMove(
+                start, end,
+                promotion != null ? ChessPiece.PieceType.valueOf(promotion) : null
+        );
     }
 
     @Override
