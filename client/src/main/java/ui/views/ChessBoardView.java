@@ -32,6 +32,10 @@ public class ChessBoardView extends View {
     ChessGame.TeamColor myTeam;
 
     public ChessBoardView(TextGraphics parentTextGraphics, Runnable unwind) {
+        this(parentTextGraphics, ChessGame.TeamColor.WHITE, unwind);
+    }
+
+    public ChessBoardView(TextGraphics parentTextGraphics, ChessGame.TeamColor teamColor, Runnable unwind) {
         super(parentTextGraphics);
         this.unwind = unwind;
 
@@ -47,7 +51,7 @@ public class ChessBoardView extends View {
         };
 
         chessGame = new ChessGame();
-        myTeam = ChessGame.TeamColor.WHITE;
+        myTeam = teamColor;
     }
 
     record ScreenPosition(int row, int col) {
