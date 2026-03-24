@@ -10,9 +10,9 @@ import org.jetbrains.annotations.NotNull;
 import request.*;
 import response.*;
 import service.ServiceManager;
-import typeadapters.ChessMoveAdapter;
-import typeadapters.UserGameCommandAdapter;
+import typeadapters.*;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ServerMessage;
 
 public class Server {
 
@@ -27,6 +27,8 @@ public class Server {
         this.gson = new GsonBuilder()
                 .registerTypeHierarchyAdapter(UserGameCommand.class,
                         new UserGameCommandAdapter())
+                .registerTypeAdapter(ServerMessage.class,
+                        new ServerMessageAdapter())
                 .registerTypeAdapter(ChessMove.class,
                         new ChessMoveAdapter())
                 .create();
