@@ -1,6 +1,5 @@
 package server;
 
-import chess.ChessMove;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -19,7 +18,6 @@ public class Server {
 
     private final Javalin javalin;
     private final ServiceManager serviceManager;
-    private final WebSocketController webSocketController;
     Gson gson;
 
     public Server(ServiceManager serviceManager) {
@@ -33,7 +31,7 @@ public class Server {
                 .create();
 
         this.serviceManager = serviceManager;
-        this.webSocketController = new WebSocketController(serviceManager.getDataAccessManager(), this.gson);
+        WebSocketController webSocketController = new WebSocketController(serviceManager.getDataAccessManager(), this.gson);
 
         // Register your endpoints and exception handlers here.
         javalin.post("/user", this::handleRegister)
@@ -43,7 +41,7 @@ public class Server {
                 .post("/game", this::handleCreateGame)
                 .put("/game", this::handleJoinGame)
                 .delete("/db", this::handleClearDb)
-                .ws("/ws", this.webSocketController::initWs)
+                .ws("/ws", webSocketController::initWs)
                 .exception(Exception.class, this::handleException);
     }
 
