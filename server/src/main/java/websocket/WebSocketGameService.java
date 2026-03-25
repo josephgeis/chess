@@ -9,6 +9,8 @@ import model.GameData;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 public class WebSocketGameService {
@@ -46,8 +48,29 @@ public class WebSocketGameService {
         }
     }
 
+    /** CONNECT command
+     * 1. Server sends a LOAD_GAME message back to the root client.
+     * 2. Server sends a Notification message to all other clients in that game informing them the root client connected to the game,
+     * either as a player (in which case their color must be specified) or as an observer.
+     * @return LoadGameMessage to root client
+     */
     private ServerMessage onConnectGame(AuthData authData, GameData gameData, WsContext ctx) {
-        throw new RuntimeException("Not implemented.");
+        String username = authData.username();
+        String role;
+        if (gameData.whiteUsername().equals(username)) {
+            role = "White";
+        } else if (gameData.blackUsername().equals(username)) {
+            role = "Black";
+        } else {
+            role = "Observer";
+        }
+
+        NotificationMessage notificationMessage = new NotificationMessage("%s (%s) joined the game".formatted(username, role));
+        WebSocketChannel channel = dispatcher.channelForGame(gameData.gameID());
+        channel.publishMessage(notificationMessage);
+
+        dispatcher.subscribeToGame(gameData.gameID(), ctx);
+        return new LoadGameMessage(gameData);
     }
 
     private ServerMessage onLeaveGame(AuthData authData, GameData gameData, WsContext ctx) {
