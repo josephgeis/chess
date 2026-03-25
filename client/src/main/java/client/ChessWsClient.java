@@ -33,4 +33,8 @@ public class ChessWsClient extends Endpoint {
             }
         });
     }
+
+    public void addMessageHandler(MessageHandler messageHandler) {
+        session.addMessageHandler(messageHandler);
+    }
 }

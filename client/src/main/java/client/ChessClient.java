@@ -118,6 +118,14 @@ public class ChessClient {
         return serverFacade.sendWsCommand(command);
     }
 
+    public void registerMessageObserver(MessageObserver observer) {
+        serverFacade.registerMessageObserver(observer);
+    }
+
+    public void unregisterMessageObserver(MessageObserver observer) {
+        serverFacade.unregisterMessageObserver(observer);
+    }
+
     public void quitProgram() {
         clientState.quitProgram();
     }

@@ -3,6 +3,7 @@ package ui.views;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
+import client.MessageObserver;
 import com.googlecode.lanterna.SGR;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
@@ -11,10 +12,12 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 
 import ui.menubar.MenuBarItem;
 import ui.menubar.MenuItems;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
-import java.util.EnumSet;
+import java.util.*;
 
-public class ChessBoardView extends View {
+public class ChessBoardView extends View implements MessageObserver {
 
     private static final TextColor NAVY = new TextColor.RGB(0, 46, 93);
     private static final TextColor ROYAL = new TextColor.RGB(0, 61, 165);
@@ -39,6 +42,8 @@ public class ChessBoardView extends View {
             "Toggle this message",
             "Leave the game"
     };
+
+    List<NotificationMessage> notifications;
 
     Runnable unwind;
     ChessGame chessGame;
@@ -69,6 +74,7 @@ public class ChessBoardView extends View {
 
         chessGame = new ChessGame();
         myTeam = teamColor;
+        notifications = new LinkedList<>();
     }
 
     record ScreenPosition(int row, int col) {
@@ -103,9 +109,8 @@ public class ChessBoardView extends View {
 
     private void drawNotifications(TerminalPosition notificationsStartPosition) {
         textGraphics.putString(notificationsStartPosition, "Messages", SGR.BOLD);
-        String[] notifications = {"White joined the game", "White resigned"};
-        for (int i = 0; i < 5 && i < notifications.length; i++) {
-            textGraphics.putString(notificationsStartPosition.withRelative(1, i + 1), notifications[i]);
+        for (int i = 0; i < 5 && i < notifications.size(); i++) {
+            textGraphics.putString(notificationsStartPosition.withRelative(1, i + 1), notifications.get(i).getMessage());
         }
     }
 
@@ -200,5 +205,12 @@ public class ChessBoardView extends View {
     protected void onResign() { }
     protected void onLeave() {
         unwind.run();
+    }
+
+    @Override
+    public void notify(ServerMessage message) {
+        switch (message.getServerMessageType()) {
+            case NOTIFICATION -> notifications.addFirst((NotificationMessage) message);
+        }
     }
 }
