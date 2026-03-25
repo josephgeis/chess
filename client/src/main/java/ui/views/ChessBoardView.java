@@ -27,6 +27,8 @@ public class ChessBoardView extends View {
     final int EDGE_THICK_H = 1;
     final int EDGE_THICK_V = 2;
 
+    final int BOARD_WIDTH = (EDGE_THICK_V * 2) + 8 * SQUARE_COLS;
+
     boolean showHelp = false;
     String[] fnKeys = {"F1", "F2", "F3", "F4", "F5", "F6"};
     String[] helpStrings = {
@@ -34,6 +36,7 @@ public class ChessBoardView extends View {
             "Submit the selected move",
             "Force redraw the board",
             "Resigns the game",
+            "Toggle this message",
             "Leave the game"
     };
 
@@ -81,12 +84,43 @@ public class ChessBoardView extends View {
     @Override
     public void draw() {
         textGraphics.setBackgroundColor(ORANGE);
+        textGraphics.setForegroundColor(TextColor.ANSI.WHITE_BRIGHT);
         textGraphics.fillRectangle(TerminalPosition.TOP_LEFT_CORNER, textGraphics.getSize(), ' ');
 
-        TerminalPosition startPosition = TerminalPosition.TOP_LEFT_CORNER.withRelative(SQUARE_COLS, SQUARE_ROWS);
+        TerminalPosition boardStartPosition = TerminalPosition.OFFSET_1x1;
 
-        drawBoardEdge(startPosition);
+        TerminalPosition notificationsStartPosition = boardStartPosition.withRelativeColumn(BOARD_WIDTH + 2);
+        drawNotifications(notificationsStartPosition);
 
+        TerminalPosition helpStartPosition = boardStartPosition.withRelative(BOARD_WIDTH + 2, EDGE_THICK_H + 5 * SQUARE_ROWS);
+        if (showHelp) {
+            drawHelp(helpStartPosition);
+        }
+
+        drawBoardEdge(boardStartPosition);
+        drawBoard(boardStartPosition.withRelative(EDGE_THICK_V, EDGE_THICK_H));
+    }
+
+    private void drawNotifications(TerminalPosition notificationsStartPosition) {
+        textGraphics.putString(notificationsStartPosition, "Messages", SGR.BOLD);
+        String[] notifications = {"White joined the game", "White resigned"};
+        for (int i = 0; i < 5 && i < notifications.length; i++) {
+            textGraphics.putString(notificationsStartPosition.withRelative(1, i + 1), notifications[i]);
+        }
+    }
+
+    private void drawHelp(TerminalPosition startPosition) {
+        textGraphics.putString(startPosition, "Help");
+        for (int i = 0; i < helpStrings.length; i++) {
+            textGraphics.setModifiers(EnumSet.of(SGR.BOLD));
+            textGraphics.putString(startPosition.withRelativeRow(i + 1), fnKeys[i]);
+
+            textGraphics.clearModifiers();
+            textGraphics.putString(startPosition.withRelative(fnKeys[i].length() + 1, i + 1), helpStrings[i]);
+        }
+    }
+
+    private void drawBoard(TerminalPosition startPosition) {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 ScreenPosition screenPosition = new ScreenPosition(i, j);
@@ -103,15 +137,14 @@ public class ChessBoardView extends View {
         textGraphics.setBackgroundColor(EDGE_COLOR);
 
         TerminalSize horizontalEdge = new TerminalSize(SQUARE_COLS * 8 + 2 * EDGE_THICK_V, 1);
-        TerminalPosition topEdge = startPosition.withRelative( -EDGE_THICK_V, -EDGE_THICK_H);
-        textGraphics.fillRectangle(topEdge, horizontalEdge, ' ');
-        TerminalPosition bottomEdge = startPosition.withRelative(-EDGE_THICK_V, SQUARE_ROWS * 8);
+        textGraphics.fillRectangle(startPosition, horizontalEdge, ' ');
+        TerminalPosition bottomEdge = startPosition.withRelativeRow(EDGE_THICK_H + SQUARE_ROWS * 8);
         textGraphics.fillRectangle(bottomEdge, horizontalEdge, ' ');
 
         TerminalSize verticalEdge = new TerminalSize(EDGE_THICK_V, SQUARE_ROWS * 8 );
-        TerminalPosition leftEdge = startPosition.withRelative(-EDGE_THICK_V, 0);
+        TerminalPosition leftEdge = startPosition.withRelativeRow(EDGE_THICK_H);
         textGraphics.fillRectangle(leftEdge, verticalEdge, ' ');
-        TerminalPosition rightEdge = startPosition.withRelative(SQUARE_COLS * 8, 0);
+        TerminalPosition rightEdge = startPosition.withRelative(EDGE_THICK_V + SQUARE_COLS * 8, EDGE_THICK_H);
         textGraphics.fillRectangle(rightEdge, verticalEdge, ' ');
 
         drawEdgeAlphaNumber(startPosition);
@@ -125,14 +158,14 @@ public class ChessBoardView extends View {
 
             textGraphics.setForegroundColor(LABEL_COLOR);
             textGraphics.setModifiers(EnumSet.of(SGR.BOLD));
-            TerminalPosition topLetterPosition = startPosition.withRelative(2 + SQUARE_COLS * i, -1);
+            TerminalPosition topLetterPosition = startPosition.withRelativeColumn(EDGE_THICK_V + 2 + SQUARE_COLS * i);
             textGraphics.putString(topLetterPosition, "%c".formatted(LETTERS[chessPosition.getColumn() - 1]));
-            TerminalPosition bottomLetterPosition = startPosition.withRelative(2 + SQUARE_COLS * i, 8 * SQUARE_ROWS);
+            TerminalPosition bottomLetterPosition = topLetterPosition.withRelativeRow(EDGE_THICK_H + 8 * SQUARE_ROWS);
             textGraphics.putString(bottomLetterPosition, "%c".formatted(LETTERS[chessPosition.getColumn() - 1]));
 
-            TerminalPosition leftNumberPosition = startPosition.withRelative(-1, 1 + SQUARE_ROWS * i);
+            TerminalPosition leftNumberPosition = startPosition.withRelative(1, EDGE_THICK_H + 1 + SQUARE_ROWS * i);
             textGraphics.putString(leftNumberPosition, "%d".formatted(chessPosition.getRow()));
-            TerminalPosition rightNumberPosition = startPosition.withRelative(8 * SQUARE_COLS, 1 + SQUARE_ROWS * i);
+            TerminalPosition rightNumberPosition = leftNumberPosition.withRelativeColumn(EDGE_THICK_V - 1 + SQUARE_COLS * 8);
             textGraphics.putString(rightNumberPosition, "%d".formatted(chessPosition.getRow()));
         }
     }
