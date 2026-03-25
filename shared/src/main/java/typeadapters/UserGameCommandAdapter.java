@@ -20,7 +20,7 @@ public class UserGameCommandAdapter implements JsonDeserializer<UserGameCommand>
 
         if (commandType == CommandType.MAKE_MOVE) {
             ChessMove chessMove = ctx.deserialize(root.get("move"), ChessMove.class);
-            return new MakeMoveCommand(commandType, authToken, gameID, chessMove);
+            return new MakeMoveCommand(authToken, gameID, chessMove);
         } else {
             return new UserGameCommand(commandType, authToken, gameID);
         }

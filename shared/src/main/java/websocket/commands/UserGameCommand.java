@@ -1,5 +1,7 @@
 package websocket.commands;
 
+import chess.ChessMove;
+
 import java.util.Objects;
 
 /**
@@ -27,6 +29,22 @@ public class UserGameCommand {
         MAKE_MOVE,
         LEAVE,
         RESIGN
+    }
+
+    public static UserGameCommand connect(String authToken, Integer gameID) {
+        return new UserGameCommand(CommandType.CONNECT, authToken, gameID);
+    }
+
+    public static UserGameCommand leave(String authToken, Integer gameID) {
+        return new UserGameCommand(CommandType.LEAVE, authToken, gameID);
+    }
+
+    public static UserGameCommand makeMove(String authToken, Integer gameID, ChessMove move) {
+        return new MakeMoveCommand(authToken, gameID, move);
+    }
+
+    public static UserGameCommand resign(String authToken, Integer gameID) {
+        return new UserGameCommand(CommandType.RESIGN, authToken, gameID);
     }
 
     public CommandType getCommandType() {
