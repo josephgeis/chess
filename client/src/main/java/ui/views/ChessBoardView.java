@@ -32,7 +32,7 @@ public class ChessBoardView extends View {
     ChessGame.TeamColor myTeam;
 
     public ChessBoardView(TextGraphics parentTextGraphics, Runnable unwind) {
-        this(parentTextGraphics, ChessGame.TeamColor.WHITE, unwind);
+        this(parentTextGraphics, null, unwind);
     }
 
     public ChessBoardView(TextGraphics parentTextGraphics, ChessGame.TeamColor teamColor, Runnable unwind) {
@@ -56,10 +56,11 @@ public class ChessBoardView extends View {
 
     record ScreenPosition(int row, int col) {
         public ChessPosition toChessPosition(ChessGame.TeamColor perspective) {
-            return switch (perspective) {
-                case WHITE -> new ChessPosition(8 - row, col + 1);
-                case BLACK -> new ChessPosition(row + 1, 8 - col);
-            };
+            if (perspective == ChessGame.TeamColor.BLACK) {
+                return new ChessPosition(row + 1, 8 - col);
+            } else {
+                return new ChessPosition(8 - row, col + 1);
+            }
         }
     }
 
