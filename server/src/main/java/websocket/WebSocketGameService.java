@@ -84,23 +84,21 @@ public class WebSocketGameService {
 
     private ServerMessage onLeaveGame(AuthData authData, GameData gameData, WsContext ctx) throws DataAccessException {
         String username = authData.username();
-        String role = "Observer";
-        if (gameData.whiteUsername().equals(username)) {
-            role = "White";
-            gameData.setWhiteUsername(null);
-        } else if (gameData.blackUsername().equals(username)) {
-            role = "Black";
-            gameData.setBlackUsername(null);
-        }
+        ChessGame.TeamColor role = getRole(username, gameData);
 
-        if (!role.equals("Observer")) {
-            gameDAO.updateGame(gameData.gameID(), gameData);
-        }
+        GameData updatedGameData = switch (role) {
+            case WHITE -> gameData.setWhiteUsername(null);
+            case BLACK -> gameData.setBlackUsername(null);
+            case null -> null;
+        };
 
+        if (updatedGameData != null) {
+            gameDAO.updateGame(updatedGameData.gameID(), updatedGameData);
+        }
         dispatcher.unsubscribeFromGame(gameData.gameID(), ctx);
 
         WebSocketChannel channel = dispatcher.channelForGame(gameData.gameID());
-        NotificationMessage notificationMessage = new NotificationMessage("%s (%s) joined the game".formatted(username, role));
+        NotificationMessage notificationMessage = new NotificationMessage("%s (%s) left the game".formatted(username, getRoleName(role)));
         channel.publishMessage(notificationMessage);
         return null;
     }
