@@ -11,6 +11,7 @@ import request.*;
 import response.*;
 import service.ServiceManager;
 import typeadapters.*;
+import websocket.WebSocketController;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
