@@ -104,7 +104,7 @@ public class ChessClient {
     }
 
     public CompletableFuture<Void> sendLeaveCommand(int gameID) {
-        UserGameCommand command = UserGameCommand.connect(clientState.getAuthToken(), gameID);
+        UserGameCommand command = UserGameCommand.leave(clientState.getAuthToken(), gameID);
         return serverFacade.sendWsCommand(command);
     }
 
@@ -114,7 +114,7 @@ public class ChessClient {
     }
 
     public CompletableFuture<Void> sendResignCommand(int gameID) {
-        UserGameCommand command = UserGameCommand.connect(clientState.getAuthToken(), gameID);
+        UserGameCommand command = UserGameCommand.resign(clientState.getAuthToken(), gameID);
         return serverFacade.sendWsCommand(command);
     }
 
