@@ -131,6 +131,11 @@ public class WebSocketGameService {
         }
 
         ChessGame game = gameData.game();
+
+        if (role != game.getTeamTurn()) {
+            throw new InvalidMoveException("You cannot move out of turn");
+        }
+
         game.makeMove(move);
         gameDAO.updateGame(gameData.gameID(), gameData);
 
