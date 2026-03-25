@@ -169,9 +169,9 @@ public class WebSocketGameService {
     }
 
     private static ChessGame.TeamColor getRole(String username, GameData gameData) {
-        if (gameData.whiteUsername().equals(username)) {
+        if (username.equals(gameData.whiteUsername())) {
             return ChessGame.TeamColor.WHITE;
-        } else if (gameData.blackUsername().equals(username)) {
+        } else if (username.equals(gameData.blackUsername())) {
             return ChessGame.TeamColor.BLACK;
         } else {
             return null;
