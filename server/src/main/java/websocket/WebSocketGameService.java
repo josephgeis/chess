@@ -16,6 +16,8 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
+import java.util.Set;
+
 public class WebSocketGameService {
     private final WebSocketDispatcher dispatcher;
 
@@ -37,8 +39,9 @@ public class WebSocketGameService {
 
     /**
      * Handles a command parsed from an incoming WebSockets message.
+     *
      * @param command Input command from the client
-     * @param ctx WebSocket connection context
+     * @param ctx     WebSocket connection context
      * @return Returns a message to send back to root client
      */
     public ServerMessage handleCommand(UserGameCommand command, WsContext ctx) {
@@ -57,10 +60,12 @@ public class WebSocketGameService {
         }
     }
 
-    /** CONNECT command
+    /**
+     * CONNECT command
      * 1. Server sends a LOAD_GAME message back to the root client.
      * 2. Server sends a Notification message to all other clients in that game informing them the root client connected to the game,
      * either as a player (in which case their color must be specified) or as an observer.
+     *
      * @return LoadGameMessage to root client
      */
     private ServerMessage onConnectGame(AuthData authData, GameData gameData, WsContext ctx) {
@@ -107,7 +112,6 @@ public class WebSocketGameService {
 
         ChessGame game = gameData.game();
         game.setResignedTeam(role);
-
         gameDAO.updateGame(gameData.gameID(), gameData);
 
         WebSocketChannel channel = dispatcher.channelForGame(gameData.gameID());
@@ -117,8 +121,46 @@ public class WebSocketGameService {
         return null;
     }
 
-    private ServerMessage onMakeMove(AuthData authData, GameData gameData, ChessMove move, WsContext ctx) {
-        throw new RuntimeException("Not implemented.");
+    private ServerMessage onMakeMove(AuthData authData, GameData gameData, ChessMove move, WsContext ctx)
+            throws WebSocketGameServiceException, InvalidMoveException, DataAccessException {
+        String username = authData.username();
+        ChessGame.TeamColor role = getRole(username, gameData);
+
+        if (role == null) {
+            throw new WebSocketGameServiceException("You are not a player in this game");
+        }
+
+        ChessGame game = gameData.game();
+        game.makeMove(move);
+        gameDAO.updateGame(gameData.gameID(), gameData);
+
+        WebSocketChannel channel = dispatcher.channelForGame(gameData.gameID());
+        LoadGameMessage loadGameMessage = new LoadGameMessage(gameData);
+        NotificationMessage moveNotificationMessage = new NotificationMessage("%s (%s) just moved".formatted(username, getRoleName(role)));
+
+        ChessGame.TeamColor nextTeam = game.getTeamTurn();
+        String gameStateNotificationMessageString = null;
+        if (game.isInCheckmate(nextTeam)) {
+            gameStateNotificationMessageString = "%s is now in checkmate";
+        } else if (game.isInCheck(nextTeam)) {
+            gameStateNotificationMessageString = "%s is now in check";
+        } else if (game.isInStalemate(nextTeam)) {
+            gameStateNotificationMessageString = "%s is now in stalemate";
+        }
+        NotificationMessage gameStateNotificationMessage = gameStateNotificationMessageString != null ?
+                new NotificationMessage(gameStateNotificationMessageString.formatted(getRoleName(nextTeam))) : null;
+
+        channel.publishMessage(loadGameMessage)
+                .thenApply(unused -> channel.publishMessage(moveNotificationMessage, Set.of(ctx)))
+                .thenApply(unused -> {
+                    if (gameStateNotificationMessage != null) {
+                        return channel.publishMessage(gameStateNotificationMessage);
+                    } else {
+                        return null;
+                    }
+                });
+
+        return null;
     }
 
     private static ChessGame.TeamColor getRole(String username, GameData gameData) {
