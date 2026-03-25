@@ -52,7 +52,7 @@ public class WebSocketGameService {
             return switch (command.getCommandType()) {
                 case CONNECT -> onConnectGame(authData, gameData, ctx);
                 case LEAVE -> onLeaveGame(authData, gameData, ctx);
-                case RESIGN -> onResignGame(authData, gameData, ctx);
+                case RESIGN -> onResignGame(authData, gameData);
                 case MAKE_MOVE -> onMakeMove(authData, gameData, ((MakeMoveCommand) command).getMove(), ctx);
             };
         } catch (Exception e) {
@@ -73,10 +73,9 @@ public class WebSocketGameService {
         ChessGame.TeamColor role = getRole(username, gameData);
 
         NotificationMessage notificationMessage = new NotificationMessage("%s (%s) joined the game".formatted(username, getRoleName(role)));
-        WebSocketChannel channel = dispatcher.channelForGame(gameData.gameID());
-        channel.publishMessage(notificationMessage);
+        WebSocketChannel channel = dispatcher.subscribeToGame(gameData.gameID(), ctx);
+        channel.publishMessage(notificationMessage, Set.of(ctx));
 
-        dispatcher.subscribeToGame(gameData.gameID(), ctx);
         return new LoadGameMessage(gameData);
     }
 
@@ -93,15 +92,14 @@ public class WebSocketGameService {
         if (updatedGameData != null) {
             gameDAO.updateGame(updatedGameData.gameID(), updatedGameData);
         }
-        dispatcher.unsubscribeFromGame(gameData.gameID(), ctx);
 
-        WebSocketChannel channel = dispatcher.channelForGame(gameData.gameID());
+        WebSocketChannel channel = dispatcher.unsubscribeFromGame(gameData.gameID(), ctx);
         NotificationMessage notificationMessage = new NotificationMessage("%s (%s) left the game".formatted(username, getRoleName(role)));
         channel.publishMessage(notificationMessage);
         return null;
     }
 
-    private ServerMessage onResignGame(AuthData authData, GameData gameData, WsContext ctx)
+    private ServerMessage onResignGame(AuthData authData, GameData gameData)
             throws WebSocketGameServiceException, InvalidMoveException, DataAccessException {
         String username = authData.username();
         ChessGame.TeamColor role = getRole(username, gameData);

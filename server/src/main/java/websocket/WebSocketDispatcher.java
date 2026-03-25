@@ -31,18 +31,20 @@ public class WebSocketDispatcher {
         }
     }
 
-    public void subscribeToGame(int gameID, WsContext ctx) {
+    public WebSocketChannel subscribeToGame(int gameID, WsContext ctx) {
         WebSocketChannel channel = channelForGame(gameID);
         channel.subscribe(ctx);
         connections.get(ctx).add(channel);
+        return channel;
     }
 
-    public void unsubscribeFromGame(int gameID, WsContext ctx) {
+    public WebSocketChannel unsubscribeFromGame(int gameID, WsContext ctx) {
         WebSocketChannel channel = gameChannels.get(gameID);
         if (channel != null) {
             channel.unsubscribe(ctx);
             connections.get(ctx).remove(channel);
         }
+        return channel;
     }
 
     public WebSocketChannel channelForGame(int gameID) {
