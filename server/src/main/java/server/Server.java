@@ -35,7 +35,7 @@ public class Server {
                 .create();
 
         this.serviceManager = serviceManager;
-        this.webSocketController = new WebSocketController(this.serviceManager, this.gson);
+        this.webSocketController = new WebSocketController(serviceManager.getDataAccessManager(), this.gson);
 
         // Register your endpoints and exception handlers here.
         javalin.post("/user", this::handleRegister)

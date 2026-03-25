@@ -2,6 +2,7 @@ package websocket;
 
 import com.google.gson.Gson;
 import io.javalin.websocket.WsContext;
+import websocket.messages.ServerMessage;
 
 import java.util.HashSet;
 import java.util.List;
@@ -26,8 +27,9 @@ public class WebSocketChannel {
         this.subscribers.remove(subscriber);
     }
 
-    public CompletableFuture<Void> publishMessage(String message) {
-        Function<WsContext, CompletableFuture<Void>> messagePublisher = ctx -> CompletableFuture.runAsync(() -> ctx.send(message));
+    public CompletableFuture<Void> publishMessage(ServerMessage message) {
+        String payload = gson.toJson(message);
+        Function<WsContext, CompletableFuture<Void>> messagePublisher = ctx -> CompletableFuture.runAsync(() -> ctx.send(payload));
         List<CompletableFuture<Void>> futures = subscribers.stream()
                 .map(messagePublisher)
                 .toList();
