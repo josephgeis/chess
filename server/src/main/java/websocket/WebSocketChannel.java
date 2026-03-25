@@ -10,10 +10,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.*;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 public class WebSocketChannel {
     Set<WsContext> subscribers;
     Gson gson;
+    Logger logger = Logger.getLogger("WebSocketChannel");
 
     public WebSocketChannel(Gson gson) {
         this.subscribers = new HashSet<>();
@@ -42,6 +44,7 @@ public class WebSocketChannel {
         }
 
         String payload = gson.toJson(message);
+        logger.info("Publish message: %s".formatted(payload));
         Function<WsContext, CompletableFuture<Void>> messagePublisher = ctx -> CompletableFuture.runAsync(() -> ctx.send(payload));
         List<CompletableFuture<Void>> futures = recipients.stream()
                 .map(messagePublisher)

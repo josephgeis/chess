@@ -6,9 +6,12 @@ import io.javalin.websocket.*;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
+import java.util.logging.Logger;
+
 public class WebSocketController {
     WebSocketDispatcher dispatcher;
     WebSocketGameService service;
+    Logger logger = Logger.getLogger("WebSocketController");
 
     Gson gson;
 
@@ -30,11 +33,13 @@ public class WebSocketController {
 
     public void onConnect(WsConnectContext ctx) {
         ctx.enableAutomaticPings();
+        logger.info("WS Connection: %s".formatted(ctx.host()));
         dispatcher.addConnection(ctx);
     }
 
     public void onMessage(WsMessageContext ctx) {
         String rawMessage = ctx.message();
+        logger.info("WS Message from %s: %s".formatted(ctx.host(), ctx.message()));
         UserGameCommand command = gson.fromJson(rawMessage, UserGameCommand.class);
 
         ServerMessage response = service.handleCommand(command, ctx);
