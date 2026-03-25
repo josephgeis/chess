@@ -55,6 +55,8 @@ public class WebSocketGameService {
                 case RESIGN -> onResignGame(authData, gameData);
                 case MAKE_MOVE -> onMakeMove(authData, gameData, ((MakeMoveCommand) command).getMove(), ctx);
             };
+        } catch (RuntimeException e) {
+            return new ErrorMessage("An unexpected error occurred");
         } catch (Exception e) {
             return new ErrorMessage(e.getMessage());
         }
