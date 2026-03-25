@@ -11,8 +11,11 @@ import static java.lang.Thread.sleep;
  * Initializes the terminal objects and has the event loop
  */
 public class ClientMain {
+    static final String SERVER_HOST = "localhost";
+    static final int SERVER_PORT = 8080;
+
     static TerminalController terminalController;
-    static ServerFacade serverFacade = new ServerFacade("localhost", 8080);
+    static EnhancedServerFacade serverFacade;
     static ClientState clientState = new ClientState();
     static ChessClient chessClient;
 
@@ -21,6 +24,15 @@ public class ClientMain {
 
         System.out.println("♕ 240 Chess Client: " + piece);
 
+        ChessHttpClient httpClient = new ChessHttpClient(SERVER_HOST, SERVER_PORT);
+        ChessWsClient wsClient;
+        try {
+            wsClient = new ChessWsClient(SERVER_HOST, SERVER_PORT);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        serverFacade = new EnhancedServerFacade(httpClient, wsClient);
         chessClient = new ChessClient(serverFacade, clientState);
         terminalController = new TerminalController(chessClient);
 

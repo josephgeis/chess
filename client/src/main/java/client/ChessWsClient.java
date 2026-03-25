@@ -1,11 +1,10 @@
 package client;
 
 import jakarta.websocket.*;
-import websocket.commands.UserGameCommand;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
 
 public class ChessWsClient extends Endpoint {
 
@@ -23,5 +22,15 @@ public class ChessWsClient extends Endpoint {
 
     public void sendMessage(String message) throws IOException {
         session.getBasicRemote().sendText(message);
+    }
+
+    public CompletableFuture<Void> sendMessageAsync(String message) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                sendMessage(message);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }

@@ -11,18 +11,15 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
 public class ServerFacade {
-    String host;
-    int port;
-
     ChessHttpClient httpClient;
-
-    Gson gson;
+    Gson gson = new Gson();
 
     public ServerFacade(String host, int port) {
-        this.host = host;
-        this.port = port;
-        this.httpClient = new ChessHttpClient(host, port);
-        gson = new Gson();
+        this(new ChessHttpClient(host, port));
+    }
+
+    public ServerFacade(ChessHttpClient httpClient) {
+        this.httpClient = httpClient;
     }
 
     record ErrorResponse(String message) { }

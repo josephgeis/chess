@@ -1,6 +1,7 @@
 package client;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import model.AuthData;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
@@ -10,16 +11,17 @@ import response.CreateGameResponse;
 import response.ListGamesResponse;
 import response.LoginResponse;
 import response.RegisterResponse;
+import websocket.commands.UserGameCommand;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ChessClient {
-    private final ServerFacade serverFacade;
+    private final EnhancedServerFacade serverFacade;
     private final ClientState clientState;
 
-    public ChessClient(ServerFacade serverFacade, ClientState clientState) {
+    public ChessClient(EnhancedServerFacade serverFacade, ClientState clientState) {
         this.serverFacade = serverFacade;
         this.clientState = clientState;
     }
@@ -94,6 +96,26 @@ public class ChessClient {
     public CompletableFuture<Void> makeJoinGameRequest(ChessGame.TeamColor teamColor, int gameID) {
         JoinGameRequest request = new JoinGameRequest(teamColor, gameID);
         return makeAuthenticatedRequest(authToken -> serverFacade.joinGameAsync(request, authToken));
+    }
+
+    public CompletableFuture<Void> sendConnectCommand(int gameID) {
+        UserGameCommand command = UserGameCommand.connect(clientState.getAuthToken(), gameID);
+        return serverFacade.sendWsCommand(command);
+    }
+
+    public CompletableFuture<Void> sendLeaveCommand(int gameID) {
+        UserGameCommand command = UserGameCommand.connect(clientState.getAuthToken(), gameID);
+        return serverFacade.sendWsCommand(command);
+    }
+
+    public CompletableFuture<Void> sendMakeMoveCommand(int gameID, ChessMove move) {
+        UserGameCommand command = UserGameCommand.makeMove(clientState.getAuthToken(), gameID, move);
+        return serverFacade.sendWsCommand(command);
+    }
+
+    public CompletableFuture<Void> sendResignCommand(int gameID) {
+        UserGameCommand command = UserGameCommand.connect(clientState.getAuthToken(), gameID);
+        return serverFacade.sendWsCommand(command);
     }
 
     public void quitProgram() {
