@@ -1,6 +1,8 @@
 package websocket;
 
+import chess.ChessGame;
 import chess.ChessMove;
+import chess.InvalidMoveException;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
@@ -25,6 +27,12 @@ public class WebSocketGameService {
 
         this.authDAO = authDAO;
         this.gameDAO = gameDAO;
+    }
+
+    static class WebSocketGameServiceException extends Exception {
+        public WebSocketGameServiceException(String message) {
+            super(message);
+        }
     }
 
     /**
@@ -97,11 +105,46 @@ public class WebSocketGameService {
         return null;
     }
 
-    private ServerMessage onResignGame(AuthData authData, GameData gameData, WsContext ctx) {
-        throw new RuntimeException("Not implemented.");
+    private ServerMessage onResignGame(AuthData authData, GameData gameData, WsContext ctx)
+            throws WebSocketGameServiceException, InvalidMoveException, DataAccessException {
+        String username = authData.username();
+        ChessGame.TeamColor role = getRole(username, gameData);
+
+        if (role == null) {
+            throw new WebSocketGameServiceException("You are not a player in this game");
+        }
+
+        ChessGame game = gameData.game();
+        game.setResignedTeam(role);
+
+        gameDAO.updateGame(gameData.gameID(), gameData);
+
+        WebSocketChannel channel = dispatcher.channelForGame(gameData.gameID());
+        NotificationMessage notificationMessage = new NotificationMessage("%s (%s) resigned".formatted(username, getRoleName(role)));
+        channel.publishMessage(notificationMessage);
+
+        return null;
     }
 
     private ServerMessage onMakeMove(AuthData authData, GameData gameData, ChessMove move, WsContext ctx) {
         throw new RuntimeException("Not implemented.");
+    }
+
+    private static ChessGame.TeamColor getRole(String username, GameData gameData) {
+        if (gameData.whiteUsername().equals(username)) {
+            return ChessGame.TeamColor.WHITE;
+        } else if (gameData.blackUsername().equals(username)) {
+            return ChessGame.TeamColor.BLACK;
+        } else {
+            return null;
+        }
+    }
+
+    private static String getRoleName(ChessGame.TeamColor team) {
+        return switch (team) {
+            case WHITE -> "White";
+            case BLACK -> "Black";
+            case null -> "Observer";
+        };
     }
 }

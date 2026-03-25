@@ -17,11 +17,13 @@ import java.util.Objects;
 public class ChessGame implements Cloneable {
 
     TeamColor currentTeamTurn;
+    TeamColor resignedTeam;
     ChessBoard board;
     static Gson gson = new Gson();
 
     public ChessGame() {
         currentTeamTurn = TeamColor.WHITE;
+        resignedTeam = null;
         board = new ChessBoard();
         board.resetBoard();
     }
@@ -48,6 +50,14 @@ public class ChessGame implements Cloneable {
      */
     public void setTeamTurn(TeamColor team) {
         currentTeamTurn = team;
+    }
+
+    public void setResignedTeam(TeamColor team) throws InvalidMoveException {
+        if (resignedTeam != null) {
+            throw new InvalidMoveException("The %s team already resigned"
+                    .formatted(resignedTeam.toString().toLowerCase()));
+        }
+        resignedTeam = team;
     }
 
     /**
@@ -137,6 +147,11 @@ public class ChessGame implements Cloneable {
         }
 
         final var piece = board.getPiece(startPosition);
+
+        if (resignedTeam != null) {
+            throw new InvalidMoveException("The %s team resigned"
+                    .formatted(resignedTeam.toString().toLowerCase()));
+        }
 
         if (piece.getTeamColor() != currentTeamTurn) {
             throw new InvalidMoveException("The piece at the specified starting location cannot be moved out of turn");
