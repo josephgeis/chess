@@ -3,18 +3,22 @@ package service;
 import dataaccess.*;
 
 public class ServiceManager {
-    private final AuthDAO authDAO;
-    private final GameDAO gameDAO;
-    private final UserDAO userDAO;
+    private final DataAccessManager dataAccessManager;
 
     private final AuthService authService;
     private final GameService gameService;
     private final UserService userService;
 
     public ServiceManager(AuthDAO authDAO, GameDAO gameDAO, UserDAO userDAO) {
-        this.authDAO = authDAO;
-        this.gameDAO = gameDAO;
-        this.userDAO = userDAO;
+        this(new DataAccessManager(authDAO, gameDAO, userDAO));
+    }
+
+    public ServiceManager(DataAccessManager dataAccessManager) {
+        this.dataAccessManager = dataAccessManager;
+
+        AuthDAO authDAO = dataAccessManager.getAuthDAO();
+        GameDAO gameDAO = dataAccessManager.getGameDAO();
+        UserDAO userDAO = dataAccessManager.getUserDAO();
 
         authService = new AuthService(authDAO, userDAO);
         gameService = new GameService(gameDAO, authDAO);
@@ -22,16 +26,7 @@ public class ServiceManager {
     }
 
     public static ServiceManager createPersistent() {
-        try {
-            DatabaseManager.createDatabase();
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
-
-        return new ServiceManager(
-                new MySQLAuthDAO(),
-                new MySQLGameDAO(),
-                new MySQLUserDAO());
+        return new ServiceManager(DataAccessManager.createPersistent());
     }
 
     public AuthService getAuthService() {
@@ -46,9 +41,11 @@ public class ServiceManager {
         return userService;
     }
 
-    public void clearDatabases() throws Exception {
-        authDAO.clear();
-        gameDAO.clear();
-        userDAO.clear();
+    public void clearDatabases() throws DataAccessException {
+        dataAccessManager.clearDatabases();
+    }
+
+    public DataAccessManager getDataAccessManager() {
+        return dataAccessManager;
     }
 }
