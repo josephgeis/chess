@@ -65,16 +65,9 @@ public class WebSocketGameService {
      */
     private ServerMessage onConnectGame(AuthData authData, GameData gameData, WsContext ctx) {
         String username = authData.username();
-        String role;
-        if (gameData.whiteUsername().equals(username)) {
-            role = "White";
-        } else if (gameData.blackUsername().equals(username)) {
-            role = "Black";
-        } else {
-            role = "Observer";
-        }
+        ChessGame.TeamColor role = getRole(username, gameData);
 
-        NotificationMessage notificationMessage = new NotificationMessage("%s (%s) joined the game".formatted(username, role));
+        NotificationMessage notificationMessage = new NotificationMessage("%s (%s) joined the game".formatted(username, getRoleName(role)));
         WebSocketChannel channel = dispatcher.channelForGame(gameData.gameID());
         channel.publishMessage(notificationMessage);
 
