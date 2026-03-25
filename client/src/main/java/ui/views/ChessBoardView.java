@@ -27,6 +27,16 @@ public class ChessBoardView extends View {
     final int EDGE_THICK_H = 1;
     final int EDGE_THICK_V = 2;
 
+    boolean showHelp = false;
+    String[] fnKeys = {"F1", "F2", "F3", "F4", "F5", "F6"};
+    String[] helpStrings = {
+            "Show valid moves for the selected piece",
+            "Submit the selected move",
+            "Force redraw the board",
+            "Resigns the game",
+            "Leave the game"
+    };
+
     Runnable unwind;
     ChessGame chessGame;
     ChessGame.TeamColor myTeam;
@@ -43,8 +53,12 @@ public class ChessBoardView extends View {
             @Override
             protected MenuBarItem itemAt(int i) {
                 return switch (i) {
-                    case 5 -> MenuBarItem.withCallback("Switch", () -> myTeam = myTeam.otherTeam());
-                    case 6 -> MenuBarItem.withCallback("Close", unwind);
+                    case 1 -> teamColor != null ? MenuBarItem.withCallback("Moves", ChessBoardView.this::showLegalMoves) : null;
+                    case 2 -> teamColor != null ? MenuBarItem.withCallback("SubmitMv", ChessBoardView.this::onSubmitMove) : null;
+                    case 3 -> MenuBarItem.withCallback("Reload", ChessBoardView.this::onReload);
+                    case 4 -> teamColor != null ? MenuBarItem.withCallback("Resign", ChessBoardView.this::onResign) : null;
+                    case 5 -> MenuBarItem.withCallback("Help", ChessBoardView.this::toggleHelpScreen);
+                    case 6 -> MenuBarItem.withCallback("Leave", ChessBoardView.this::onLeave);
                     default -> null;
                 };
             }
@@ -141,5 +155,17 @@ public class ChessBoardView extends View {
             case WHITE -> TextColor.ANSI.WHITE_BRIGHT;
             case BLACK -> TextColor.ANSI.BLACK;
         };
+    }
+
+    void showLegalMoves() { }
+    void toggleHelpScreen() {
+        showHelp = !showHelp;
+    }
+
+    protected void onSubmitMove() { }
+    protected void onReload() { }
+    protected void onResign() { }
+    protected void onLeave() {
+        unwind.run();
     }
 }
