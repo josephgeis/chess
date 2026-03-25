@@ -2,6 +2,7 @@ package websocket;
 
 import chess.ChessMove;
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import io.javalin.websocket.WsContext;
 import model.AuthData;
@@ -73,8 +74,27 @@ public class WebSocketGameService {
         return new LoadGameMessage(gameData);
     }
 
-    private ServerMessage onLeaveGame(AuthData authData, GameData gameData, WsContext ctx) {
-        throw new RuntimeException("Not implemented.");
+    private ServerMessage onLeaveGame(AuthData authData, GameData gameData, WsContext ctx) throws DataAccessException {
+        String username = authData.username();
+        String role = "Observer";
+        if (gameData.whiteUsername().equals(username)) {
+            role = "White";
+            gameData.setWhiteUsername(null);
+        } else if (gameData.blackUsername().equals(username)) {
+            role = "Black";
+            gameData.setBlackUsername(null);
+        }
+
+        if (!role.equals("Observer")) {
+            gameDAO.updateGame(gameData.gameID(), gameData);
+        }
+
+        dispatcher.unsubscribeFromGame(gameData.gameID(), ctx);
+
+        WebSocketChannel channel = dispatcher.channelForGame(gameData.gameID());
+        NotificationMessage notificationMessage = new NotificationMessage("%s (%s) joined the game".formatted(username, role));
+        channel.publishMessage(notificationMessage);
+        return null;
     }
 
     private ServerMessage onResignGame(AuthData authData, GameData gameData, WsContext ctx) {
