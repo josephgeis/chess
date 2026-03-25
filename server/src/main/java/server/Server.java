@@ -30,8 +30,6 @@ public class Server {
                         new UserGameCommandAdapter())
                 .registerTypeAdapter(ServerMessage.class,
                         new ServerMessageAdapter())
-                .registerTypeAdapter(ChessMove.class,
-                        new ChessMoveAdapter())
                 .create();
 
         this.serviceManager = serviceManager;
