@@ -9,4 +9,8 @@ public class LoadGameMessage extends ServerMessage {
         super(ServerMessageType.LOAD_GAME);
         this.game = gameData;
     }
+
+    public GameData getGame() {
+        return game;
+    }
 }
