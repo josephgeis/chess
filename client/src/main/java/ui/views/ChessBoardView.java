@@ -1,9 +1,6 @@
 package ui.views;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import client.MessageObserver;
 import com.googlecode.lanterna.SGR;
 import com.googlecode.lanterna.TerminalPosition;
@@ -36,9 +33,9 @@ public class ChessBoardView extends View implements MessageObserver {
     boolean showHelp = false;
     String[] fnKeys = {"F1", "F2", "F3", "F4", "F5", "F6"};
     String[] helpStrings = {
-            "Show valid moves for the selected piece",
+            "Select a piece to show and select moves on",
             "Submit the selected move",
-            "Force redraw the board",
+            "Clear the piece cursor and redraw the board",
             "Resigns the game",
             "Toggle this message",
             "Leave the game"
@@ -49,6 +46,16 @@ public class ChessBoardView extends View implements MessageObserver {
     Runnable unwind;
     ChessGame chessGame;
     ChessGame.TeamColor myTeam;
+
+    enum CursorMode {
+        DISABLED,
+        START,
+        END
+    }
+
+    CursorMode cursorMode = CursorMode.DISABLED;
+    ScreenPosition startPositionCursor;
+    ScreenPosition endPositionCursor;
 
     public ChessBoardView(TextGraphics parentTextGraphics, Runnable unwind) {
         this(parentTextGraphics, null, unwind);
@@ -62,7 +69,7 @@ public class ChessBoardView extends View implements MessageObserver {
             @Override
             protected MenuBarItem itemAt(int i) {
                 return switch (i) {
-                    case 1 -> teamColor != null ? MenuBarItem.withCallback("Moves", ChessBoardView.this::showLegalMoves) : null;
+                    case 1 -> teamColor != null ? MenuBarItem.withCallback("ShowMove", ChessBoardView.this::showLegalMoves) : null;
                     case 2 -> teamColor != null ? MenuBarItem.withCallback("SubmitMv", ChessBoardView.this::onSubmitMove) : null;
                     case 3 -> MenuBarItem.withCallback("Reload", ChessBoardView.this::onReload);
                     case 4 -> teamColor != null ? MenuBarItem.withCallback("Resign", ChessBoardView.this::onResign) : null;
@@ -88,6 +95,12 @@ public class ChessBoardView extends View implements MessageObserver {
                 return new ChessPosition(8 - row, col + 1);
             }
         }
+
+        public String toAlgNot(ChessGame.TeamColor perspective) {
+            ChessPosition chessPosition = this.toChessPosition(perspective);
+            Character column = (char) ('a' + chessPosition.getColumn() - 1);
+            return "%c%d".formatted(column, chessPosition.getRow());
+        }
     }
 
     @Override
@@ -101,6 +114,9 @@ public class ChessBoardView extends View implements MessageObserver {
         TerminalPosition notificationsStartPosition = boardStartPosition.withRelativeColumn(BOARD_WIDTH + 2);
         drawNotifications(notificationsStartPosition);
 
+        TerminalPosition pieceCursorStartPosition = boardStartPosition.withRelative(BOARD_WIDTH + 2, EDGE_THICK_H + 5 * 2);
+        drawCursorInfo(pieceCursorStartPosition);
+
         TerminalPosition helpStartPosition = boardStartPosition.withRelative(BOARD_WIDTH + 2, EDGE_THICK_H + 5 * SQUARE_ROWS);
         if (showHelp) {
             drawHelp(helpStartPosition);
@@ -108,6 +124,27 @@ public class ChessBoardView extends View implements MessageObserver {
 
         drawBoardEdge(boardStartPosition);
         drawBoard(boardStartPosition.withRelative(EDGE_THICK_V, EDGE_THICK_H));
+    }
+
+    private void drawCursorInfo(TerminalPosition pieceCursorStartPosition) {
+        String cursorString = "";
+        String instructionString = "";
+
+        switch (cursorMode) {
+            case START -> {
+                assert startPositionCursor != null;
+                cursorString = "[%s]".formatted(startPositionCursor.toAlgNot(myTeam));
+                instructionString = "ENTER = Select piece, F3 = Cancel";
+            }
+            case END -> {
+                assert startPositionCursor != null && endPositionCursor != null;
+                cursorString = " %s  -> [%s]".formatted(startPositionCursor.toAlgNot(myTeam), endPositionCursor.toAlgNot(myTeam));
+                instructionString = "F1 = Select new piece, F2 = Submit, F3 = Cancel";
+            }
+        }
+
+        textGraphics.putString(pieceCursorStartPosition, cursorString);
+        textGraphics.putString(pieceCursorStartPosition.withRelativeRow(1), instructionString);
     }
 
     private void drawNotifications(TerminalPosition notificationsStartPosition) {
@@ -206,7 +243,17 @@ public class ChessBoardView extends View implements MessageObserver {
         };
     }
 
-    void showLegalMoves() { }
+    void showLegalMoves() {
+        cursorMode = CursorMode.START;
+        startPositionCursor = new ScreenPosition(7, 0);
+        endPositionCursor = null;
+    }
+
+    void selectStartPiece() {
+        cursorMode = CursorMode.END;
+        endPositionCursor = new ScreenPosition(startPositionCursor.row(), endPositionCursor.col());
+    }
+
     void toggleHelpScreen() {
         showHelp = !showHelp;
     }
@@ -216,7 +263,11 @@ public class ChessBoardView extends View implements MessageObserver {
     }
 
     protected void onSubmitMove() { }
-    protected void onReload() { }
+    protected void onReload() {
+        cursorMode = CursorMode.DISABLED;
+        startPositionCursor = null;
+        endPositionCursor = null;
+    }
     protected void onResign() { }
     protected void onLeave() {
         unwind.run();
