@@ -1,5 +1,6 @@
 package ui.views;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
@@ -10,12 +11,10 @@ import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 
+import model.GameData;
 import ui.menubar.MenuBarItem;
 import ui.menubar.MenuItems;
-import websocket.messages.ErrorMessage;
-import websocket.messages.NotificationMessage;
-import websocket.messages.PresentableMessage;
-import websocket.messages.ServerMessage;
+import websocket.messages.*;
 
 import java.util.*;
 
@@ -75,6 +74,8 @@ public class ChessBoardView extends View implements MessageObserver {
         };
 
         chessGame = new ChessGame();
+        chessGame.setBoard(new ChessBoard());
+
         myTeam = teamColor;
         notifications = new LinkedList<>();
     }
@@ -210,6 +211,10 @@ public class ChessBoardView extends View implements MessageObserver {
         showHelp = !showHelp;
     }
 
+    void updateGame(GameData gameData) {
+        chessGame = gameData.game();
+    }
+
     protected void onSubmitMove() { }
     protected void onReload() { }
     protected void onResign() { }
@@ -221,6 +226,7 @@ public class ChessBoardView extends View implements MessageObserver {
     public void notify(ServerMessage message) {
         switch (message.getServerMessageType()) {
             case NOTIFICATION, ERROR -> notifications.addFirst((PresentableMessage) message);
+            case LOAD_GAME -> updateGame(((LoadGameMessage) message).getGame());
         }
     }
 }
