@@ -8,6 +8,7 @@ import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 
+import com.googlecode.lanterna.input.KeyStroke;
 import model.GameData;
 import ui.menubar.MenuBarItem;
 import ui.menubar.MenuItems;
@@ -100,6 +101,27 @@ public class ChessBoardView extends View implements MessageObserver {
             ChessPosition chessPosition = this.toChessPosition(perspective);
             Character column = (char) ('a' + chessPosition.getColumn() - 1);
             return "%c%d".formatted(column, chessPosition.getRow());
+        }
+
+        public ScreenPosition withRelative(int row, int col) {
+            int newRow = Integer.max(0, Integer.min(this.row + row, 7));
+            int newCol = Integer.max(0, Integer.min(this.col + col, 7));
+            return new ScreenPosition(newRow, newCol);
+        }
+    }
+
+    @Override
+    public void onKeyStroke(KeyStroke keyStroke) {
+        switch (cursorMode) {
+            case START -> {
+                switch (keyStroke.getKeyType()) {
+                    case ArrowLeft -> startPositionCursor = startPositionCursor.withRelative(0, -1);
+                    case ArrowRight -> startPositionCursor = startPositionCursor.withRelative(0, 1);
+                    case ArrowDown -> startPositionCursor = startPositionCursor.withRelative(1, 0);
+                    case ArrowUp -> startPositionCursor = startPositionCursor.withRelative(-1, 0);
+                    case Enter -> selectStartPiece();
+                }
+            }
         }
     }
 
@@ -251,7 +273,7 @@ public class ChessBoardView extends View implements MessageObserver {
 
     void selectStartPiece() {
         cursorMode = CursorMode.END;
-        endPositionCursor = new ScreenPosition(startPositionCursor.row(), endPositionCursor.col());
+        endPositionCursor = new ScreenPosition(0, 7);
     }
 
     void toggleHelpScreen() {
