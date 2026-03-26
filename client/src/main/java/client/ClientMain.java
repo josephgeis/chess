@@ -23,6 +23,7 @@ public class ClientMain {
         var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
 
         System.out.println("♕ 240 Chess Client: " + piece);
+        String clientName = System.getenv("CLIENT_NAME");
 
         ChessHttpClient httpClient = new ChessHttpClient(SERVER_HOST, SERVER_PORT);
         ChessWsClient wsClient;
@@ -34,7 +35,7 @@ public class ClientMain {
 
         serverFacade = new EnhancedServerFacade(httpClient, wsClient);
         chessClient = new ChessClient(serverFacade, clientState);
-        terminalController = new TerminalController(chessClient);
+        terminalController = new TerminalController(chessClient, clientName);
 
         RuntimeException exitException = null;
         try {

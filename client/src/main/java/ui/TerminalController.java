@@ -33,6 +33,14 @@ public class TerminalController {
 
     public TerminalController(ChessClient chessClient) {
         this.chessClient = chessClient;
+        defaultTerminalFactory.setTerminalEmulatorTitle("240 Chess Client");
+    }
+
+    public TerminalController(ChessClient chessClient, String clientName) {
+        this(chessClient);
+        if (clientName != null) {
+            defaultTerminalFactory.setTerminalEmulatorTitle("240 Chess Client: %s".formatted(clientName));
+        }
     }
 
     public void eventLoop() throws IOException {
