@@ -1,6 +1,6 @@
 package websocket.messages;
 
-public class NotificationMessage extends ServerMessage {
+public class NotificationMessage extends ServerMessage implements PresentableMessage {
     String message;
 
     public NotificationMessage(String message) {

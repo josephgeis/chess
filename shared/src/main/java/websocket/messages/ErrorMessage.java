@@ -1,6 +1,6 @@
 package websocket.messages;
 
-public class ErrorMessage extends ServerMessage {
+public class ErrorMessage extends ServerMessage implements PresentableMessage {
     String errorMessage;
 
     public ErrorMessage(String errorMessage) {
@@ -8,7 +8,8 @@ public class ErrorMessage extends ServerMessage {
         this.errorMessage = "Error: %s".formatted(errorMessage);
     }
 
-    public String getErrorMessage() {
+    @Override
+    public String getMessage() {
         return this.errorMessage;
     }
 }
