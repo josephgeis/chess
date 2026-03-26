@@ -12,7 +12,9 @@ import com.googlecode.lanterna.graphics.TextGraphics;
 
 import ui.menubar.MenuBarItem;
 import ui.menubar.MenuItems;
+import websocket.messages.ErrorMessage;
 import websocket.messages.NotificationMessage;
+import websocket.messages.PresentableMessage;
 import websocket.messages.ServerMessage;
 
 import java.util.*;
@@ -43,7 +45,7 @@ public class ChessBoardView extends View implements MessageObserver {
             "Leave the game"
     };
 
-    List<NotificationMessage> notifications;
+    List<PresentableMessage> notifications;
 
     Runnable unwind;
     ChessGame chessGame;
@@ -110,7 +112,15 @@ public class ChessBoardView extends View implements MessageObserver {
     private void drawNotifications(TerminalPosition notificationsStartPosition) {
         textGraphics.putString(notificationsStartPosition, "Messages", SGR.BOLD);
         for (int i = 0; i < 5 && i < notifications.size(); i++) {
-            textGraphics.putString(notificationsStartPosition.withRelative(1, i + 1), notifications.get(i).getMessage());
+            PresentableMessage notification = notifications.get(i);
+            if (notification.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+                textGraphics.setForegroundColor(TextColor.ANSI.YELLOW_BRIGHT);
+            } else {
+                textGraphics.setForegroundColor(TextColor.ANSI.WHITE_BRIGHT);
+            }
+            textGraphics.putString(
+                    notificationsStartPosition.withRelative(1, i + 1),
+                    notification.getMessage());
         }
     }
 
@@ -210,7 +220,7 @@ public class ChessBoardView extends View implements MessageObserver {
     @Override
     public void notify(ServerMessage message) {
         switch (message.getServerMessageType()) {
-            case NOTIFICATION -> notifications.addFirst((NotificationMessage) message);
+            case NOTIFICATION, ERROR -> notifications.addFirst((PresentableMessage) message);
         }
     }
 }
