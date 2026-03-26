@@ -15,6 +15,7 @@ import ui.menubar.MenuItems;
 import websocket.messages.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ChessBoardView extends View implements MessageObserver {
 
@@ -57,6 +58,7 @@ public class ChessBoardView extends View implements MessageObserver {
     CursorMode cursorMode = CursorMode.DISABLED;
     ScreenPosition startPositionCursor;
     ScreenPosition endPositionCursor;
+    Set<ScreenPosition> validMoveLocations = new HashSet<>();
 
     public ChessBoardView(TextGraphics parentTextGraphics, Runnable unwind) {
         this(parentTextGraphics, null, unwind);
@@ -94,6 +96,17 @@ public class ChessBoardView extends View implements MessageObserver {
                 return new ChessPosition(row + 1, 8 - col);
             } else {
                 return new ChessPosition(8 - row, col + 1);
+            }
+        }
+
+        public static ScreenPosition fromChessPosition(ChessPosition chessPosition, ChessGame.TeamColor perspective) {
+            int row = chessPosition.getRow();
+            int col = chessPosition.getColumn();
+
+            if (perspective == ChessGame.TeamColor.BLACK) {
+                return new ScreenPosition( row - 1, 8 - col);
+            } else {
+                return new ScreenPosition(8 - row, col - 1);
             }
         }
 
@@ -199,11 +212,7 @@ public class ChessBoardView extends View implements MessageObserver {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 ScreenPosition screenPosition = new ScreenPosition(i, j);
-
-                TerminalPosition position = startPosition.withRelative(5*j, 3*i);
-                drawSquare(position, (i + j) % 2 == 0 ? ROYAL : NAVY,
-                        chessGame.getBoard().getPiece(screenPosition.toChessPosition(myTeam))
-                );
+                drawSquare(startPosition, screenPosition);
             }
         }
     }
@@ -245,7 +254,16 @@ public class ChessBoardView extends View implements MessageObserver {
         }
     }
 
-    void drawSquare(TerminalPosition position, TextColor squareColor, ChessPiece piece) {
+    void drawSquare(TerminalPosition terminalPosition, ScreenPosition screenPosition) {
+        int i = screenPosition.row();
+        int j = screenPosition.col();
+
+        ChessGame.TeamColor teamColor = (i + j) % 2 == 0 ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+        ChessPiece piece = chessGame.getBoard().getPiece(screenPosition.toChessPosition(myTeam));
+
+        TextColor squareColor = getSquareColor(screenPosition, teamColor);
+
+        TerminalPosition position = terminalPosition.withRelative(5 * j, 3 * i);
         textGraphics.setBackgroundColor(squareColor);
         textGraphics.fillRectangle(position,
                 new TerminalSize(5, 3), ' ');
@@ -256,6 +274,39 @@ public class ChessBoardView extends View implements MessageObserver {
             textGraphics.putString(position.withRelative(1, 1),
                     " %s ".formatted(piece.getPieceType()));
         }
+    }
+
+    private TextColor getSquareColor(ScreenPosition screenPosition, ChessGame.TeamColor teamColor) {
+        TextColor squareColor = switch (teamColor) {
+            case WHITE -> ROYAL;
+            case BLACK -> NAVY;
+        };
+
+        if (screenPosition.equals(startPositionCursor)) {
+            if (cursorMode == CursorMode.START) {
+                squareColor = switch (teamColor) {
+                    case WHITE -> TextColor.ANSI.MAGENTA_BRIGHT;
+                    case BLACK -> TextColor.ANSI.MAGENTA;
+                };
+            } else if (cursorMode == CursorMode.END) {
+                squareColor = switch (teamColor) {
+                    case WHITE -> TextColor.ANSI.GREEN_BRIGHT;
+                    case BLACK -> TextColor.ANSI.GREEN;
+                };
+            }
+        } else if (screenPosition.equals(endPositionCursor)) {
+            squareColor = switch (teamColor) {
+                case WHITE -> TextColor.ANSI.MAGENTA_BRIGHT;
+                case BLACK -> TextColor.ANSI.MAGENTA;
+            };
+        } else if (cursorMode == CursorMode.END && validMoveLocations.contains(screenPosition)) {
+            squareColor = switch (teamColor) {
+                case WHITE -> TextColor.ANSI.YELLOW_BRIGHT;
+                case BLACK -> TextColor.ANSI.YELLOW;
+            };
+        }
+
+        return squareColor;
     }
 
     TextColor colorFor(ChessGame.TeamColor teamColor) {
@@ -272,6 +323,15 @@ public class ChessBoardView extends View implements MessageObserver {
     }
 
     void selectStartPiece() {
+        Collection<ChessMove> validMoves = chessGame.validMoves(startPositionCursor.toChessPosition(myTeam));
+        if (validMoves == null) {
+            return;
+        }
+
+        validMoveLocations =
+                validMoves.stream().map(move ->
+                        ScreenPosition.fromChessPosition(move.getEndPosition(), myTeam))
+                        .collect(Collectors.toSet());
         cursorMode = CursorMode.END;
         endPositionCursor = new ScreenPosition(0, 7);
     }
