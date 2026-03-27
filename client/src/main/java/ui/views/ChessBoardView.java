@@ -118,7 +118,11 @@ public class ChessBoardView extends View implements MessageObserver {
             int row = algNot.charAt(1) - '1';
             assert 0 <= row && row <= 7;
 
-            return new ScreenPosition(row, col);
+            if (perspective == ChessGame.TeamColor.BLACK) {
+                return new ScreenPosition(row, 7 - col);
+            } else {
+                return new ScreenPosition(7 - row, col);
+            }
         }
 
         public ScreenPosition withRelative(int row, int col) {
@@ -314,7 +318,8 @@ public class ChessBoardView extends View implements MessageObserver {
 
     void showLegalMoves() {
         if (moveInputString.length() >= 2) {
-            startPositionCursor = new ScreenPosition(7, 0);
+            String start = moveInputString.substring(0, 2);
+            startPositionCursor = ScreenPosition.fromAlgNot(start, myTeam);
         }
     }
 
