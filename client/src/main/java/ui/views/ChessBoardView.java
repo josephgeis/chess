@@ -7,13 +7,14 @@ import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
-
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import model.GameData;
 import ui.menubar.MenuBarItem;
 import ui.menubar.MenuItems;
-import websocket.messages.*;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.PresentableMessage;
+import websocket.messages.ServerMessage;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -99,7 +100,7 @@ public class ChessBoardView extends View implements MessageObserver {
             int col = chessPosition.getColumn();
 
             if (perspective == ChessGame.TeamColor.BLACK) {
-                return new ScreenPosition( row - 1, 8 - col);
+                return new ScreenPosition(row - 1, 8 - col);
             } else {
                 return new ScreenPosition(8 - row, col - 1);
             }
@@ -183,6 +184,7 @@ public class ChessBoardView extends View implements MessageObserver {
 
     private void drawCursorInfo(TerminalPosition pieceCursorStartPosition) {
         assert this.moveInputString.length() <= 5;
+        textGraphics.setForegroundColor(TextColor.ANSI.WHITE_BRIGHT);
         String moveInputString = "%-5s".formatted(this.moveInputString);
         String start = moveInputString.substring(0, 2);
         String end = moveInputString.substring(2, 4);
@@ -191,6 +193,29 @@ public class ChessBoardView extends View implements MessageObserver {
         textGraphics.putString(pieceCursorStartPosition.withRelativeRow(0), "Start: [%2s]".formatted(start));
         textGraphics.putString(pieceCursorStartPosition.withRelativeRow(1), "  End: [%2s]".formatted(end));
         textGraphics.putString(pieceCursorStartPosition.withRelativeRow(2), "Promo: [%1s]".formatted(promotion));
+        textGraphics.putString(pieceCursorStartPosition.withRelativeRow(3), getGameStatusString(), SGR.BOLD);
+    }
+
+    private String getGameStatusString() {
+        ChessGame.TeamColor team = chessGame.getResignedTeam();
+        String status;
+
+        if (team != null) {
+            status = "%s resigned";
+        } else {
+            team = chessGame.getTeamTurn();
+            if (chessGame.isInCheckmate(team)) {
+                status = "Checkmate: %s";
+            } else if (chessGame.isInCheck(team)) {
+                status = "Check: %s";
+            } else if (chessGame.isInStalemate(team)) {
+                status = "Stalemate: %s";
+            } else {
+                status = "It is %s's turn";
+            }
+        }
+
+        return status.formatted(team.toString());
     }
 
     private void drawNotifications(TerminalPosition notificationsStartPosition) {
@@ -236,7 +261,7 @@ public class ChessBoardView extends View implements MessageObserver {
         TerminalPosition bottomEdge = startPosition.withRelativeRow(EDGE_THICK_H + SQUARE_ROWS * 8);
         textGraphics.fillRectangle(bottomEdge, horizontalEdge, ' ');
 
-        TerminalSize verticalEdge = new TerminalSize(EDGE_THICK_V, SQUARE_ROWS * 8 );
+        TerminalSize verticalEdge = new TerminalSize(EDGE_THICK_V, SQUARE_ROWS * 8);
         TerminalPosition leftEdge = startPosition.withRelativeRow(EDGE_THICK_H);
         textGraphics.fillRectangle(leftEdge, verticalEdge, ' ');
         TerminalPosition rightEdge = startPosition.withRelative(EDGE_THICK_V + SQUARE_COLS * 8, EDGE_THICK_H);
@@ -364,14 +389,18 @@ public class ChessBoardView extends View implements MessageObserver {
         submitMove(move);
     }
 
-    protected void submitMove(ChessMove move) { }
+    protected void submitMove(ChessMove move) {
+    }
 
     protected void onReload() {
         moveInputString = "";
         startPositionCursor = null;
         validMoveLocations = null;
     }
-    protected void onResign() { }
+
+    protected void onResign() {
+    }
+
     protected void onLeave() {
         unwind.run();
     }

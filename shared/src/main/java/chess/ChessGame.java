@@ -43,6 +43,8 @@ public class ChessGame implements Cloneable {
         return currentTeamTurn;
     }
 
+    public TeamColor getResignedTeam() { return resignedTeam; }
+
     /**
      * Set's which teams turn it is
      *
