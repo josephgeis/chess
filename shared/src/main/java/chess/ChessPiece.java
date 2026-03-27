@@ -43,6 +43,18 @@ public class ChessPiece {
                 case PAWN -> "P";
             };
         }
+
+        public static PieceType fromInitial(String initial) {
+            return switch (initial) {
+                case "K" -> KING;
+                case "Q" -> QUEEN;
+                case "B" -> BISHOP;
+                case "N" -> KNIGHT;
+                case "R" -> ROOK;
+                case "P" -> PAWN;
+                default -> null;
+            };
+        }
     }
 
     /**
