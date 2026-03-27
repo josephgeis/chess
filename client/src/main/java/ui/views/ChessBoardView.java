@@ -343,7 +343,29 @@ public class ChessBoardView extends View implements MessageObserver {
         chessGame = gameData.game();
     }
 
-    protected void onSubmitMove() { }
+    protected void onSubmitMove() {
+        assert this.moveInputString.length() <= 5;
+        if (this.moveInputString.length() < 4) {
+            return;
+        }
+        String moveInputString = "%-5s".formatted(this.moveInputString);
+        String start = moveInputString.substring(0, 2);
+        String end = moveInputString.substring(2, 4);
+        String promotion = "";
+        if (this.moveInputString.length() == 5) {
+            promotion = moveInputString.substring(4, 5);
+        }
+
+        ChessPosition startPosition = ScreenPosition.fromAlgNot(start, myTeam).toChessPosition(myTeam);
+        ChessPosition endPosition = ScreenPosition.fromAlgNot(end, myTeam).toChessPosition(myTeam);
+        ChessPiece.PieceType promotionType = ChessPiece.PieceType.fromInitial(promotion);
+        ChessMove move = new ChessMove(startPosition, endPosition, promotionType);
+
+        submitMove(move);
+    }
+
+    protected void submitMove(ChessMove move) { }
+
     protected void onReload() {
         moveInputString = "";
         startPositionCursor = null;

@@ -1,6 +1,7 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import client.ChessClient;
 import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TextColor;
@@ -202,6 +203,13 @@ public abstract class ViewPresenter {
                         public void onLoad() {
                             super.onLoad();
                             chessClient.registerMessageObserver(this);
+                        }
+
+                        @Override
+                        protected void submitMove(ChessMove move) {
+                            super.submitMove(move);
+                            chessClient.sendMakeMoveCommand(gameID, move)
+                                    .thenAccept(unused -> onReload());
                         }
 
                         @Override
