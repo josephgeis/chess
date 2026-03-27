@@ -294,7 +294,7 @@ public class ChessBoardView extends View implements MessageObserver {
                 case WHITE -> TextColor.ANSI.GREEN_BRIGHT;
                 case BLACK -> TextColor.ANSI.GREEN;
             };
-        } else if (validMoveLocations.contains(screenPosition)) {
+        } else if (validMoveLocations != null && validMoveLocations.contains(screenPosition)) {
             squareColor = switch (teamColor) {
                 case WHITE -> TextColor.ANSI.YELLOW_BRIGHT;
                 case BLACK -> TextColor.ANSI.YELLOW;
@@ -317,21 +317,22 @@ public class ChessBoardView extends View implements MessageObserver {
     }
 
     void showLegalMoves() {
-        if (moveInputString.length() >= 2) {
-            String start = moveInputString.substring(0, 2);
-            startPositionCursor = ScreenPosition.fromAlgNot(start, myTeam);
-        }
-    }
-
-    void selectStartPiece() {
-        Collection<ChessMove> validMoves = chessGame.validMoves(startPositionCursor.toChessPosition(myTeam));
-        if (validMoves == null) {
+        if (moveInputString.length() < 2) {
             return;
         }
-        validMoveLocations =
-                validMoves.stream().map(move ->
-                        ScreenPosition.fromChessPosition(move.getEndPosition(), myTeam))
-                        .collect(Collectors.toSet());
+
+        String start = moveInputString.substring(0, 2);
+        startPositionCursor = ScreenPosition.fromAlgNot(start, myTeam);
+
+        Collection<ChessMove> validMoves = chessGame.validMoves(startPositionCursor.toChessPosition(myTeam));
+        if (validMoves == null) {
+            validMoveLocations = null;
+        } else {
+            validMoveLocations =
+                    validMoves.stream().map(move ->
+                                    ScreenPosition.fromChessPosition(move.getEndPosition(), myTeam))
+                            .collect(Collectors.toSet());
+        }
     }
 
     void toggleHelpScreen() {
@@ -346,6 +347,7 @@ public class ChessBoardView extends View implements MessageObserver {
     protected void onReload() {
         moveInputString = "";
         startPositionCursor = null;
+        validMoveLocations = null;
     }
     protected void onResign() { }
     protected void onLeave() {
