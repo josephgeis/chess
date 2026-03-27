@@ -1,6 +1,7 @@
 package client;
 
 import chess.*;
+import ui.EscapeSequences;
 import ui.TerminalController;
 
 import java.io.IOException;
@@ -11,8 +12,8 @@ import static java.lang.Thread.sleep;
  * Initializes the terminal objects and has the event loop
  */
 public class ClientMain {
-    static final String SERVER_HOST = "localhost";
-    static final int SERVER_PORT = 8080;
+    static String serverHost = "localhost";
+    static int serverPort = 8080;
 
     static TerminalController terminalController;
     static EnhancedServerFacade serverFacade;
@@ -25,10 +26,22 @@ public class ClientMain {
         System.out.println("♕ 240 Chess Client: " + piece);
         String clientName = System.getenv("CLIENT_NAME");
 
-        ChessHttpClient httpClient = new ChessHttpClient(SERVER_HOST, SERVER_PORT);
+        if (args.length == 2) {
+            serverHost = args[0];
+            serverPort = Integer.parseInt(args[1]);
+        } else if (args.length == 1 || args.length > 2) {
+            System.out.println(EscapeSequences.SET_TEXT_BOLD +
+                    EscapeSequences.SET_TEXT_COLOR_RED +
+                    "Expecting 0 or 2 arguments: [host=localhost] [port=8080]" +
+                    EscapeSequences.RESET_TEXT_COLOR +
+                    EscapeSequences.RESET_TEXT_BOLD_FAINT);
+            System.exit(1);
+        }
+
+        ChessHttpClient httpClient = new ChessHttpClient(serverHost, serverPort);
         ChessWsClient wsClient;
         try {
-            wsClient = new ChessWsClient(SERVER_HOST, SERVER_PORT);
+            wsClient = new ChessWsClient(serverHost, serverPort);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
