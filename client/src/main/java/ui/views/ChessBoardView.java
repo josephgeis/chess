@@ -67,7 +67,7 @@ public class ChessBoardView extends View implements MessageObserver {
             @Override
             protected MenuBarItem itemAt(int i) {
                 return switch (i) {
-                    case 1 -> teamColor != null ? MenuBarItem.withCallback("ShowMove", ChessBoardView.this::showLegalMoves) : null;
+                    case 1 -> MenuBarItem.withCallback("ShowMove", ChessBoardView.this::showLegalMoves);
                     case 2 -> teamColor != null ? MenuBarItem.withCallback("SubmitMv", ChessBoardView.this::onSubmitMove) : null;
                     case 3 -> MenuBarItem.withCallback("Reload", ChessBoardView.this::onReload);
                     case 4 -> teamColor != null ? MenuBarItem.withCallback("Resign", ChessBoardView.this::onResign) : null;

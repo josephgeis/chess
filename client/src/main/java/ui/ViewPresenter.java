@@ -189,53 +189,57 @@ public abstract class ViewPresenter {
         );
     }
 
-    void performSpectateGameSegue(int i) {
+    void performSpectateGameSegue(int gameID) {
         assert activeView() instanceof ListGamesView;
-        replaceView(new ChessBoardView(parentTextGraphics, this::unwind));
+        performPresentChessBoardSegue(null, gameID);
     }
 
     void performJoinGameSegue(ChessGame.TeamColor teamColor, int gameID) {
         assert activeView() instanceof ListGamesView;
         chessClient.makeJoinGameRequest(teamColor, gameID)
                 .thenAccept(ignored -> {
-                    ChessBoardView chessBoardView = new ChessBoardView(parentTextGraphics, teamColor, this::unwind) {
-                        @Override
-                        public void onLoad() {
-                            super.onLoad();
-                            chessClient.registerMessageObserver(this);
-                        }
-
-                        @Override
-                        protected void submitMove(ChessMove move) {
-                            super.submitMove(move);
-                            chessClient.sendMakeMoveCommand(gameID, move)
-                                    .thenAccept(unused -> onReload());
-                        }
-
-                        @Override
-                        public void onUnload() {
-                            super.onUnload();
-                            chessClient.unregisterMessageObserver(this);
-                        }
-
-                        @Override
-                        protected void onLeave() {
-                            chessClient.sendLeaveCommand(gameID);
-                            unwind();
-                        }
-
-                        @Override
-                        protected void onResign() {
-                            chessClient.sendResignCommand(gameID);
-                        }
-                    };
-                    replaceView(chessBoardView);
-                    chessClient.sendConnectCommand(gameID);
+                    performPresentChessBoardSegue(teamColor, gameID);
                 })
                 .exceptionally(throwable -> {
                     performFailedRequestSegue(throwable.getCause());
                     return null;
                 });
+    }
+
+    void performPresentChessBoardSegue(ChessGame.TeamColor teamColor, int gameID) {
+        ChessBoardView chessBoardView = new ChessBoardView(parentTextGraphics, teamColor, this::unwind) {
+            @Override
+            public void onLoad() {
+                super.onLoad();
+                chessClient.registerMessageObserver(this);
+            }
+
+            @Override
+            protected void submitMove(ChessMove move) {
+                super.submitMove(move);
+                chessClient.sendMakeMoveCommand(gameID, move)
+                        .thenAccept(unused -> onReload());
+            }
+
+            @Override
+            public void onUnload() {
+                super.onUnload();
+                chessClient.unregisterMessageObserver(this);
+            }
+
+            @Override
+            protected void onLeave() {
+                chessClient.sendLeaveCommand(gameID);
+                unwind();
+            }
+
+            @Override
+            protected void onResign() {
+                chessClient.sendResignCommand(gameID);
+            }
+        };
+        replaceView(chessBoardView);
+        chessClient.sendConnectCommand(gameID);
     }
 
     void performCreateGameSegue() {
