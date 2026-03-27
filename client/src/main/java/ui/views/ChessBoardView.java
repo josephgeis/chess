@@ -9,6 +9,7 @@ import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 
 import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.input.KeyType;
 import model.GameData;
 import ui.menubar.MenuBarItem;
 import ui.menubar.MenuItems;
@@ -24,6 +25,7 @@ public class ChessBoardView extends View implements MessageObserver {
     private static final TextColor ORANGE = new TextColor.RGB(209, 65, 36);
     private static final TextColor EDGE_COLOR = new TextColor.RGB(209, 204, 189);
     private static final TextColor LABEL_COLOR = new TextColor.RGB(163, 147, 130);
+    private static final Character[] LETTERS = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
 
     final int SQUARE_COLS = 5;
     final int SQUARE_ROWS = 3;
@@ -35,7 +37,7 @@ public class ChessBoardView extends View implements MessageObserver {
     boolean showHelp = false;
     String[] fnKeys = {"F1", "F2", "F3", "F4", "F5", "F6"};
     String[] helpStrings = {
-            "Select a piece to show and select moves on",
+            "Show legal moves for a piece",
             "Submit the selected move",
             "Clear the piece cursor and redraw the board",
             "Resigns the game",
@@ -49,15 +51,8 @@ public class ChessBoardView extends View implements MessageObserver {
     ChessGame chessGame;
     ChessGame.TeamColor myTeam;
 
-    enum CursorMode {
-        DISABLED,
-        START,
-        END
-    }
-
-    CursorMode cursorMode = CursorMode.DISABLED;
+    String moveInputString = "";
     ScreenPosition startPositionCursor;
-    ScreenPosition endPositionCursor;
     Set<ScreenPosition> validMoveLocations = new HashSet<>();
 
     public ChessBoardView(TextGraphics parentTextGraphics, Runnable unwind) {
@@ -116,6 +111,16 @@ public class ChessBoardView extends View implements MessageObserver {
             return "%c%d".formatted(column, chessPosition.getRow());
         }
 
+        public static ScreenPosition fromAlgNot(String algNot, ChessGame.TeamColor perspective) {
+            assert algNot.length() == 2;
+            int col = algNot.charAt(0) - 'a';
+            assert 0 <= col && col <= 7;
+            int row = algNot.charAt(1) - '1';
+            assert 0 <= row && row <= 7;
+
+            return new ScreenPosition(row, col);
+        }
+
         public ScreenPosition withRelative(int row, int col) {
             int newRow = Integer.max(0, Integer.min(this.row + row, 7));
             int newCol = Integer.max(0, Integer.min(this.col + col, 7));
@@ -123,18 +128,29 @@ public class ChessBoardView extends View implements MessageObserver {
         }
     }
 
+    void updateMoveInputString(KeyStroke keyStroke) {
+        assert keyStroke.getKeyType() == KeyType.Backspace || keyStroke.getKeyType() == KeyType.Character;
+
+        if (keyStroke.getKeyType() == KeyType.Backspace && !moveInputString.isEmpty()) {
+            moveInputString = moveInputString.substring(0, moveInputString.length() - 1);
+        } else {
+            Character addCharacter = keyStroke.getCharacter();
+            boolean validCharacter = switch (moveInputString.length()) {
+                case 0, 2 -> 'a' <= addCharacter && addCharacter <= 'h';
+                case 1, 3 -> '1' <= addCharacter && addCharacter <= '8';
+                case 4 -> "RNBQ".indexOf(addCharacter) > -1;
+                default -> false;
+            };
+            if (validCharacter) {
+                moveInputString = moveInputString + addCharacter;
+            }
+        }
+    }
+
     @Override
     public void onKeyStroke(KeyStroke keyStroke) {
-        switch (cursorMode) {
-            case START -> {
-                switch (keyStroke.getKeyType()) {
-                    case ArrowLeft -> startPositionCursor = startPositionCursor.withRelative(0, -1);
-                    case ArrowRight -> startPositionCursor = startPositionCursor.withRelative(0, 1);
-                    case ArrowDown -> startPositionCursor = startPositionCursor.withRelative(1, 0);
-                    case ArrowUp -> startPositionCursor = startPositionCursor.withRelative(-1, 0);
-                    case Enter -> selectStartPiece();
-                }
-            }
+        if (keyStroke.getKeyType() == KeyType.Backspace || keyStroke.getKeyType() == KeyType.Character) {
+            updateMoveInputString(keyStroke);
         }
     }
 
@@ -162,24 +178,15 @@ public class ChessBoardView extends View implements MessageObserver {
     }
 
     private void drawCursorInfo(TerminalPosition pieceCursorStartPosition) {
-        String cursorString = "";
-        String instructionString = "";
+        assert this.moveInputString.length() <= 5;
+        String moveInputString = "%-5s".formatted(this.moveInputString);
+        String start = moveInputString.substring(0, 2);
+        String end = moveInputString.substring(2, 4);
+        String promotion = moveInputString.substring(4, 5);
 
-        switch (cursorMode) {
-            case START -> {
-                assert startPositionCursor != null;
-                cursorString = "[%s]".formatted(startPositionCursor.toAlgNot(myTeam));
-                instructionString = "ENTER = Select piece, F3 = Cancel";
-            }
-            case END -> {
-                assert startPositionCursor != null && endPositionCursor != null;
-                cursorString = " %s  -> [%s]".formatted(startPositionCursor.toAlgNot(myTeam), endPositionCursor.toAlgNot(myTeam));
-                instructionString = "F1 = Select new piece, F2 = Submit, F3 = Cancel";
-            }
-        }
-
-        textGraphics.putString(pieceCursorStartPosition, cursorString);
-        textGraphics.putString(pieceCursorStartPosition.withRelativeRow(1), instructionString);
+        textGraphics.putString(pieceCursorStartPosition.withRelativeRow(0), "Start: [%2s]".formatted(start));
+        textGraphics.putString(pieceCursorStartPosition.withRelativeRow(1), "  End: [%2s]".formatted(end));
+        textGraphics.putString(pieceCursorStartPosition.withRelativeRow(2), "Promo: [%1s]".formatted(promotion));
     }
 
     private void drawNotifications(TerminalPosition notificationsStartPosition) {
@@ -235,7 +242,6 @@ public class ChessBoardView extends View implements MessageObserver {
     }
 
     private void drawEdgeAlphaNumber(TerminalPosition startPosition) {
-        final Character[] LETTERS = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
         for (int i = 0; i < 8; i++) {
             ScreenPosition screenPosition = new ScreenPosition(i, i);
             ChessPosition chessPosition = screenPosition.toChessPosition(myTeam);
@@ -277,32 +283,22 @@ public class ChessBoardView extends View implements MessageObserver {
     }
 
     private TextColor getSquareColor(ScreenPosition screenPosition, ChessGame.TeamColor teamColor) {
-        TextColor squareColor = switch (teamColor) {
-            case WHITE -> ROYAL;
-            case BLACK -> NAVY;
-        };
+        TextColor squareColor;
 
         if (screenPosition.equals(startPositionCursor)) {
-            if (cursorMode == CursorMode.START) {
-                squareColor = switch (teamColor) {
-                    case WHITE -> TextColor.ANSI.MAGENTA_BRIGHT;
-                    case BLACK -> TextColor.ANSI.MAGENTA;
-                };
-            } else if (cursorMode == CursorMode.END) {
-                squareColor = switch (teamColor) {
-                    case WHITE -> TextColor.ANSI.GREEN_BRIGHT;
-                    case BLACK -> TextColor.ANSI.GREEN;
-                };
-            }
-        } else if (screenPosition.equals(endPositionCursor)) {
             squareColor = switch (teamColor) {
-                case WHITE -> TextColor.ANSI.MAGENTA_BRIGHT;
-                case BLACK -> TextColor.ANSI.MAGENTA;
+                case WHITE -> TextColor.ANSI.GREEN_BRIGHT;
+                case BLACK -> TextColor.ANSI.GREEN;
             };
-        } else if (cursorMode == CursorMode.END && validMoveLocations.contains(screenPosition)) {
+        } else if (validMoveLocations.contains(screenPosition)) {
             squareColor = switch (teamColor) {
                 case WHITE -> TextColor.ANSI.YELLOW_BRIGHT;
                 case BLACK -> TextColor.ANSI.YELLOW;
+            };
+        } else {
+            squareColor = switch (teamColor) {
+                case WHITE -> ROYAL;
+                case BLACK -> NAVY;
             };
         }
 
@@ -317,9 +313,9 @@ public class ChessBoardView extends View implements MessageObserver {
     }
 
     void showLegalMoves() {
-        cursorMode = CursorMode.START;
-        startPositionCursor = new ScreenPosition(7, 0);
-        endPositionCursor = null;
+        if (moveInputString.length() >= 2) {
+            startPositionCursor = new ScreenPosition(7, 0);
+        }
     }
 
     void selectStartPiece() {
@@ -327,13 +323,10 @@ public class ChessBoardView extends View implements MessageObserver {
         if (validMoves == null) {
             return;
         }
-
         validMoveLocations =
                 validMoves.stream().map(move ->
                         ScreenPosition.fromChessPosition(move.getEndPosition(), myTeam))
                         .collect(Collectors.toSet());
-        cursorMode = CursorMode.END;
-        endPositionCursor = new ScreenPosition(0, 7);
     }
 
     void toggleHelpScreen() {
@@ -346,9 +339,8 @@ public class ChessBoardView extends View implements MessageObserver {
 
     protected void onSubmitMove() { }
     protected void onReload() {
-        cursorMode = CursorMode.DISABLED;
+        moveInputString = "";
         startPositionCursor = null;
-        endPositionCursor = null;
     }
     protected void onResign() { }
     protected void onLeave() {
